@@ -1,9 +1,6 @@
 using System.Numerics;
-using Silk.NET.Maths;
-using SilkSonic.Physics;
-using SilkSonic.Renderer;
 
-namespace SilkSonic.Cameras;
+namespace Engine.Cameras;
 
 public class BasicCamera : Camera
 {
@@ -25,8 +22,8 @@ public class BasicCamera : Camera
 		{
 			for (int x = 0; x < ViewportWidth; x++)
 			{
-				byte intensity = (byte)Math.Abs(y - ViewportHeight / 2);
-				pixels[x + y * ViewportWidth] = ColorInt.Make(0, 0, intensity);
+				byte intensity = (byte)Math.Abs((int)(y - ViewportHeight / 2));
+				pixels[(int)(x + y * ViewportWidth)] = ColorInt.Make(0, 0, intensity);
 			}
 		}
 	}

@@ -1,6 +1,7 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
 using Engine;
+using Engine.Cameras;
 using Engine.Geometry;
 using Engine.Materials;
 using Renderer;

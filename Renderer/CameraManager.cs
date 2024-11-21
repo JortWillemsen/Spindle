@@ -1,4 +1,6 @@
 using System.Numerics;
+using Engine;
+using Engine.Cameras;
 using Silk.NET.Maths;
 
 namespace SilkSonic.Cameras;

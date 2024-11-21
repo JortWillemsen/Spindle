@@ -20,7 +20,7 @@ public class Sphere : Geometry
     
     // Function that returns point on the ray where it hit the sphere. 
 
-    public override HitRecord Hit(Ray r, Interval t)
+    public override Intersection Hit(Ray r, Interval t)
     {
         // Calculate intersection point
         var oc = Center - r.Origin;

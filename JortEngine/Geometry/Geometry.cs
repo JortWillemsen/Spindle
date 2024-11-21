@@ -12,5 +12,5 @@ public abstract class Geometry : Hittable
         Mat = mat;
     }
 
-    public abstract HitRecord Hit(Ray r, Interval t);
+    public abstract Intersection Hit(Ray r, Interval t);
 }

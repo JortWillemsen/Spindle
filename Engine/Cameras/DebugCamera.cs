@@ -1,8 +1,6 @@
 using System.Numerics;
-using Silk.NET.Maths;
-using SilkSonic.Renderer;
 
-namespace SilkSonic.Cameras;
+namespace Engine.Cameras;
 
 public class DebugCamera : Camera
 {

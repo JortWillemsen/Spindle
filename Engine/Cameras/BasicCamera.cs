@@ -1,30 +1,43 @@
 using System.Numerics;
+using Engine.Renderers;
 
 namespace Engine.Cameras;
 
 public class BasicCamera : Camera
 {
-	/// <inheritdoc />
-	public BasicCamera(Vector3 position, int width, int height, Rectangle<int> textureScreenRegion)
-		: base(position, width, height, textureScreenRegion)
+	public BasicCamera(
+		float aspectRatio, float focalLength, 
+		int imageWidth, int imageHeight, int maxDepth, int samples, 
+		Vector3 position, Vector3 up, Vector3 front) 
+		: base(aspectRatio, focalLength, imageWidth, imageHeight, maxDepth, samples, position, up, front)
 	{
+		
 	}
 
-	/// <inheritdoc />
-	public override void RenderOneShot(in IRenderer renderer)
+	public override int[] RenderShot(IRenderer renderer)
 	{
-		Span<int> pixels = Texture.GetWritablePixels(ViewportWidth, ViewportHeight);
-
-		// Ray viewRay = new(Position, Vector3.One); // todo: actually calculate ray
-		// renderer.DetermineRayColor(viewRay, pixels);
-
-		for (int y = 0; y < ViewportHeight; y++)
+		var pixels = new int[this.ImageWidth * this.ImageHeight];
+        
+		for (var j = 0; j < this.ImageHeight; j++)
 		{
-			for (int x = 0; x < ViewportWidth; x++)
+			var curCursorLine = Console.CursorTop;
+            
+			for (var i = 0; i < this.ImageWidth; i++)
 			{
-				byte intensity = (byte)Math.Abs((int)(y - ViewportHeight / 2));
-				pixels[(int)(x + y * ViewportWidth)] = ColorInt.Make(0, 0, intensity);
+				var pixelColor = Vector3.Zero;
+
+				for (var sample = 0; sample < this.Samples; sample++)
+				{
+					var ray = GetRay(i, j);
+					renderer.TraceRay(ray, MaxDepth, out var color);
+
+					pixelColor += color;
+				}
+                
+				pixels[j * ImageWidth + i] = Utils.RgbToInt(1f / Samples * pixelColor);
 			}
 		}
+
+		return pixels;
 	}
 }

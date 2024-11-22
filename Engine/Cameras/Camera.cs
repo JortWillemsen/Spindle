@@ -1,4 +1,5 @@
 using System.Numerics;
+using Engine.Renderers;
 using SilkSonic;
 
 namespace Engine.Cameras;
@@ -53,67 +54,26 @@ public abstract class Camera
 
     public Vector3 Pixel0 => UpperLeft + .5f * (PixelDeltaU + PixelDeltaV);
 
-    // TODO: Fix method
-    public int[] RenderShot(IRenderer renderer)
+    public abstract int[] RenderShot(IRenderer renderer);
+
+    public void SetViewport(float width, float height)
     {
-        var numOfLines = (this.ImageWidth * this.ImageHeight) + 3;
-        var lines = new string[numOfLines];
+        ViewportWidth = width;
+        ViewportHeight = height;
         
-        var pixels = new int[this.ImageWidth * this.ImageHeight];
-        
-        for (var j = 0; j < this.ImageHeight; j++)
-        {
-            var curCursorLine = Console.CursorTop;
-            
-            for (var i = 0; i < this.ImageWidth; i++)
-            {
-                var pixelColor = Color.Zero();
-
-                for (int sample = 0; sample < cam.Samples; sample++)
-                {
-                    var r = cam.GetRay(i, j);
-                    pixelColor += cam.RayColor(r, cam.MaxDepth, scene);
-                }
-                
-                lines[j * cam.ImageWidth + 3 + i] = WriteColor(1f / cam.Samples * pixelColor);
-            }
-        }
-
-        return lines;
-    } 
+        U = new Vector3(ViewportWidth, 0f, 0f);
+        V = new Vector3(0f, -ViewportHeight, 0f);
+    }
     
     public Ray GetRay(int i, int j)
     {
         var offset = _sampleSquare();
 
         var pixelSample = Pixel0 
-                          + (i + offset.X()) * PixelDeltaU
-                          + (j + offset.Y()) * PixelDeltaV;
+                          + (i + offset.X) * PixelDeltaU
+                          + (j + offset.Y) * PixelDeltaV;
 
         return new Ray(Position, pixelSample - Position);
-    }
-    
-    public Vector3 RayColor(Ray r, int depth, Scene scene)
-    {
-        if (depth <= 0)
-            return Vector3.Zero();
-        
-        var hit = scene.Hit(r, new Interval(0.001f, Utils.Infinity));
-        
-        if (hit is SuccessRecord success)
-        {
-            var scatter = success.Geometry.Mat.Scatter(r, success);
-            
-            if (scatter is DoScatter doScatter)
-                return scatter.Albedo * RayColor(doScatter.Outgoing, depth - 1, scene);
-
-            return Vector3.Zero();
-        }
-        
-        var unitDir = Vector3.Unit(r.Direction);
-
-        var a = .5f * (unitDir.Y() + 1f);
-        return (1f - a) * new Vector3(1f, 1f, 1f) + a * new Vector3(.5f, .7f, 1f );
     }
     
     private static Vector3 _sampleSquare()

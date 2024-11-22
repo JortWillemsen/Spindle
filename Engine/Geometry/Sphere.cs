@@ -1,7 +1,8 @@
 using System.Numerics;
 using Engine;
+using Engine.Exceptions;
 using Engine.Geometry;
-using Engine.Geometry.Interfaces;
+using Engine.Materials;
 
 namespace SilkSonic.Primitives;
 
@@ -9,25 +10,30 @@ public class Sphere : Geometry
 {
     public float Radius { get; protected set; }
 
-    public Sphere(Vector3 position, Material material, float radius) : base(position, material) {
+    public Sphere(Vector3 position, Material material, float radius) : base(position, material)
+    {
+        if (radius <= 0)
+            throw new InvalidGeometryException("The radius of a sphere cannot be negative or zero");
+        
         Radius = radius;
     }
 
-    public override bool TryIntersect(Ray ray, out Intersection intersection)
+    public override bool TryIntersect(Ray ray, Interval interval, out Intersection intersection)
     {
         // Source: lecture notes (variable names as well)
         Vector3 c  = Position - ray.Origin;
         float   t  = Vector3.Dot(c, ray.Direction);
         Vector3 q  = c - t * ray.Direction;
         float   p2 = q.LengthSquared();
+        
         if (p2 > Radius * Radius)
         {
-            intersection = new Intersection(ray, t, this);
+            intersection = new Intersection();
             return false;
         }
         t -= MathF.Sqrt(Radius * Radius - p2);
 
-        intersection = new Intersection(ray, t, this);
+        intersection = new Intersection(t, c, GetNormalAt(c), ray, this);
         return true;
     }
 

@@ -1,7 +1,6 @@
-using SilkSonic.Cameras;
-using SilkSonic.Renderer;
+using Engine.Renderers;
 
-namespace SilkSonic.Display;
+namespace Renderer.Display;
 
 public interface IDisplay
 {

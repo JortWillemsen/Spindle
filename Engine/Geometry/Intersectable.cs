@@ -1,10 +1,10 @@
 using System.Numerics;
 
-namespace Engine.Geometry.Interfaces;
+namespace Engine.Geometry;
 
-public interface Intersectable
+public interface IIntersectable
 {
-    public bool TryIntersect(Ray ray, out Intersection intersection);
+    public bool TryIntersect(Ray ray, Interval interval, out Intersection intersection);
 }
 
 
@@ -18,6 +18,8 @@ public class Intersection
     public bool FrontFacing { get; private set; }
     public Geometry Geometry { get; private set; }
 
+    public Intersection() { }
+    
     public Intersection(float distance, Vector3 point, Vector3 outwardNormal, Ray ray, Geometry geometry)
     {
         Distance = distance;

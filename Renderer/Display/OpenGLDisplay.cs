@@ -1,12 +1,10 @@
+using Engine.Renderers;
 using Silk.NET.Input;
 using Silk.NET.Maths;
-using Silk.NET.Windowing;
 using Silk.NET.OpenGL;
-using System.Drawing;
-using SilkSonic.Cameras;
-using SilkSonic.Renderer;
+using Silk.NET.Windowing;
 
-namespace SilkSonic.Display;
+namespace Renderer.Display;
 
 // ReSharper disable once InconsistentNaming
 public class OpenGLDisplay : IDisplay
@@ -169,8 +167,8 @@ void main()
 		foreach (var camera in CameraManager.GetDisplayedCameras())
 		{
 			// DEFINING DATA
-			camera.RenderOneShot(Renderer);
-			var texture = camera.Texture;
+			var pixels = camera.RenderShot(Renderer);
+			var texture = new Texture();
 
 			// Prepare Vertex Buffer Object
 			Span<float> vertices = stackalloc float[] // todo: calculate these dynamically

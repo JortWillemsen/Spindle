@@ -1,13 +1,12 @@
 using System.Numerics;
-using Engine;
 using Engine.Cameras;
 using Silk.NET.Maths;
 
-namespace SilkSonic.Cameras;
+namespace Renderer;
 
 public class CameraManager
 {
-	// todo: laat alle cameras één array aan ints delen voor garbage collection optimization, via slices
+	// TODO: laat alle cameras één array aan ints delen voor garbage collection optimization, via slices
 	public CameraManager(int displayWidth, int displayHeight, CameraLayout initialCameraLayout)
 	{
 		DisplayWidth = displayWidth;
@@ -15,20 +14,18 @@ public class CameraManager
 		CameraLayout = initialCameraLayout;
 		Cameras = new List<Camera>();
 	}
-
-	public int          DisplayWidth  { get; private set; }
-	public int          DisplayHeight { get; private set; }
+	
+	public int DisplayWidth  { get; private set; }
+	public int DisplayHeight { get; private set; }
 	public CameraLayout CameraLayout  { get; protected set; }
-	public List<Camera> Cameras       { get; protected set; }
+	public List<Camera> Cameras { get; protected set; }
 
 	public void AddBasicCamera(Vector3 position)
 	{
 		Cameras.Add(new BasicCamera(
 			position,
 			DisplayWidth,
-			DisplayHeight,
-			new Rectangle<int>(-1, -1, 2, 2)
-		));
+			DisplayHeight));
 		// todo: set values based on layout
 	}
 
@@ -67,8 +64,8 @@ public class CameraManager
 	{
 		DisplayWidth = displaySize.X;
 		DisplayHeight = displaySize.Y;
+		
 		// TODO: set camera texture screenoffsets
-
 		foreach (var camera in Cameras)
 		{
 			camera.SetViewport(displaySize.X, displaySize.Y);

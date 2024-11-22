@@ -1,7 +1,6 @@
 ﻿using Engine;
 using Engine.Cameras;
 using Engine.Geometry;
-using Engine.Geometry.Interfaces;
 using Color = Engine.Vector3;
 
 namespace Renderer;

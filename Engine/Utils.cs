@@ -28,7 +28,7 @@ public class Utils
     }
 
     public static int RgbToInt(Vector3 rgb)
-    { 
+    {
         var i = (int) rgb.X;
         i = (i << 8) + (int) rgb.Y;
         i = (i << 8) + (int) rgb.Z;
@@ -38,9 +38,9 @@ public class Utils
     
     public static Vector3 IntToRgb(int value)
     {
-        var red =   ( value >>  0 ) & 255;
-        var green = ( value >>  8 ) & 255;
-        var blue =  ( value >> 16 ) & 255;
+        var red =   ( value >> 16 ) & 255;
+        var green = ( value >> 8  ) & 255;
+        var blue =  ( value >> 0  ) & 255;
         
         return new Vector3(red, green, blue); 
     }

@@ -31,7 +31,7 @@ public class Sphere : Geometry
         }
         t -= MathF.Sqrt(Radius * Radius - p2);
 
-        intersection = new Intersection(t, c, GetNormalAt(c), ray, this);
+        intersection = new Intersection(t, ray.Origin + t * ray.Direction, GetNormalAt(c), ray, this);
         return true;
     }
 

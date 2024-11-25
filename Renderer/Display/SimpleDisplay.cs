@@ -35,8 +35,6 @@ public class SimpleDisplay
         
         for (var j = 0; j < Camera.ImageHeight; j++)
         {
-            var curCursorLine = Console.CursorTop;
-            
             // Clearing previous progress line
             Console.SetCursorPosition(0, Console.CursorTop);
             Console.Write(new string(' ', Console.WindowWidth)); 

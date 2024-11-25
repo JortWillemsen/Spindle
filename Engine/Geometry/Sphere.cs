@@ -1,10 +1,8 @@
 using System.Numerics;
-using Engine;
 using Engine.Exceptions;
-using Engine.Geometry;
 using Engine.Materials;
 
-namespace SilkSonic.Primitives;
+namespace Engine.Geometry;
 
 public class Sphere : Geometry
 {

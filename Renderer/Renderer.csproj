@@ -17,4 +17,8 @@
       <PackageReference Include="Silk.NET.Windowing.Common" Version="2.22.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="output\" />
+    </ItemGroup>
+
 </Project>

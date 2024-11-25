@@ -2,7 +2,6 @@ using System.Collections;
 using System.Numerics;
 using Engine.Materials;
 using SilkSonic.Lighting;
-using SilkSonic.Primitives;
 
 namespace Engine.Geometry;
 
@@ -44,11 +43,12 @@ public class Scene : IIntersectable
         // Loop over all the geometry in the scene to determine what the ray hits.
         foreach (var obj in Objects)
         {
-            if (!obj.TryIntersect(ray, new Interval(interval.Min, closest), out intersection1))
+            if (!obj.TryIntersect(ray, new Interval(interval.Min, closest), out var intersection2))
                continue;
             
             intersected = true;
             closest = intersection1.Distance;
+            intersection1 = intersection2;
 
         }
 

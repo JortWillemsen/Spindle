@@ -57,6 +57,7 @@ public class SimpleDisplay
     public void RenderToFile(string fileName)
     {
         var path = Directory.GetCurrentDirectory() + fileName;
+        Directory.CreateDirectory(Path.GetDirectoryName(path)!);
         
         var lines = RenderLines();
         using var outputFile = new StreamWriter(path);

@@ -54,7 +54,7 @@ public abstract class Camera
 
     public Vector3 Pixel0 => UpperLeft + .5f * (PixelDeltaU + PixelDeltaV);
 
-    public abstract int[] RenderShot(IRenderer renderer);
+    public abstract Vector3[] RenderShot(IRenderer renderer);
 
     public void SetViewport(float width, float height)
     {

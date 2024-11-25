@@ -45,7 +45,7 @@ public class SimpleDisplay
             
             for (var i = 0; i < Camera.ImageWidth; i++)
             {
-                lines[j * Camera.ImageWidth + 3 + i] = WriteColor(Utils.IntToRgb(pixels[j * Camera.ImageWidth + i]));
+                lines[j * Camera.ImageWidth + 3 + i] = WriteColor(pixels[j * Camera.ImageWidth + i]);
             }
         }
 

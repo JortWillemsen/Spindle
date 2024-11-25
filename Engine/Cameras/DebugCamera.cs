@@ -12,16 +12,16 @@ public class DebugCamera : Camera
 	}
 
 	/// <inheritdoc />
-	public override int[] RenderShot(IRenderer renderer)
+	public override Vector3[] RenderShot(IRenderer renderer)
 	{
-		var pixels = new int[this.ImageWidth * this.ImageHeight];
+		var pixels = new Vector3[this.ImageWidth * this.ImageHeight];
 
 		for (var j = 0; j < this.ImageHeight; j++)
 		{
 			for (var i = 0; i < this.ImageWidth; i++)
 			{
 				var pixelColor = Vector3.One;
-				pixels[i + ImageWidth * j] = 0x00ff00;
+				pixels[i + ImageWidth * j] = Vector3.Zero;
 
 				// for (var sample = 0; sample < this.Samples; sample++)
 				// {

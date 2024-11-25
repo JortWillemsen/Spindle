@@ -38,21 +38,23 @@ public class Scene : IIntersectable
         var closest = interval.Max;
 
         // TODO: This feels dirty
-        var intersection1 = new Intersection();
+        var storedIntersection = new Intersection();
         
         // Loop over all the geometry in the scene to determine what the ray hits.
         foreach (var obj in Objects)
         {
-            if (!obj.TryIntersect(ray, new Interval(interval.Min, closest), out var intersection2))
+            // If we don't intersect, we continue checking the remaining objects.
+            if (!obj.TryIntersect(ray, new Interval(interval.Min, closest), out var newIntersection))
                continue;
             
+            // When we do hit, we set the closest to the new intersection (intersection2)
             intersected = true;
-            closest = intersection1.Distance;
-            intersection1 = intersection2;
+            closest = newIntersection.Distance;
+            storedIntersection = newIntersection;
 
         }
 
-        intersection = intersection1;
+        intersection = storedIntersection;
         return intersected;
     }
 }

@@ -11,8 +11,8 @@ const float aspectRatio = 16f / 9f;
 
 const int imageWidth = 400;
 const int imageHeight = (int)(imageWidth / aspectRatio);
-const int maxDepth = 25;
-const int samples = 20;
+const int maxDepth = 50;
+const int samples = 100;
 
 // Camera
 const float focalLength = 1f;

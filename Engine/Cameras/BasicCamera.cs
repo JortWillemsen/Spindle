@@ -14,9 +14,9 @@ public class BasicCamera : Camera
 		
 	}
 
-	public override int[] RenderShot(IRenderer renderer)
+	public override Vector3[] RenderShot(IRenderer renderer)
 	{
-		var pixels = new int[this.ImageWidth * this.ImageHeight];
+		var pixels = new Vector3[this.ImageWidth * this.ImageHeight];
         
 		for (var j = 0; j < this.ImageHeight; j++)
 		{
@@ -32,7 +32,7 @@ public class BasicCamera : Camera
 					pixelColor += color;
 				}
                 
-				pixels[j * ImageWidth + i] = Utils.RgbToInt(1f / Samples * pixelColor);
+				pixels[j * ImageWidth + i] = 1f / Samples * pixelColor;
 			}
 		}
 

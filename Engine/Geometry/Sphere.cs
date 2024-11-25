@@ -16,7 +16,7 @@ public class Sphere : Geometry
         Radius = radius;
     }
 
-    public override bool TryIntersect(Ray ray, Interval interval, out Intersection intersection)
+    public override bool TryIntersect(Ray ray, Interval distanceInterval, out Intersection intersection)
     {
         // Source: lecture notes (variable names as well)
         Vector3 c  = Position - ray.Origin;
@@ -32,7 +32,8 @@ public class Sphere : Geometry
         t -= MathF.Sqrt(Radius * Radius - p2);
 
         intersection = new Intersection(t, ray.Origin + t * ray.Direction, GetNormalAt(c), ray, this);
-        return true;
+        // return distanceInterval.Contains(t);
+        return true; // TODO: actually use the interval
     }
 
     public override Vector3 GetNormalAt(Vector3 pointOnObject)

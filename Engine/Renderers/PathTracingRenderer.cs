@@ -2,7 +2,6 @@
 using Engine.Geometry;
 using Engine.Materials;
 using Engine.Renderers;
-using Microsoft.VisualBasic.CompilerServices;
 using SilkSonic;
 
 namespace Engine;
@@ -22,15 +21,13 @@ public class PathTracingRenderer : IRenderer
         if (depth <= 0)
             pixel = Vector3.Zero;
         
-        var intersected = Scene.TryIntersect(ray, new Interval(0.001f, Utils.Infinity), out var intersection);
-        
-        if (intersected)
+        if (Scene.TryIntersect(ray, new Interval(0.001f, Utils.Infinity), out var intersection))
         {
             var scatter = this.ScatterRay(ray, intersection);
 
-            TraceRay(scatter.Outgoing, depth - 1, out var pixel1);
+            TraceRay(scatter.Outgoing, depth - 1, out pixel);
 
-            pixel = scatter.Albedo * pixel1;
+            pixel *= scatter.Albedo;
             return;
 
         }

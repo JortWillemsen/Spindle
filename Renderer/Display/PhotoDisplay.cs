@@ -1,7 +1,6 @@
-using Engine.Renderers;
+/*using Engine.Renderers;
 using Renderer;
 using Renderer.Display;
-using SilkSonic.Renderer;
 
 namespace SilkSonic.Display;
 
@@ -24,4 +23,4 @@ public class PhotoDisplay: IDisplay
 	{
 		throw new NotImplementedException();
 	}
-}
+}*/

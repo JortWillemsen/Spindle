@@ -1,4 +1,4 @@
-using System.Numerics;
+/*using System.Numerics;
 using Engine.Cameras;
 using Silk.NET.Maths;
 
@@ -77,4 +77,4 @@ public enum CameraLayout
 {
 	Single,
 	Matrix
-}
+}*/

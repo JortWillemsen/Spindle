@@ -1,4 +1,4 @@
-using Engine.Renderers;
+/*using Engine.Renderers;
 using Silk.NET.Input;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
@@ -275,4 +275,4 @@ void main()
 		// _gl.Viewport( 0, 0, (uint) newSize.X, (uint) newSize.Y );
 		CameraManager.SetDisplaySize(newSize);
 	}
-}
+}*/

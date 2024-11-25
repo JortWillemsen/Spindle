@@ -16,7 +16,7 @@ public class Sphere : Geometry
         Radius = radius;
     }
 
-    public override bool TryIntersect(Ray ray, Interval interval, out Intersection intersection)
+    public override bool TryIntersect(Ray ray, Interval distanceInterval, out Intersection intersection)
     {
         // Calculate intersection point
         var oc = Position - ray.Origin;
@@ -40,11 +40,11 @@ public class Sphere : Geometry
         var root = (h - squaredDiscriminant) / a;
 
         // Find the nearest root that lies in the acceptable interval
-        if (!interval.Surrounds(root))
+        if (!distanceInterval.Surrounds(root))
         {
             root = (h + squaredDiscriminant) / a;
 
-            if (!interval.Surrounds(root))
+            if (!distanceInterval.Surrounds(root))
             {
                 intersection = new Intersection();
                 return false;

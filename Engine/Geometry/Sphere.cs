@@ -18,20 +18,41 @@ public class Sphere : Geometry
 
     public override bool TryIntersect(Ray ray, Interval interval, out Intersection intersection)
     {
-        // Source: lecture notes (variable names as well)
-        Vector3 c  = Position - ray.Origin;
-        float   t  = Vector3.Dot(c, ray.Direction);
-        Vector3 q  = c - t * ray.Direction;
-        float   p2 = q.LengthSquared();
-        
-        if (p2 > Radius * Radius)
+        // Calculate intersection point
+        var oc = Position - ray.Origin;
+
+        // Solve quadratic formula to determine hit
+        var a = ray.Direction.LengthSquared();
+        var h = Vector3.Dot(ray.Direction, oc);
+        var c = oc.LengthSquared() - Radius * Radius;
+
+        var discriminant = h*h - a*c;
+
+        // No hit
+        if (discriminant < 0)
         {
             intersection = new Intersection();
             return false;
         }
-        t -= MathF.Sqrt(Radius * Radius - p2);
 
-        intersection = new Intersection(t, ray.Origin + t * ray.Direction, GetNormalAt(c), ray, this);
+        var squaredDiscriminant =  (float) Math.Sqrt(discriminant);
+
+        var root = (h - squaredDiscriminant) / a;
+
+        // Find the nearest root that lies in the acceptable interval
+        if (!interval.Surrounds(root))
+        {
+            root = (h + squaredDiscriminant) / a;
+
+            if (!interval.Surrounds(root))
+            {
+                intersection = new Intersection();
+                return false;
+            }
+        }
+
+        // We do hit
+        intersection = new Intersection(root, ray.At(root), GetNormalAt(ray.At(root)),  ray, this);
         return true;
     }
 

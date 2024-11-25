@@ -20,8 +20,6 @@ public class BasicCamera : Camera
         
 		for (var j = 0; j < this.ImageHeight; j++)
 		{
-			var curCursorLine = Console.CursorTop;
-            
 			for (var i = 0; i < this.ImageWidth; i++)
 			{
 				var pixelColor = Vector3.Zero;

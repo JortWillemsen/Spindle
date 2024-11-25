@@ -34,7 +34,7 @@ public class PathTracingRenderer : IRenderer
         
         var dirNormalized = ray.Direction.Normalized();
 
-        var a = .5f * (dirNormalized.Y + 1f);
+        float a = .5f * (dirNormalized.Y + 1f);
         pixel = (1f - a) * new Vector3(1f, 1f, 1f) + a * new Vector3(.5f, .7f, 1f );
     }
 

@@ -1,6 +1,4 @@
-﻿// See https://aka.ms/new-console-template for more information
-
-using System.Numerics;
+﻿using System.Numerics;
 using Engine;
 using Engine.Cameras;
 using Engine.Geometry;
@@ -11,14 +9,14 @@ Console.WriteLine("Welcome to Spindle!");
 
 const float aspectRatio = 16f / 9f;
 
-var imageWidth = 400;
-var imageHeight = (int)(imageWidth / aspectRatio);
-var maxDepth = 25;
-var samples = 20;
+const int imageWidth = 400;
+const int imageHeight = (int)(imageWidth / aspectRatio);
+const int maxDepth = 25;
+const int samples = 20;
 
 // Camera
-var focalLength = 1f;
-var viewportHeight = 2f;
+const float focalLength = 1f;
+const float viewportHeight = 2f;
 
 var up = new Vector3(0, 1, 0);
 var front = new Vector3(0, 0, 1);

@@ -29,7 +29,8 @@ public class Utils
 
     public static int RgbToInt(Vector3 rgb)
     {
-        var i = (int) rgb.X;
+        rgb *= 255;
+        int i = (int) rgb.X;
         i = (i << 8) + (int) rgb.Y;
         i = (i << 8) + (int) rgb.Z;
 

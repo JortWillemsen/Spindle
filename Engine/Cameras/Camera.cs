@@ -19,6 +19,8 @@ public abstract class Camera
     
     public int MaxDepth { get; private set; }
     public int Samples { get; private set; }
+
+    private const float FrustumHeight = 1f;
     
     // ReSharper disable once InconsistentNaming
     protected Camera(Vector3 position, Vector3 up, Vector3 front, Rectangle displayRegion, float FOV, int maxDepth, int samples)
@@ -31,26 +33,39 @@ public abstract class Camera
         Samples = samples;
         
         Right = Vector3.Cross(up, front).Normalized();
-        
         FocalLength = 45f / FOV;
     }
     
-    public Vector3 TopLeft    => Front * FocalLength - Horizontal / 2 + Vertical / 2;
-    public Vector3 Horizontal => Right * 1 * AspectRatio; // TODO: 1 als height klopt?
-    public Vector3 Vertical   => Up * 1; // TODO: 1 als height klopt?
+    public Vector3 FrustumTopLeft    => Front * FocalLength - FrustumHorizontal / 2 + FrustumVertical / 2;
+    public Vector3 FrustumHorizontal => Right * FrustumHeight * AspectRatio;
+    public Vector3 FrustumVertical   => Up * FrustumHeight;
     
-    public Vector3 GetDirectionTowardsPixel(float xPercentage, float yPercentage) => TopLeft + Horizontal * xPercentage - Vertical * yPercentage;
-    public Ray GetRayTowardsPixel(int x, int y) => new(Position + _sampleSquare() * (1f/DisplayRegion.Width), GetDirectionTowardsPixel((float) x / DisplayRegion.Width, (float) y / DisplayRegion.Height));
+    public Vector3 GetDirectionTowardsPixel(float xPercentage, float yPercentage)
+        => FrustumTopLeft + FrustumHorizontal * xPercentage - FrustumVertical * yPercentage;
+    public Ray GetRayTowardsPixel(int x, int y)
+    {
+        var antiAliasingOffset = _sampleSquare();
+        return new Ray(
+            antiAliasingOffset + Position,
+            antiAliasingOffset + GetDirectionTowardsPixel((float)x / DisplayRegion.Width, (float)y / DisplayRegion.Height));
+    }
 
 
     public abstract Vector3[] RenderShot(IRenderer renderer);
 
     public void SetDisplayRegion(Rectangle viewport) => DisplayRegion = viewport;
 
-    private static Vector3 _sampleSquare()
+    /// <summary>
+    /// Calculates the offset for Anti-aliasing
+    /// </summary>
+    /// <returns>The offset for the ray origin and destination</returns>
+    private Vector3 _sampleSquare()
     {
         var r = Utils.GetRandom();
-        return new Vector3(Utils.RandomFloat(r) - .5f, Utils.RandomFloat(r) - .5f, 0f);
+        return new Vector3(
+            (Utils.RandomFloat(r) - .5f) * (AspectRatio / DisplayRegion.Width), // FrustumHorizontal.Length() == AspectRatio
+            (Utils.RandomFloat(r) - .5f) * (FrustumHeight / DisplayRegion.Height),
+            0f);
     }
     
     public void MoveForward(float amount)      => Position += Front * amount;

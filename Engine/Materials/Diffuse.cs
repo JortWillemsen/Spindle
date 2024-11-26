@@ -9,7 +9,7 @@ public class Diffuse : Material
     
     public Diffuse(Vector3 albedo, float absorption) : base(albedo)
     {
-        if (absorption < 0 || absorption > 1)
+        if (absorption is < 0 or > 1)
             throw new InvalidGeometryException("Invalid absorption value");
         
         Albedo = albedo;

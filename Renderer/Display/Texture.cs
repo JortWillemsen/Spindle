@@ -1,8 +1,6 @@
-using System.Numerics;
 using Silk.NET.Maths;
-using Silk.NET.OpenGL;
 
-namespace SilkSonic.Display;
+namespace Renderer.Display;
 
 public class Texture
 {

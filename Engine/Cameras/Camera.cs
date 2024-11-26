@@ -1,7 +1,6 @@
 using System.Drawing;
 using System.Numerics;
 using Engine.Renderers;
-using SilkSonic;
 
 namespace Engine.Cameras;
 

@@ -1,10 +1,8 @@
 ﻿using System.Numerics;
 using Engine.Geometry;
 using Engine.Materials;
-using Engine.Renderers;
-using SilkSonic;
 
-namespace Engine;
+namespace Engine.Renderers;
 
 public class PathTracingRenderer : IRenderer
 {

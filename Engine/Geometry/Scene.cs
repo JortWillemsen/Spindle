@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Numerics;
+using Engine.Lighting;
 using Engine.Materials;
-using SilkSonic.Lighting;
 
 namespace Engine.Geometry;
 

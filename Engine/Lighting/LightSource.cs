@@ -1,6 +1,6 @@
 using System.Numerics;
 
-namespace SilkSonic.Lighting;
+namespace Engine.Lighting;
 
 public abstract class LightSource
 {

@@ -1,6 +1,6 @@
 using System.Numerics;
 
-namespace SilkSonic;
+namespace Engine;
 
 internal static class ExtensionMethods
 {

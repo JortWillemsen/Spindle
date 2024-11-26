@@ -1,9 +1,9 @@
 ﻿using System.Drawing;
 using System.Numerics;
-using Engine;
 using Engine.Cameras;
 using Engine.Geometry;
 using Engine.Materials;
+using Engine.Renderers;
 using Renderer.Display;
 
 Console.WriteLine("Welcome to Spindle!");

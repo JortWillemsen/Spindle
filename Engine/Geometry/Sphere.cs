@@ -52,7 +52,8 @@ public class Sphere : Geometry
         }
 
         // We do hit
-        intersection = new Intersection(root, ray.At(root), GetNormalAt(ray.At(root)), ray, this);
+        var intersectionPoint = ray.At(root);
+        intersection = new Intersection(root, intersectionPoint, GetNormalAt(intersectionPoint), ray, this);
         return true;
     }
 

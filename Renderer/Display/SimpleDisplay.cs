@@ -25,15 +25,15 @@ public class SimpleDisplay
 
         var pixels = Camera.RenderShot(Renderer);
         
-        var numOfLines = (Camera.ImageWidth * Camera.ImageHeight) + 3;
+        var numOfLines = (Camera.DisplayRegion.Width * Camera.DisplayRegion.Height) + 3;
         var lines = new string[numOfLines];
         
         // PPM header information
         lines[0] = "P3";
-        lines[1] = Camera.ImageWidth + " " + Camera.ImageHeight;
+        lines[1] = Camera.DisplayRegion.Width + " " + Camera.DisplayRegion.Height;
         lines[2] = "255";
         
-        for (var j = 0; j < Camera.ImageHeight; j++)
+        for (var j = 0; j < Camera.DisplayRegion.Height; j++)
         {
             // Clearing previous progress line
             Console.SetCursorPosition(0, Console.CursorTop);
@@ -41,11 +41,11 @@ public class SimpleDisplay
             Console.SetCursorPosition(0, Console.CursorTop);
             
             // Writing new progress line
-            Console.Write("Lines remaining: " + (Camera.ImageHeight - j) + " of " + Camera.ImageHeight);
+            Console.Write("Lines remaining: " + (Camera.DisplayRegion.Height - j) + " of " + Camera.DisplayRegion.Height);
             
-            for (var i = 0; i < Camera.ImageWidth; i++)
+            for (var i = 0; i < Camera.DisplayRegion.Width; i++)
             {
-                lines[j * Camera.ImageWidth + 3 + i] = WriteColor(pixels[j * Camera.ImageWidth + i]);
+                lines[j * Camera.DisplayRegion.Width + 3 + i] = WriteColor(pixels[j * Camera.DisplayRegion.Width + i]);
             }
         }
 

@@ -50,6 +50,6 @@ public class Utils
     {
         var random = new Random();
 
-        return new Vector3(random.NextSingle(), random.NextSingle(), random.NextSingle());
+        return new Vector3(random.NextSingle(), random.NextSingle(), random.NextSingle()).Normalized();
     }
 }

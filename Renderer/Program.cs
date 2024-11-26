@@ -16,8 +16,7 @@ const int maxDepth = 50;
 const int samples = 100;
 
 // Camera
-const float fov = 45f;
-const float viewportHeight = 2f;
+const float fov = 65f;
 
 var up = new Vector3(0, 1, 0);
 var front = new Vector3(0, 0, 1);

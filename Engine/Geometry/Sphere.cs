@@ -31,7 +31,7 @@ public class Sphere : Geometry
         // No hit
         if (discriminant < 0)
         {
-            intersection = new Intersection();
+            intersection = Intersection.Undefined;
             return false;
         }
 
@@ -46,13 +46,13 @@ public class Sphere : Geometry
 
             if (!distanceInterval.Surrounds(root))
             {
-                intersection = new Intersection();
+                intersection = Intersection.Undefined;
                 return false;
             }
         }
 
         // We do hit
-        intersection = new Intersection(root, ray.At(root), GetNormalAt(ray.At(root)),  ray, this);
+        intersection = new Intersection(root, ray.At(root), GetNormalAt(ray.At(root)), ray, this);
         return true;
     }
 

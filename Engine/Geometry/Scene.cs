@@ -38,7 +38,7 @@ public class Scene : IIntersectable
         var closest = interval.Max;
 
         // TODO: This feels dirty
-        var storedIntersection = new Intersection();
+        var storedIntersection = Intersection.Undefined;
         
         // Loop over all the geometry in the scene to determine what the ray hits.
         foreach (var obj in Objects)
@@ -51,7 +51,6 @@ public class Scene : IIntersectable
             intersected = true;
             closest = newIntersection.Distance;
             storedIntersection = newIntersection;
-
         }
 
         intersection = storedIntersection;

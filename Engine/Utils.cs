@@ -46,10 +46,31 @@ public class Utils
         return new Vector3(red, green, blue); 
     }
 
-    public static Vector3 RandomVectorNormalized()
+    public static Vector3 RandomVector()
     {
         var random = new Random();
 
-        return new Vector3(random.NextSingle(), random.NextSingle(), random.NextSingle()).Normalized();
+        return new Vector3(random.NextSingle(), random.NextSingle(), random.NextSingle());
+    }
+    
+    public static Vector3 RandomVector(float min, float max)
+    {
+        var r = new Random();
+        
+        return new Vector3(Utils.RandomFloat(r, min, max), Utils.RandomFloat(r, min, max), Utils.RandomFloat(r, min, max));
+    }
+    
+    public static Vector3 RandomVectorNormalized()
+    {
+        // Randomly create a vector, if it lies within the unit sphere, we normalize it.
+        while (true)
+        {
+            var p = RandomVector(-1, 1);
+            var lengthSquared = p.LengthSquared();
+            if (1e-80 < lengthSquared && lengthSquared <= 1)
+            {
+                return p / (float) Math.Sqrt(lengthSquared);
+            }
+        }
     }
 }

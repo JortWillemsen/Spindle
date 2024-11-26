@@ -5,6 +5,7 @@ using Engine.Geometry;
 using Engine.Materials;
 using Engine.Renderers;
 using Renderer.Display;
+using Plane = Engine.Geometry.Plane;
 
 Console.WriteLine("Welcome to Spindle!");
 
@@ -20,19 +21,20 @@ const float fov = 65f;
 
 var up = new Vector3(0, 1, 0);
 var front = new Vector3(0, 0, 1);
+var camPos = Vector3.Zero;
 
-var camera = new BasicCamera(Vector3.Zero, up, front, new Rectangle(0, 0, imageWidth, imageHeight), fov, maxDepth, samples);
+var camera = new BasicCamera(camPos, up, front, new Rectangle(0, 0, imageWidth, imageHeight), fov, maxDepth, samples);
 
 var matGround = new Diffuse(new Vector3(0.8f, 0.8f, 0f), 0.5f);
 var matCenter = new Diffuse(new Vector3(0.1f, 0.2f, 0.5f), 0.5f);
 
-var sphere1 = new Sphere(new Vector3(0f, -100.5f, 1f), matGround, 100f);
-var sphere2 = new Sphere(new Vector3(0f, 0f, 1.2f), matCenter, 0.5f);
+var ground = new Plane(new Vector3(0, -0.5f,  0), matGround, new Vector3(0, -1, 0));
+var orb = new Sphere(new Vector3(0f,  0f, 1.2f), matCenter, 0.5f);
 
-var scene = new Scene(sphere1, sphere2);
+var scene = new Scene(ground, orb);
 
 var renderer = new PathTracingRenderer(scene);
 
 var display = new SimpleDisplay(renderer, camera);
 
-display.RenderToFile("/output/" + args[0]);
+display.RenderToFile("/output/" + "test");

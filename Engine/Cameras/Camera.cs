@@ -1,3 +1,4 @@
+using System.Drawing;
 using System.Numerics;
 using Engine.Renderers;
 using SilkSonic;
@@ -6,76 +7,46 @@ namespace Engine.Cameras;
 
 public abstract class Camera
 {
-    public float FocalLength { get; private set; } 
-    public float AspectRatio { get; private set; }
-    public int ImageWidth { get; private set; }
-    public int ImageHeight { get; private set; }
-    public int MaxDepth { get; private set; }
-    public int Samples { get; private set; }
-    public float ViewportWidth { get; private set; }
-    public float ViewportHeight { get; private set; }
-    
     public Vector3 Position { get; private set; }
     public Vector3 Up { get; private set; }
     public Vector3 Front { get; private set; }
-    
     public Vector3 Right { get; private set; }
-    public Vector3 U { get; private set; }
-    public Vector3 V { get; private set; }
     
-    protected Camera(float aspectRatio, float focalLength, int imageWidth, int imageHeight, int maxDepth, int samples, Vector3 position, Vector3 up, Vector3 front)
+    public Rectangle DisplayRegion { get; private set; }
+    public float FocalLength { get; private set; } 
+    
+    public float AspectRatio => (float)DisplayRegion.Width / DisplayRegion.Height;
+    
+    public int MaxDepth { get; private set; }
+    public int Samples { get; private set; }
+    
+    // ReSharper disable once InconsistentNaming
+    protected Camera(Vector3 position, Vector3 up, Vector3 front, Rectangle displayRegion, float FOV, int maxDepth, int samples)
     {
-        AspectRatio = aspectRatio;
-        FocalLength = focalLength;
-        ImageWidth = imageWidth;
-        ImageHeight = imageHeight;
+        Position = position;
+        Up = up.Normalized();
+        Front = front.Normalized();
+        DisplayRegion = displayRegion;
         MaxDepth = maxDepth;
         Samples = samples;
-        Position = position;
-        Up = up;
-        Front = front;
-
+        
         Right = Vector3.Cross(up, front).Normalized();
         
-        ViewportWidth = 2f * ((float) ImageWidth /  ImageHeight);
-        
-        // Maybe in constructor
-        ViewportHeight = 2f;
-        
-        U = new Vector3(ViewportWidth, 0f, 0f);
-        V = new Vector3(0f, -ViewportHeight, 0f);
+        FocalLength = 45f / FOV;
     }
     
-    // TODO: Merge into one function to calculate the position of a pixel on the viewport with U, V;
-    public Vector3 PixelDeltaU => U / ImageWidth;
-    public Vector3 PixelDeltaV => V / ImageHeight;
+    public Vector3 TopLeft    => Front * FocalLength - Horizontal / 2 + Vertical / 2;
+    public Vector3 Horizontal => Right * 1 * AspectRatio; // TODO: 1 als height klopt?
+    public Vector3 Vertical   => Up * 1; // TODO: 1 als height klopt?
     
-    public Vector3 UpperLeft => Position - new Vector3(0f, 0f, FocalLength) - U / 2 - V / 2;
+    public Vector3 GetDirectionTowardsPixel(float xPercentage, float yPercentage) => TopLeft + Horizontal * xPercentage - Vertical * yPercentage;
+    public Ray GetRayTowardsPixel(int x, int y) => new(Position + _sampleSquare() * (1f/DisplayRegion.Width), GetDirectionTowardsPixel((float) x / DisplayRegion.Width, (float) y / DisplayRegion.Height));
 
-    public Vector3 Pixel0 => UpperLeft + .5f * (PixelDeltaU + PixelDeltaV);
 
     public abstract Vector3[] RenderShot(IRenderer renderer);
 
-    public void SetViewport(float width, float height)
-    {
-        ViewportWidth = width;
-        ViewportHeight = height;
-        
-        U = new Vector3(ViewportWidth, 0f, 0f);
-        V = new Vector3(0f, -ViewportHeight, 0f);
-    }
-    
-    public Ray GetRay(int i, int j)
-    {
-        var offset = _sampleSquare();
+    public void SetDisplayRegion(Rectangle viewport) => DisplayRegion = viewport;
 
-        var pixelSample = Pixel0 
-                          + (i + offset.X) * PixelDeltaU
-                          + (j + offset.Y) * PixelDeltaV;
-
-        return new Ray(Position, pixelSample - Position);
-    }
-    
     private static Vector3 _sampleSquare()
     {
         var r = Utils.GetRandom();

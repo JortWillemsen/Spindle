@@ -68,7 +68,7 @@ public class CameraManager
 		// TODO: set camera texture screenoffsets
 		foreach (var camera in Cameras)
 		{
-			camera.SetViewport(displaySize.X, displaySize.Y);
+			camera.SetDisplayRegion(displaySize.X, displaySize.Y);
 		}
 	}
 }

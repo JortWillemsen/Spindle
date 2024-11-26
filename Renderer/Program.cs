@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Drawing;
+using System.Numerics;
 using Engine;
 using Engine.Cameras;
 using Engine.Geometry;
@@ -15,19 +16,19 @@ const int maxDepth = 50;
 const int samples = 100;
 
 // Camera
-const float focalLength = 1f;
+const float fov = 45f;
 const float viewportHeight = 2f;
 
 var up = new Vector3(0, 1, 0);
 var front = new Vector3(0, 0, 1);
 
-var camera = new BasicCamera(aspectRatio, focalLength, imageWidth, imageHeight, maxDepth, samples, Vector3.Zero, up, front);
+var camera = new BasicCamera(Vector3.Zero, up, front, new Rectangle(0, 0, imageWidth, imageHeight), fov, maxDepth, samples);
 
 var matGround = new Diffuse(new Vector3(0.8f, 0.8f, 0f), 0.5f);
 var matCenter = new Diffuse(new Vector3(0.1f, 0.2f, 0.5f), 0.5f);
 
-var sphere1 = new Sphere(new Vector3(0f, -100.5f, -1f), matGround, 100f);
-var sphere2 = new Sphere(new Vector3(0f, 0f, -1.2f), matCenter, 0.5f);
+var sphere1 = new Sphere(new Vector3(0f, -100.5f, 1f), matGround, 100f);
+var sphere2 = new Sphere(new Vector3(0f, 0f, 1.2f), matCenter, 0.5f);
 
 var scene = new Scene(sphere1, sphere2);
 

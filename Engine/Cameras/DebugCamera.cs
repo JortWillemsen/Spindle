@@ -13,19 +13,15 @@ public class DebugCamera : Camera
 	{
 	}
 
-	public override Vector3[] RenderShot(IRenderer renderer)
+	public override void RenderShot(IRenderer renderer, in Span<int> pixels)
 	{
-		var pixels = new Vector3[this.DisplayRegion.Width * this.DisplayRegion.Height];
-
 		for (var j = 0; j < this.DisplayRegion.Height; j++)
 		{
 			for (var i = 0; i < this.DisplayRegion.Width; i++)
 			{
-				var pixelColor = Vector3.One;
-				pixels[i + this.DisplayRegion.Width * j] = Vector3.Zero;
+				var pixelColor = 0x00ff00;
+				pixels[i + this.DisplayRegion.Width * j] = pixelColor;
 			}
 		}
-
-		return pixels;
 	}
 }

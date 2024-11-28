@@ -21,7 +21,8 @@ public class SimpleDisplay
         Console.WriteLine("Image build started");
         Console.WriteLine("");
 
-        var pixels = Camera.RenderShot(Renderer);
+        Span<int> pixels = stackalloc int[Camera.DisplayRegion.Width * Camera.DisplayRegion.Height];
+        Camera.RenderShot(Renderer, pixels);
         
         var numOfLines = (Camera.DisplayRegion.Width * Camera.DisplayRegion.Height) + 3;
         var lines = new string[numOfLines];
@@ -67,26 +68,13 @@ public class SimpleDisplay
         Console.WriteLine(path);
     }
 
-    public static string WriteColor(Vector3 pixel)
+    public static string WriteColor(int pixel)
     {
-        var r = pixel.X;
-        var g = pixel.Y;
-        var b = pixel.Z;
-
-        r = LinearToGamma(r);
-        g = LinearToGamma(g);
-        b = LinearToGamma(b);
-        
-        var intensity = new Interval(0f, 0.999f);
-        
-        int rByte = (int) (256 * intensity.Clamp(r));
-        int gByte = (int) (256 * intensity.Clamp(g));
-        int bByte = (int) (256 * intensity.Clamp(b));
-
-        return string.Join(" ", rByte, gByte, bByte);
+        (byte r, int g, int b) = ColorInt.SplitRGB(pixel);
+        return string.Join(" ", r, g, b);
     }
 
-    public static float LinearToGamma(float x)
+    public static float LinearToGamma(float x) // TODO: add this back later?
     {
         if (x > 0)
         {

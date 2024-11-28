@@ -1,4 +1,4 @@
-/*using Engine.Renderers;
+using Engine.Renderers;
 using Silk.NET.Input;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
@@ -34,7 +34,7 @@ public class OpenGLDisplay : IDisplay
 		WindowOptions options = WindowOptions.Default with
 		{
 			Size = new Vector2D<int>(width, height),
-			Title = "SilkSonic, now in concert nearby"
+			Title = "Spindle, ask for parental advice before usage"
 		};
 		_window = Window.Create(options);
 		_window.Load += OnLoad;
@@ -167,8 +167,9 @@ void main()
 		foreach (var camera in CameraManager.GetDisplayedCameras())
 		{
 			// DEFINING DATA
-			var pixels = camera.RenderShot(Renderer);
-			var texture = new Texture();
+			var texture = new Texture(camera.DisplayRegion.Width, camera.DisplayRegion.Height, camera.DisplayRegion);
+			Span<int> pi = texture.GetWritablePixels(camera.DisplayRegion.Width, camera.DisplayRegion.Height);
+			camera.RenderShot(Renderer, pi);
 
 			// Prepare Vertex Buffer Object
 			Span<float> vertices = stackalloc float[] // todo: calculate these dynamically
@@ -232,7 +233,7 @@ void main()
 			_gl.BindTexture(TextureTarget.Texture2D, _textureId);
 
 			// Fill the texture 'slot'
-			_gl.TexImage2D<int>(TextureTarget.Texture2D, 0, InternalFormat.Rgba, (uint) texture.Width,
+			_gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba, (uint) texture.Width,
 				(uint) texture.Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, texture.ReadPixels()); // todo: these now inclde transparancy, but we will never use that. Switch to bytes
 
 			// Define attributes to how the texture should be rendered
@@ -275,4 +276,4 @@ void main()
 		// _gl.Viewport( 0, 0, (uint) newSize.X, (uint) newSize.Y );
 		CameraManager.SetDisplaySize(newSize);
 	}
-}*/
+}

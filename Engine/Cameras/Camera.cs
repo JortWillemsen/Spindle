@@ -50,7 +50,7 @@ public abstract class Camera
     }
 
 
-    public abstract Vector3[] RenderShot(IRenderer renderer);
+    public abstract void RenderShot(IRenderer renderer, in Span<int> pixels);
 
     public void SetDisplayRegion(Rectangle viewport) => DisplayRegion = viewport;
 

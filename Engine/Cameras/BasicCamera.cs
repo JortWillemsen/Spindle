@@ -13,28 +13,24 @@ public class BasicCamera : Camera
 	{
 	}
 
-	public override Vector3[] RenderShot(IRenderer renderer)
+	public override void RenderShot(IRenderer renderer, in Span<int> pixels)
 	{
-		var pixels = new Vector3[this.DisplayRegion.Width * this.DisplayRegion.Height];
-
 		for (var j = 0; j < this.DisplayRegion.Height; j++)
 		{
 			for (var i = 0; i < this.DisplayRegion.Width; i++)
 			{
-				var pixelColor = Vector3.Zero;
+				int pixelColor = 0x0;
 
 				for (var sample = 0; sample < this.Samples; sample++)
 				{
 					var ray = GetRayTowardsPixel(i, j);
 					renderer.TraceRay(ray, MaxDepth, out var color);
 
-					pixelColor += color;
+					pixelColor += ColorInt.Make(color);
 				}
 
-				pixels[j * DisplayRegion.Width + i] = 1f / Samples * pixelColor;
+				pixels[j * DisplayRegion.Width + i] = (int)(1f / Samples * pixelColor); // TODO: make other vector3s ints as well
 			}
 		}
-
-		return pixels;
 	}
 }

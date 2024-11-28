@@ -1,4 +1,4 @@
-/*using Engine.Renderers;
+using Engine.Renderers;
 
 namespace Renderer.Display;
 
@@ -8,4 +8,4 @@ public interface IDisplay
 	public CameraManager CameraManager { get; set; }
 
 	public void Show();
-}*/
+}

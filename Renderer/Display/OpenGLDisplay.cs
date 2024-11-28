@@ -1,3 +1,4 @@
+using Engine.Cameras;
 using Engine.Renderers;
 using Silk.NET.Input;
 using Silk.NET.Maths;
@@ -26,10 +27,10 @@ public class OpenGLDisplay : IDisplay
 
 	private bool _hasFocus;
 
-	public OpenGLDisplay(IRenderer renderer, CameraManager cameraManager, int width, int height)
+	public OpenGLDisplay(IRenderer renderer, Camera camera, int width, int height)
 	{
 		Renderer = renderer;
-		CameraManager = cameraManager;
+		CameraManager = new CameraManager(camera); // TODO: cameraManager
 
 		WindowOptions options = WindowOptions.Default with
 		{

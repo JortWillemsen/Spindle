@@ -12,6 +12,14 @@ public class PhotoDisplay : IDisplay
     /// <inheritdoc />
     public CameraManager CameraManager { get; set; }
 
+    public Camera        Camera        { get; set; } // TODO: cameraManager
+
+    public PhotoDisplay(IRenderer renderer, Camera camera)
+    {
+        Renderer = renderer;
+        Camera = camera;
+    }
+
     /// <inheritdoc />
     public void Show(params string[] args)
     {
@@ -19,14 +27,6 @@ public class PhotoDisplay : IDisplay
             throw new ArgumentException("No filepath specified");
 
         RenderToFile(args[0]);
-    }
-
-    public Camera        Camera        { get; set; }
-
-    public PhotoDisplay(IRenderer renderer, Camera camera)
-    {
-        Renderer = renderer;
-        Camera = camera;
     }
 
     private string[] RenderLines()

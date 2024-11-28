@@ -29,7 +29,7 @@ public class BasicCamera : Camera
 					pixelColor += ColorInt.Make(color);
 				}
 
-				pixels[j * DisplayRegion.Width + i] = (int)(1f / Samples * pixelColor); // TODO: make other vector3s ints as well
+				pixels[j * DisplayRegion.Width + i] = pixelColor / Samples; // TODO: make other vector3s ints as well
 			}
 		}
 	}

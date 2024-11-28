@@ -13,8 +13,8 @@ const float aspectRatio = 16f / 9f;
 
 const int imageWidth = 400;
 const int imageHeight = (int)(imageWidth / aspectRatio);
-const int maxDepth = 50;
-const int samples = 100;
+const int maxDepth = 20;
+const int samples = 10;
 
 // Camera
 const float fov = 65f;
@@ -40,6 +40,8 @@ var scene = new Scene(groundOrb, orb, orb2, orb3);
 var renderer = new PathTracingRenderer(scene);
 
 // IDisplay display = new PhotoDisplay(renderer, camera);
-IDisplay display = new OpenGLDisplay(renderer, camera, imageWidth, imageHeight);
+IDisplay display = args.Length > 0
+	? new PhotoDisplay(renderer, camera)
+	: new OpenGLDisplay(renderer, camera, imageWidth, imageHeight);
 
-display.Show("/output/" + args[0]);
+display.Show(args);

@@ -19,17 +19,23 @@ public class BasicCamera : Camera
 		{
 			for (var i = 0; i < this.DisplayRegion.Width; i++)
 			{
-				int pixelColor = 0x0;
+				// int pixelColor = 0x0;
+				Vector3 pixelColor = Vector3.Zero;
+				int sample = 0;
 
-				for (var sample = 0; sample < this.Samples; sample++)
+				while (sample < Samples)
 				{
 					var ray = GetRayTowardsPixel(i, j);
 					renderer.TraceRay(ray, MaxDepth, out var color);
 
-					pixelColor += ColorInt.Make(color);
+					pixelColor += color;
+					// pixelColor = ColorInt.Make(ColorInt.GetVector(pixelColor) * ((float)sample / (sample + 1)) + color / (sample + 1)); // TODO: make other vector3s ints as well
+					// pixelColor = (int)(pixelColor * ((float) sample / (sample + 1)) + (float) ColorInt.Make(color) / (sample + 1)); // TODO: make other vector3s ints as well
+					sample++;
 				}
 
-				pixels[j * DisplayRegion.Width + i] = pixelColor / Samples; // TODO: make other vector3s ints as well
+				pixels[j * DisplayRegion.Width + i] = ColorInt.Make(pixelColor / Samples);
+				// pixels[j * DisplayRegion.Width + i] = pixelColor;
 			}
 		}
 	}

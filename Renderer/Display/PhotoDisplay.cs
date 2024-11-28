@@ -26,7 +26,7 @@ public class PhotoDisplay : IDisplay
         if (args.Length == 0)
             throw new ArgumentException("No filepath specified");
 
-        RenderToFile(args[0]);
+        RenderToFile("/output/" + args[0]);
     }
 
     private string[] RenderLines()

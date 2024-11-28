@@ -50,6 +50,25 @@ public class PathTracingRenderer : IRenderer
                 Outgoing = new Ray(intersection.Point, scatterDir)
             };
         }
+
+        if (intersection.Geometry.Material is Reflective reflective)
+        {
+            
+            // Optimal reflection
+            var reflectedDir = Vector3.Reflect(ray.Direction, intersection.Normal);
+        
+            // Adding roughness as a modifier on the reflection
+            reflectedDir = Vector3.Normalize(reflectedDir) + reflective.Roughness * Utils.RandomVectorNormalized();
+
+            if (Vector3.Dot(reflectedDir, intersection.Normal) > 0)
+            {
+                return new Scatter
+                {
+                    Albedo = reflective.Albedo,
+                    Outgoing = new Ray(intersection.Point, reflectedDir)
+                }; 
+            }
+        }
         
         return new Scatter
         {

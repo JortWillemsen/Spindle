@@ -39,6 +39,6 @@ var scene = new Scene(groundOrb, orb, orb2, orb3);
 
 var renderer = new PathTracingRenderer(scene);
 
-IDisplay display = new SimpleDisplay(renderer, camera);
+IDisplay display = new PhotoDisplay(renderer, camera);
 
-display.RenderToFile("/output/" + args[0]);
+display.Show("/output/" + args[0]);

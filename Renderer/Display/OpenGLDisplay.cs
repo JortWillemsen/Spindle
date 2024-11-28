@@ -44,7 +44,7 @@ public class OpenGLDisplay : IDisplay
 	}
 
 	/// <inheritdoc />
-	public void Show() => _window.Run(); // Blocking call
+	public void Show(params string[] args) => _window.Run(); // Blocking call
 
 
 	private void KeyDown(IKeyboard keyboard, Key key, int keyCode)

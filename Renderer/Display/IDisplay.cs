@@ -7,5 +7,5 @@ public interface IDisplay
 	public IRenderer     Renderer      { get; set; }
 	public CameraManager CameraManager { get; set; }
 
-	public void Show();
+	public void Show(params string[] args);
 }

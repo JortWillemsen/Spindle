@@ -22,10 +22,9 @@ public class PathTracingRenderer : IRenderer
         if (Scene.TryIntersect(ray, new Interval(0.001f, Utils.Infinity), out var intersection))
         {
             var scatter = this.ScatterRay(ray, intersection);
-
             TraceRay(scatter.Outgoing, depth - 1, out pixel);
-
             pixel *= scatter.Albedo;
+
             return;
 
         }

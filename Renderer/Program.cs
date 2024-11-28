@@ -25,13 +25,14 @@ var camPos = Vector3.Zero;
 
 var camera = new BasicCamera(camPos, up, front, new Rectangle(0, 0, imageWidth, imageHeight), fov, maxDepth, samples);
 
-var matGround = new Diffuse(new Vector3(0.8f, 0.8f, 0f), 0.5f);
+var matGround = new Diffuse(new Vector3(0.8f, 0.8f, 0f), 0.8f);
 var matCenter = new Diffuse(new Vector3(0.1f, 0.2f, 0.5f), 0.5f);
 
 var ground = new Plane(new Vector3(0, -0.5f,  0), matGround, new Vector3(0, -1, 0));
+var groundOrb = new Sphere(new Vector3(0, -100.5f, 1f), matGround, 100f);
 var orb = new Sphere(new Vector3(0f,  0f, 1.2f), matCenter, 0.5f);
 
-var scene = new Scene(ground, orb);
+var scene = new Scene(groundOrb, orb);
 
 var renderer = new PathTracingRenderer(scene);
 

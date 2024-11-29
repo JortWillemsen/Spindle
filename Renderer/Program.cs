@@ -13,8 +13,8 @@ const float aspectRatio = 16f / 9f;
 
 const int imageWidth = 400;
 const int imageHeight = (int)(imageWidth / aspectRatio);
-const int maxDepth = 50;
-const int samples = 100;
+const int maxDepth = 20;
+const int samples = 10;
 
 // Camera
 const float fov = 65f;
@@ -29,7 +29,6 @@ var matGround = new Diffuse(new Vector3(0.8f, 0.8f, 0f), 0.8f);
 var matCenter = new Diffuse(new Vector3(0.1f, 0.2f, 0.5f), 0.5f);
 var matReflect = new Reflective(new Vector3(.5f, .5f, .5f), 0f);
 
-var ground = new Plane(new Vector3(0, -0.5f,  0), matGround, new Vector3(0, -1, 0));
 var groundOrb = new Sphere(new Vector3(0, -100.5f, 1f), matGround, 100f);
 var orb = new Sphere(new Vector3(-.6f,  0f, 1.2f), matCenter, 0.5f);
 var orb2 = new Sphere(new Vector3(.6f,  0f, 1.2f), matCenter, 0.5f);
@@ -40,6 +39,9 @@ var scene = new Scene(groundOrb, orb, orb2, orb3);
 
 var renderer = new PathTracingRenderer(scene);
 
-var display = new SimpleDisplay(renderer, camera);
+// IDisplay display = new PhotoDisplay(renderer, camera);
+IDisplay display = args.Length > 0
+	? new PhotoDisplay(renderer, camera)
+	: new OpenGLDisplay(renderer, camera, imageWidth, imageHeight);
 
-display.RenderToFile("/output/" + "test");
+display.Show(args);

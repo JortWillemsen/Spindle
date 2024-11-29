@@ -1,12 +1,13 @@
 using Silk.NET.Maths;
+using Rectangle = System.Drawing.Rectangle;
 
 namespace Renderer.Display;
 
 public class Texture
 {
-	public int            Width        { get; private set; }
-	public int            Height       { get; private set; }
-	public Rectangle<int> ScreenRegion { get; private set; }
+	public int       Width        { get; private set; }
+	public int       Height       { get; private set; }
+	public Rectangle ScreenRegion { get; private set; }
 	/// <summary>
 	/// RGB, without opacity. 3 bytes each
 	/// </summary>
@@ -14,7 +15,7 @@ public class Texture
 
 	public bool FontLoaded { get; private set; } = false;
 
-	public Texture(int width, int height, Rectangle<int> screenRegion)
+	public Texture(int width, int height, Rectangle screenRegion)
 	{
 		Width = width;
 		Height = height;
@@ -51,7 +52,7 @@ public class Texture
 	/// <returns>Read-only reference to the pixels.</returns>
 	public ReadOnlySpan<int> ReadPixels() => Pixels;
 
-	public void SetScreenRegion(Rectangle<int> screenRegion) => ScreenRegion = screenRegion;
+	public void SetScreenRegion(Rectangle screenRegion) => ScreenRegion = screenRegion;
 
 	public void Clear(int c)
 	{

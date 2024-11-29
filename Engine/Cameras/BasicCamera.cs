@@ -8,16 +8,16 @@ public class BasicCamera : Camera
 {
 	// ReSharper disable once InconsistentNaming
 	/// <inheritdoc />
-	public BasicCamera(Vector3 position, Vector3 up, Vector3 front, Rectangle displayRegion, float FOV, int maxDepth, int samples)
-		: base(position, up, front, displayRegion, FOV, maxDepth, samples)
+	public BasicCamera(Vector3 position, Vector3 up, Vector3 front, Size imageSize, float FOV, int maxDepth, int samples)
+		: base(position, up, front, imageSize, FOV, maxDepth, samples)
 	{
 	}
 
 	public override void RenderShot(IRenderer renderer, in Span<int> pixels)
 	{
-		for (var j = 0; j < this.DisplayRegion.Height; j++)
+		for (var j = 0; j < this.ImageSize.Height; j++)
 		{
-			for (var i = 0; i < this.DisplayRegion.Width; i++)
+			for (var i = 0; i < this.ImageSize.Width; i++)
 			{
 				// int pixelColor = 0x0;
 				Vector3 pixelColor = Vector3.Zero;
@@ -34,7 +34,7 @@ public class BasicCamera : Camera
 					sample++;
 				}
 
-				pixels[j * DisplayRegion.Width + i] = ColorInt.Make(pixelColor / Samples);
+				pixels[j * ImageSize.Width + i] = ColorInt.Make(pixelColor / Samples);
 				// pixels[j * DisplayRegion.Width + i] = pixelColor;
 			}
 		}

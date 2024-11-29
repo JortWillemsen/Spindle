@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Drawing;
+using System.Numerics;
 using Engine;
 using Engine.Cameras;
 using Engine.Renderers;
@@ -7,17 +8,19 @@ namespace Renderer.Display;
 
 public class PhotoDisplay : IDisplay
 {
+    /// <inheritdoc />
     public IRenderer     Renderer      { get; set; }
 
     /// <inheritdoc />
     public CameraManager CameraManager { get; set; }
 
-    public Camera        Camera        { get; set; } // TODO: cameraManager
+    /// <inheritdoc />
+    public Size DisplaySize => CameraManager.DisplaySize;
 
-    public PhotoDisplay(IRenderer renderer, Camera camera)
+    public PhotoDisplay(IRenderer renderer, CameraManager cameraManager)
     {
         Renderer = renderer;
-        Camera = camera;
+        CameraManager = cameraManager;
     }
 
     /// <inheritdoc />
@@ -34,18 +37,18 @@ public class PhotoDisplay : IDisplay
         Console.WriteLine("Image build started");
         Console.WriteLine("");
 
-        Span<int> pixels = stackalloc int[Camera.DisplayRegion.Width * Camera.DisplayRegion.Height];
-        Camera.RenderShot(Renderer, pixels);
+        var cameraSlot = CameraManager.GetDisplayedCameraSlots().First();
+        cameraSlot.Camera.RenderShot(Renderer, cameraSlot.Texture.Pixels);
         
-        var numOfLines = (Camera.DisplayRegion.Width * Camera.DisplayRegion.Height) + 3;
+        var numOfLines = (CameraManager.DisplaySize.Width * CameraManager.DisplaySize.Height) + 3;
         var lines = new string[numOfLines];
         
         // PPM header information
         lines[0] = "P3";
-        lines[1] = Camera.DisplayRegion.Width + " " + Camera.DisplayRegion.Height;
+        lines[1] = CameraManager.DisplaySize.Width + " " + CameraManager.DisplaySize.Height;
         lines[2] = "255";
         
-        for (var j = 0; j < Camera.DisplayRegion.Height; j++)
+        for (var j = 0; j < CameraManager.DisplaySize.Height; j++)
         {
             // Clearing previous progress line
             Console.SetCursorPosition(0, Console.CursorTop);
@@ -53,11 +56,11 @@ public class PhotoDisplay : IDisplay
             Console.SetCursorPosition(0, Console.CursorTop);
             
             // Writing new progress line
-            Console.Write("Lines remaining: " + (Camera.DisplayRegion.Height - j) + " of " + Camera.DisplayRegion.Height);
+            Console.Write("Lines remaining: " + (CameraManager.DisplaySize.Height - j) + " of " + CameraManager.DisplaySize.Height);
             
-            for (var i = 0; i < Camera.DisplayRegion.Width; i++)
+            for (var i = 0; i < CameraManager.DisplaySize.Width; i++)
             {
-                lines[j * Camera.DisplayRegion.Width + 3 + i] = WriteColor(pixels[j * Camera.DisplayRegion.Width + i]);
+                lines[j * CameraManager.DisplaySize.Width + 3 + i] = WriteColor(cameraSlot.Texture.Pixels[j * CameraManager.DisplaySize.Width + i]);
             }
         }
 

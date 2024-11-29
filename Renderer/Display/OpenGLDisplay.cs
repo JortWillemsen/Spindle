@@ -1,4 +1,5 @@
-using Engine.Cameras;
+using System.Drawing;
+using System.Numerics;
 using Engine.Renderers;
 using Silk.NET.Input;
 using Silk.NET.Maths;
@@ -16,6 +17,9 @@ public class OpenGLDisplay : IDisplay
 	/// <inheritdoc />
 	public CameraManager CameraManager { get; set; }
 
+	/// <inheritdoc />
+	public Size DisplaySize => CameraManager.DisplaySize;
+
 	private IWindow _window;
 
 	private GL _gl;
@@ -26,15 +30,25 @@ public class OpenGLDisplay : IDisplay
 	private uint _textureId;
 
 	private bool _hasFocus;
+	private readonly float _movementStep;
+	private readonly float _rotationStep;
+	private readonly float _zoomStep;
 
-	public OpenGLDisplay(IRenderer renderer, Camera camera, int width, int height)
+	public OpenGLDisplay(IRenderer renderer,
+		CameraManager cameraManager,
+		float movementStep = .3f,
+		float rotationStep = 10f,
+		float zoomStep = 1.2f)
 	{
+		_movementStep = movementStep;
+		_rotationStep = rotationStep;
+		_zoomStep = zoomStep;
 		Renderer = renderer;
-		CameraManager = new CameraManager(camera); // TODO: cameraManager
+		CameraManager = cameraManager;
 
 		WindowOptions options = WindowOptions.Default with
 		{
-			Size = new Vector2D<int>(width, height),
+			Size = new Vector2D<int>(DisplaySize.Width, DisplaySize.Height),
 			Title = "Spindle, ask for parental advice before usage"
 		};
 		_window = Window.Create(options);
@@ -54,9 +68,38 @@ public class OpenGLDisplay : IDisplay
 
 		switch (key)
 		{
-			case Key.Escape:
-				_window.Close();
-				break;
+			// Functions
+			case Key.Escape: _window.Close(); break;
+
+			// Movement
+			case Key.W: CameraManager.MoveFocussedCameraForward(_movementStep); break;
+			case Key.S: CameraManager.MoveFocussedCameraForward(-_movementStep); break;
+			case Key.D: CameraManager.MoveFocussedCameraHorizontally(_movementStep); break;
+			case Key.A: CameraManager.MoveFocussedCameraHorizontally(-_movementStep); break;
+			case Key.E: CameraManager.MoveFocussedCameraVertically(_movementStep); break;
+			case Key.Q: CameraManager.MoveFocussedCameraVertically(-_movementStep); break;
+
+			// Rotation
+			case Key.Up: CameraManager.RotateFocussedCameraVertically(_rotationStep); break;
+			case Key.Down: CameraManager.RotateFocussedCameraVertically(-_rotationStep); break;
+			case Key.Right: CameraManager.RotateFocussedCameraHorizontally(_rotationStep); break;
+			case Key.Left: CameraManager.RotateFocussedCameraHorizontally(-_rotationStep); break;
+
+			// Zoom
+			case Key.I: CameraManager.ZoomFocussedCamera(_zoomStep); break;
+			case Key.O: CameraManager.ZoomFocussedCamera(1f/_zoomStep); break;
+
+			// Manage cameras
+			case Key.BackSlash: CameraManager.CycleThroughLayout(); break;
+
+			case Key.H: CameraManager.IncreaseNumberOfVisibleCameras(); break;
+			case Key.L: CameraManager.DecreaseNumberOfVisibleCameras(); break;
+
+			case Key.J: CameraManager.CycleFocusThroughCameras(1); break;
+			case Key.K: CameraManager.CycleFocusThroughCameras(-1); break;
+
+			case Key.C: CameraManager.AddBasicCamera(Vector3.Zero, 10, 6); break; // TODO: hardcoded ints
+			case Key.X: CameraManager.RemoveCurrentCamera(); break;
 		}
 	}
 
@@ -69,8 +112,7 @@ public class OpenGLDisplay : IDisplay
 
 		_gl = _window.CreateOpenGL(); // Store reference to our OpenGL API instance
 
-		// _gl.ClearColor(Color.CornflowerBlue); // Define the clear color
-		// _gl.Clear(ClearBufferMask.ColorBufferBit); // Now actually clear the screen
+		_gl.ClearColor(Color.Black); // Define the clear color
 
 		// Prepare a Vertex Array Object and bind it as a Vertex Array (prepare for use)
 		_vao = _gl.GenVertexArray();
@@ -163,24 +205,30 @@ void main()
 		_gl.DeleteShader(fragmentShader);
 	}
 
-	private void OnRender(double deltaTime)
+	private void OnRender(double deltaTime) // TODO: to see immediate results, render every texture in a different frame
 	{
-		foreach (var camera in CameraManager.GetDisplayedCameras())
+		_gl.Clear(ClearBufferMask.ColorBufferBit);
+
+		foreach (var (camera, texture, displayRegion) in CameraManager.GetDisplayedCameraSlots())
 		{
-			// DEFINING DATA
-			var texture = new Texture(camera.DisplayRegion.Width, camera.DisplayRegion.Height, camera.DisplayRegion);
-			Span<int> pi = texture.GetWritablePixels(camera.DisplayRegion.Width, camera.DisplayRegion.Height);
-			camera.RenderShot(Renderer, pi);
+			camera.RenderShot(Renderer, texture.Pixels);
 
 			// Prepare Vertex Buffer Object
-			Span<float> vertices = stackalloc float[] // todo: calculate these dynamically
-			// 4 vertices of a quad filling the screen, in the expected order (clockwise), but vertically flipped (OpenGL says 0,0 is on the bottom left instead of top left).
+			Vector2 topLeft = screenCoordinatesToOpenGlCoordinates(new Vector2(displayRegion.Left, displayRegion.Top));
+			Vector2 bottomRight = screenCoordinatesToOpenGlCoordinates(new Vector2(displayRegion.Right, displayRegion.Bottom));
+
+			Span<float> vertices = stackalloc float[] // todo: remove texture coordinates
+			// 4 vertices of a quad filling a part of the screen, in the expected order (clockwise), but vertically flipped (OpenGL says 0,0 is on the bottom left instead of top left).
 			{
-				//    aPosition    | aTexCoords
-				1.0f,  -1.0f, 0.0f,  1.0f, 1.0f,
-				1.0f,   1.0f, 0.0f,  1.0f, 0.0f,
-				-1.0f,  1.0f, 0.0f,  0.0f, 0.0f,
-				-1.0f, -1.0f, 0.0f,  0.0f, 1.0f
+				//          aPosition              | aTexCoords
+				bottomRight.X, bottomRight.Y, 0.0f,  1.0f, 1.0f,
+				// 1.0f,        -1.0f,        0.0f,  1.0f, 1.0f,
+				bottomRight.X, topLeft.Y,     0.0f,  1.0f, 0.0f,
+				// 1.0f,       1.0f,          0.0f,  1.0f, 0.0f,
+				topLeft.X,     topLeft.Y,     0.0f,  0.0f, 0.0f,
+				// -1.0f,      1.0f,          0.0f,  0.0f, 0.0f,
+				topLeft.X,     bottomRight.Y, 0.0f,  0.0f, 1.0f
+				// -1.0f,      -1.0f,         0.0f,  0.0f, 1.0f
 			};
 			_vbo = _gl.GenBuffer(); // todo: voor later: deze vbos hergebruiken?
 			_gl.BindBuffer(BufferTargetARB.ArrayBuffer, _vbo); // Bind as an Array Buffer (VBO?)
@@ -234,8 +282,8 @@ void main()
 			_gl.BindTexture(TextureTarget.Texture2D, _textureId);
 
 			// Fill the texture 'slot'
-			_gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba, (uint) texture.Width,
-				(uint) texture.Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, texture.ReadPixels()); // todo: these now inclde transparancy, but we will never use that. Switch to bytes
+			_gl.TexImage2D<int>(TextureTarget.Texture2D, 0, InternalFormat.Rgba, (uint) texture.Width,
+				(uint) texture.Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, texture.Pixels); // todo: these now inclde transparancy, but we will never use that. Switch to bytes
 
 			// Define attributes to how the texture should be rendered
 			// _gl.TexParameterI(GLEnum.Texture2D, GLEnum.TextureWrapS, (int)TextureWrapMode.Repeat);
@@ -266,15 +314,24 @@ void main()
 			{
 				_gl.DrawElements(PrimitiveType.Triangles, 6, DrawElementsType.UnsignedInt, (void*) 0); // Draws an EBO
 			}
+
 			// _gl.DrawArrays(PrimitiveType.Triangles, 0, 6); // Draws a VBO
 			// TODO: SwapBuffers might be nice?
+
+			continue;
+
+			Vector2 screenCoordinatesToOpenGlCoordinates(Vector2 screenPosition)
+			{
+				Vector2 displaySpace = new(DisplaySize.Width, DisplaySize.Height);
+				return (screenPosition / displaySpace * 2 - Vector2.One) * new Vector2(1, -1); // The last vector2 flips the image to meet OpenGL standards
+			}
 		}
 	}
 
 	private void OnResize(Vector2D<int> newSize)
 	{
-		throw new NotImplementedException();
-		// _gl.Viewport( 0, 0, (uint) newSize.X, (uint) newSize.Y );
-		CameraManager.SetDisplaySize(newSize);
+		_gl.Viewport( 0, 0, (uint) newSize.X, (uint) newSize.Y );
+		CameraManager.ResizeDisplay(newSize);
+		// TODO: use cancallation token to stop rendering during resize
 	}
 }

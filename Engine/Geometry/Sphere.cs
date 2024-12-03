@@ -1,6 +1,8 @@
 using System.Numerics;
 using Engine.Exceptions;
 using Engine.Materials;
+using OneOf;
+using OneOf.Types;
 
 namespace Engine.Geometry;
 
@@ -16,7 +18,7 @@ public class Sphere : Geometry
         Radius = radius;
     }
 
-    public override bool TryIntersect(Ray ray, Interval distanceInterval, out Intersection intersection)
+    public override PossibleIntersection FindIntersection(Ray ray, Interval distanceInterval)
     {
         // Calculate intersection point
         var oc = Position - ray.Origin;
@@ -29,11 +31,7 @@ public class Sphere : Geometry
         var discriminant = h*h - a*c;
 
         // No hit
-        if (discriminant < 0)
-        {
-            intersection = Intersection.Undefined;
-            return false;
-        }
+        if (discriminant < 0) return new None();
 
         var squaredDiscriminant =  (float) Math.Sqrt(discriminant);
 
@@ -44,17 +42,12 @@ public class Sphere : Geometry
         {
             root = (h + squaredDiscriminant) / a;
 
-            if (!distanceInterval.Surrounds(root))
-            {
-                intersection = Intersection.Undefined;
-                return false;
-            }
+            if (!distanceInterval.Surrounds(root)) return new None();
         }
 
         // We do hit
         var intersectionPoint = ray.At(root);
-        intersection = new Intersection(root, intersectionPoint, GetNormalAt(intersectionPoint), ray, this);
-        return true;
+        return new Intersection(root, intersectionPoint, GetNormalAt(intersectionPoint), ray, this);
     }
 
     public override Vector3 GetNormalAt(Vector3 pointOnObject)

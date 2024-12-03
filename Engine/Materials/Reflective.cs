@@ -6,7 +6,7 @@ public class Reflective : Material
 {
     public float Roughness { get; private set; }
     
-    public Reflective(Vector3 albedo, float roughness) : base(albedo)
+    public Reflective(float albedo, Vector3 color, float roughness) : base(albedo, color)
     {
         Roughness = roughness;
     }

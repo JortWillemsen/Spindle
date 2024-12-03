@@ -5,14 +5,7 @@ namespace Engine.Materials;
 
 public class Diffuse : Material
 { 
-    public float Absorption { get; private set; }
-    
-    public Diffuse(Vector3 albedo, float absorption) : base(albedo)
+    public Diffuse(float albedo, Vector3 color) : base(albedo, color)
     {
-        if (absorption is < 0 or > 1)
-            throw new InvalidGeometryException("Invalid absorption value");
-        
-        Albedo = albedo;
-        Absorption = absorption;
     }
 }

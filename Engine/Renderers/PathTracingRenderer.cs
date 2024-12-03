@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Drawing;
+using System.Numerics;
 using Engine.Geometry;
 using Engine.Materials;
 
@@ -13,20 +14,24 @@ public class PathTracingRenderer : IRenderer
         Scene = scene;
     }
     
-    public void TraceRay(Ray ray, int depth, out Vector3 pixel)
+    public void TraceRay(Ray ray, int depth, ref Vector3 pixel)
     {
         // TODO: Create shadow ray?
         if (depth <= 0)
-            pixel = Vector3.Zero;
+        {
+            pixel *= Vector3.Zero;
+            return;
+        }
         
         if (Scene.TryIntersect(ray, new Interval(0.001f, Utils.Infinity), out var intersection))
         {
-            var scatter = this.ScatterRay(ray, intersection);
-            TraceRay(scatter.Outgoing, depth - 1, out pixel);
-            pixel *= scatter.Albedo;
+            if (ScatterRay(ray, intersection, out var scatter))
+            {
+                TraceRay(scatter.Outgoing, depth - 1, ref pixel);
+                pixel *= scatter.Color;
 
-            return;
-
+                return;
+            }
         }
         
         var dirNormalized = ray.Direction.Normalized();
@@ -35,20 +40,21 @@ public class PathTracingRenderer : IRenderer
         pixel = (1f - a) * new Vector3(1f, 1f, 1f) + a * new Vector3(.5f, .7f, 1f );
     }
 
-    public Scatter ScatterRay(Ray ray, Intersection intersection)
+    public bool ScatterRay(Ray ray, Intersection intersection, out Scatter scatter)
     {
         if (intersection.Geometry.Material is Diffuse diffuse)
         {
-            var scatterDir = intersection.Normal + Utils.RandomVectorNormalized();
+            var scatterDir = Utils.RandomVectorHemisphere(intersection.Normal);
 
             if (scatterDir.NearZero())
                 scatterDir = intersection.Normal;
         
-            return new Scatter
+            scatter = new Scatter()
             {
-                Albedo = diffuse.Absorption * diffuse.Albedo,
+                Color = diffuse.Color * diffuse.Albedo,
                 Outgoing = new Ray(intersection.Point, scatterDir)
             };
+            return true;
         }
 
         if (intersection.Geometry.Material is Reflective reflective)
@@ -62,18 +68,20 @@ public class PathTracingRenderer : IRenderer
 
             if (Vector3.Dot(reflectedDir, intersection.Normal) > 0)
             {
-                return new Scatter
+                scatter = new Scatter
                 {
-                    Albedo = reflective.Albedo,
+                    Color = reflective.Color * reflective.Albedo,
                     Outgoing = new Ray(intersection.Point, reflectedDir)
-                }; 
+                };
+
+                return true;
             }
+
+            scatter = new Scatter();
+            return false;
         }
-        
-        return new Scatter
-        {
-            Albedo = intersection.Geometry.Material.Albedo,
-            Outgoing = new Ray(ray.Origin, Vector3.Zero)
-        };
+
+        scatter = new Scatter();
+        return false;
     }
 }

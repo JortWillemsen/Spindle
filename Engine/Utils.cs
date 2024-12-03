@@ -73,4 +73,14 @@ public class Utils
             }
         }
     }
+    
+    public static Vector3 RandomVectorHemisphere(Vector3 normal)
+    {
+        var onNormalizedSphere = RandomVectorNormalized();
+
+        if (Vector3.Dot(onNormalizedSphere, normal) > 0f)
+            return onNormalizedSphere;
+        
+        return -onNormalizedSphere;
+    }
 }

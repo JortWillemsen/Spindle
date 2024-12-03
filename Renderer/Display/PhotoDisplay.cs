@@ -26,6 +26,8 @@ public class PhotoDisplay : IDisplay
     /// <inheritdoc />
     public void Show(params string[] args)
     {
+        Console.WriteLine("Welcome to Spindle!");
+
         if (args.Length == 0)
             throw new ArgumentException("No filepath specified");
 

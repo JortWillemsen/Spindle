@@ -2,6 +2,7 @@
 using System.Numerics;
 using Engine.Geometry;
 using Engine.Materials;
+using Engine.Scenes;
 
 namespace Engine.Renderers;
 

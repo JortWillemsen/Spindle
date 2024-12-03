@@ -1,21 +1,22 @@
-using System.Collections;
 using System.Numerics;
+using Engine.Geometry;
 using Engine.Lighting;
 using Engine.Materials;
 
-namespace Engine.Geometry;
+namespace Engine.Scenes;
 
 public class Scene : IIntersectable
 {
-    public List<Geometry> Objects { get; private set; }
-    public List<LightSource> Lights { get; private set; }
+    public List<Geometry.Geometry> Objects { get; private set; }
+    public List<LightSource>       Lights  { get; private set; }
     
-    public Scene(params Geometry[] objects)
+    public Scene(List<Geometry.Geometry> objects, List<LightSource> lights)
     {
-        Objects = objects.ToList();
+        Objects = objects;
+        Lights = lights;
     }
 
-    public void Add(Geometry obj)
+    public void Add(Geometry.Geometry obj)
     {
         Objects.Add(obj);
     }
@@ -31,7 +32,7 @@ public class Scene : IIntersectable
     public void AddLightSource(LightSource lightSource) => Lights.Add(lightSource);
     
     // Find closest intersection of all objects in the scene
-    public bool TryIntersect(Ray ray, Interval interval, out Intersection intersection)
+    public virtual bool TryIntersect(Ray ray, Interval interval, out Intersection intersection)
     {
         var intersected = false;
         // Current closest intersection, currently infinite for we have no intersection.

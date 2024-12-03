@@ -1,58 +1,69 @@
-using Silk.NET.Maths;
-using Rectangle = System.Drawing.Rectangle;
+using System.Drawing;
 
 namespace Renderer.Display;
 
-public class Texture
+// ReSharper disable once InconsistentNaming
+public class OpenGLTexture
 {
-	public int       Width        { get; private set; }
-	public int       Height       { get; private set; }
-	public Rectangle ScreenRegion { get; private set; }
+	public int Width  { get; protected set; }
+	public int Height { get; protected set; }
+
 	/// <summary>
 	/// RGB, without opacity. 3 bytes each
 	/// </summary>
-	private int[] Pixels { get; set; } // todo: enforce byte length and such with type system?
+	public int[] Pixels { get; private set; } // todo: enforce byte length and such with type system? At the very least uint
 
 	public bool FontLoaded { get; private set; } = false;
 
-	public Texture(int width, int height, Rectangle screenRegion)
+	public OpenGLTexture(int width, int height)
 	{
 		Width = width;
 		Height = height;
-		ScreenRegion = screenRegion;
 
 		Pixels = new int[width * height];
 	}
 
-	public Texture(string filePath) // TODO: accept some sort of stream?
+	public OpenGLTexture(string filePath) // TODO: accept some sort of stream?
 	{
 		throw new NotImplementedException("Did not spend time on this yet");
 	}
 
 	/// <summary>
-	/// Ensures the texture is set for the given <paramref name="width"/> and <paramref name="height"/> and then
-	/// returns a reference to the pixels.
+	/// Sets the <see cref="Width"/> and <see cref="Height"/>, and reallocates an array of pixels.
 	/// </summary>
-	/// <param name="width">The width hat the texture should have.</param>
-	/// <param name="height">The height that the texture should have.</param>
-	/// <returns>A reference to the texture's contents: the pixels.</returns>
-	public Span<int> GetWritablePixels(int width, int height)
+	public void SetSize(int width, int height)
 	{
 		if (width != Width || height != Height)
 			Pixels = new int[width * height];
 
 		Width = width;
 		Height = height;
-		return Pixels;
 	}
+	public void SetSize(Size size) => SetSize(size.Width, size.Height);
 
-	/// <summary>
-	/// Forces use of the appropriate <see cref="GetWritablePixels"/> method in order to change the contents.
-	/// </summary>
-	/// <returns>Read-only reference to the pixels.</returns>
-	public ReadOnlySpan<int> ReadPixels() => Pixels;
-
-	public void SetScreenRegion(Rectangle screenRegion) => ScreenRegion = screenRegion;
+	// /// <summary>
+	// /// Ensures the texture is set for the given <paramref name="width"/> and <paramref name="height"/> and then
+	// /// returns a reference to the pixels.
+	// /// </summary>
+	// /// <param name="width">The width hat the texture should have.</param>
+	// /// <param name="height">The height that the texture should have.</param>
+	// /// <returns>A reference to the texture's contents: the pixels.</returns>
+	// /// <remarks>Prevents misuse, in that the pixels array will be of incorrect length or unnecessarily reallocated.</remarks>
+	// public Span<int> GetWritablePixels(int width, int height)
+	// {
+	// 	if (width != Width || height != Height)
+	// 		Pixels = new int[width * height];
+	//
+	// 	Width = width;
+	// 	Height = height;
+	// 	return Pixels;
+	// }
+	//
+	// /// <summary>
+	// /// Forces use of the appropriate <see cref="GetWritablePixels"/> method in order to change the contents.
+	// /// </summary>
+	// /// <returns>Read-only reference to the pixels.</returns>
+	// public ReadOnlySpan<int> ReadPixels() => Pixels;
 
 	public void Clear(int c)
 	{
@@ -62,7 +73,7 @@ public class Texture
 		}
 	}
 	
-	public void CopyTo(Texture target, int x = 0, int y = 0)
+	public void CopyTo(OpenGLTexture target, int x = 0, int y = 0)
 	{
 		int src = 0;
 		int dst = 0;

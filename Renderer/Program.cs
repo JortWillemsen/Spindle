@@ -5,25 +5,21 @@ using Engine.Geometry;
 using Engine.Materials;
 using Engine.Renderers;
 using Renderer.Display;
-using Plane = Engine.Geometry.Plane;
 
 Console.WriteLine("Welcome to Spindle!");
 
 const float aspectRatio = 16f / 9f;
 
-const int imageWidth = 400;
-const int imageHeight = (int)(imageWidth / aspectRatio);
+const int windowWidth = 300 * 2;
+const int windowHeight = (int)(windowWidth / aspectRatio);
 const int maxDepth = 20;
-const int samples = 10;
+const int samples = 2;
 
-// Camera
 const float fov = 65f;
 
-var up = new Vector3(0, 1, 0);
-var front = new Vector3(0, 0, 1);
-var camPos = Vector3.Zero;
-
-var camera = new BasicCamera(camPos, up, front, new Rectangle(0, 0, imageWidth, imageHeight), fov, maxDepth, samples);
+var cameraManager = new CameraManager(new Size(windowWidth, windowHeight), CameraLayout.Matrix);
+cameraManager.AddBasicCamera(Vector3.Zero, maxDepth, samples, fov);
+cameraManager.AddCamera(new BasicCamera(new Vector3(1, 1, 3), Vector3.UnitY, new Vector3(-1, 0, -3), new Size(), 70, maxDepth, samples));
 
 var matGround = new Diffuse(new Vector3(0.8f, 0.8f, 0f), 0.8f);
 var matCenter = new Diffuse(new Vector3(0.1f, 0.2f, 0.5f), 0.5f);
@@ -41,7 +37,7 @@ var renderer = new PathTracingRenderer(scene);
 
 // IDisplay display = new PhotoDisplay(renderer, camera);
 IDisplay display = args.Length > 0
-	? new PhotoDisplay(renderer, camera)
-	: new OpenGLDisplay(renderer, camera, imageWidth, imageHeight);
+	? new PhotoDisplay(renderer, cameraManager)
+	: new OpenGLDisplay(renderer, cameraManager);
 
 display.Show(args);

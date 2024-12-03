@@ -11,10 +11,10 @@ public abstract class Camera
     public Vector3 Front { get; private set; }
     public Vector3 Right { get; private set; }
     
-    public Rectangle DisplayRegion { get; private set; }
+    public Size ImageSize { get; private set; }
     public float FocalLength { get; private set; } 
     
-    public float AspectRatio => (float)DisplayRegion.Width / DisplayRegion.Height;
+    public float AspectRatio => (float)ImageSize.Width / ImageSize.Height;
     
     public int MaxDepth { get; private set; }
     public int Samples { get; private set; }
@@ -22,12 +22,12 @@ public abstract class Camera
     private const float FrustumHeight = 1f;
     
     // ReSharper disable once InconsistentNaming
-    protected Camera(Vector3 position, Vector3 up, Vector3 front, Rectangle displayRegion, float FOV, int maxDepth, int samples)
+    protected Camera(Vector3 position, Vector3 up, Vector3 front, Size imageSize, float FOV, int maxDepth, int samples)
     {
         Position = position;
         Up = up.Normalized();
         Front = front.Normalized();
-        DisplayRegion = displayRegion;
+        ImageSize = imageSize;
         MaxDepth = maxDepth;
         Samples = samples;
         
@@ -46,13 +46,14 @@ public abstract class Camera
         var antiAliasingOffset = _sampleSquare();
         return new Ray(
             antiAliasingOffset + Position,
-            antiAliasingOffset + GetDirectionTowardsPixel((float)x / DisplayRegion.Width, (float)y / DisplayRegion.Height));
+            antiAliasingOffset + GetDirectionTowardsPixel(
+                (float)x / ImageSize.Width, (float)y / ImageSize.Height));
     }
 
 
     public abstract void RenderShot(IRenderer renderer, in Span<int> pixels);
 
-    public void SetDisplayRegion(Rectangle viewport) => DisplayRegion = viewport;
+    public void SetImageSize(Size size) => ImageSize = size;
 
     /// <summary>
     /// Calculates the offset for Anti-aliasing
@@ -62,24 +63,35 @@ public abstract class Camera
     {
         var r = Utils.GetRandom();
         return new Vector3(
-            (Utils.RandomFloat(r) - .5f) * (AspectRatio / DisplayRegion.Width), // FrustumHorizontal.Length() == AspectRatio
-            (Utils.RandomFloat(r) - .5f) * (FrustumHeight / DisplayRegion.Height),
+            (Utils.RandomFloat(r) - .5f) * (AspectRatio / ImageSize.Width), // FrustumHorizontal.Length() == AspectRatio
+            (Utils.RandomFloat(r) - .5f) * (FrustumHeight / ImageSize.Height),
             0f);
     }
     
     public void MoveForward(float amount)      => Position += Front * amount;
     public void MoveHorizontally(float amount) => Position += Right * amount;
     public void MoveVertically(float amount)   => Position += Up * amount;
-	
+
+    private float _currentHorizontalRotation;
     public void RotateHorizontally(float degree)
     {
-        (float sin, float cos) = MathF.SinCos(degree * MathF.PI / 180f);
+        _currentHorizontalRotation += degree;
+        (float sin, float cos) = MathF.SinCos(_currentHorizontalRotation * MathF.PI / 180f);
         Front = new Vector3(sin, Front.Y, cos).Normalized();
         Right = Vector3.Cross(Up, Front).Normalized();
     }
-    public void RotateVertically(float degree) {
-        (float sin, float cos) = MathF.SinCos(degree * MathF.PI / 180f);
+    private float _currentVerticalRotation;
+    public void RotateVertically(float degree)
+    {
+        _currentVerticalRotation += degree; // TODO: needs to be inverted somehow
+        (float sin, float cos) = MathF.SinCos(_currentVerticalRotation * MathF.PI / 180f);
         Up    = new Vector3(Up.X, cos, sin);
         Front = Vector3.Cross(Right, Up).Normalized();
     }
+
+    public void SetFocalLength(float focalLength) => FocalLength = focalLength;
+    public void IncreaseFocalLength(float amount) => FocalLength += amount;
+
+    public void SetZoom(float zoom) => FocalLength = zoom;
+    public void Zoom(float scale) => FocalLength *= scale;
 }

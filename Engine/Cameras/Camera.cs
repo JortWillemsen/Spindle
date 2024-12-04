@@ -61,10 +61,9 @@ public abstract class Camera
     /// <returns>The offset for the ray origin and destination</returns>
     private Vector3 _sampleSquare()
     {
-        var r = Utils.GetRandom();
         return new Vector3(
-            (Utils.RandomFloat(r) - .5f) * (AspectRatio / ImageSize.Width), // FrustumHorizontal.Length() == AspectRatio
-            (Utils.RandomFloat(r) - .5f) * (FrustumHeight / ImageSize.Height),
+            (Utils.RandomFloat() - .5f) * (AspectRatio / ImageSize.Width), // FrustumHorizontal.Length() == AspectRatio
+            (Utils.RandomFloat() - .5f) * (FrustumHeight / ImageSize.Height),
             0f);
     }
     

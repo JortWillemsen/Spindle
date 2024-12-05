@@ -19,7 +19,7 @@ public abstract class Camera
     public int MaxDepth { get; private set; }
     public int Samples { get; private set; }
 
-    private const float FrustumHeight = 1f;
+    private const float _frustumHeight = 1f;
     
     // ReSharper disable once InconsistentNaming
     protected Camera(Vector3 position, Vector3 up, Vector3 front, Size imageSize, float FOV, int maxDepth, int samples)
@@ -36,8 +36,8 @@ public abstract class Camera
     }
     
     public Vector3 FrustumTopLeft    => Front * FocalLength - FrustumHorizontal / 2 + FrustumVertical / 2;
-    public Vector3 FrustumHorizontal => Right * FrustumHeight * AspectRatio;
-    public Vector3 FrustumVertical   => Up * FrustumHeight;
+    public Vector3 FrustumHorizontal => Right * _frustumHeight * AspectRatio;
+    public Vector3 FrustumVertical   => Up * _frustumHeight;
     
     public Vector3 GetDirectionTowardsPixel(float xPercentage, float yPercentage)
         => FrustumTopLeft + FrustumHorizontal * xPercentage - FrustumVertical * yPercentage;
@@ -63,7 +63,7 @@ public abstract class Camera
     {
         return new Vector3(
             (Utils.RandomFloat() - .5f) * (AspectRatio / ImageSize.Width), // FrustumHorizontal.Length() == AspectRatio
-            (Utils.RandomFloat() - .5f) * (FrustumHeight / ImageSize.Height),
+            (Utils.RandomFloat() - .5f) * (_frustumHeight / ImageSize.Height),
             0f);
     }
     

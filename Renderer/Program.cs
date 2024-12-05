@@ -37,7 +37,7 @@ var renderer = new PathTracingRenderer(scene);
 
 // IDisplay display = new PhotoDisplay(renderer, camera);
 IDisplay display = args.Length > 0
-	? new PhotoDisplay(renderer, cameraManager)
-	: new OpenGLDisplay(renderer, cameraManager);
+    ? new PhotoDisplay(renderer, cameraManager)
+    : new OpenGLDisplay(renderer, cameraManager);
 
 display.Show(args);

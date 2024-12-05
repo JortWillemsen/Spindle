@@ -105,12 +105,12 @@ public class OpenGLDisplay : IDisplay
 
 	private void OnLoad()
 	{
+		_gl = _window.CreateOpenGL(); // Store reference to our OpenGL API instance
+
 		// Listen to input
 		IInputContext input = _window.CreateInput();
 		foreach (IKeyboard keyboard in input.Keyboards)
 			keyboard.KeyDown += KeyDown;
-
-		_gl = _window.CreateOpenGL(); // Store reference to our OpenGL API instance
 
 		_gl.ClearColor(Color.Black); // Define the clear color
 

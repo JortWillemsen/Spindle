@@ -12,8 +12,8 @@ public static class ColorInt // todo: make extension methods out of these
 	}
 
 	public static Vector3 GetVector(int c) => new(GetR(c), GetB(c), GetB(c));
-	public static (byte r, byte g, byte b)  SplitRGB(int c)  => (GetR(c), GetG(c), GetB(c));
-	public static (byte r, byte g, byte b)  SplitRGB(Vector3 c)  => SplitRGB(Make(c));
+	public static (byte r, byte g, byte b)  SplitRgb(int c)  => (GetR(c), GetG(c), GetB(c));
+	public static (byte r, byte g, byte b)  SplitRgb(Vector3 c)  => SplitRgb(Make(c));
 	public static byte    GetR(int color)  => (byte)(color      );
 	public static byte    GetG(int color)  => (byte)(color >> 8 );
 	public static byte    GetB(int color)  => (byte)(color >> 16);

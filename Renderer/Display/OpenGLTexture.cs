@@ -192,8 +192,6 @@ public class OpenGLTexture
 				x1 += dx;
 			}
 		}
-
-		return;
 	}
 	
 	public void DrawPixel(int x, int y, int c)

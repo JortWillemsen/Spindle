@@ -22,6 +22,7 @@ public class Plane : Geometry
 		float denominator = Vector3.Dot(ray.Direction, Normal);
 		if (denominator > 1e-6)
 		{
+			// ReSharper disable once InconsistentNaming
 			Vector3 p0l0 = Position - ray.Origin;
 			float t = Vector3.Dot(p0l0, Normal) / denominator;
 			intersection = new Intersection(t, ray.At(t), Normal, ray, this);

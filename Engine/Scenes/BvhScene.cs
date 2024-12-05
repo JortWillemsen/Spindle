@@ -12,7 +12,7 @@ public class BvhScene : Scene
 	/// <summary>
 	/// All Bounding Boxes defining the Bounding Box Volumes used to accelerate ray intersections.
 	/// </summary>
-	protected List<IBoundingBox> BoundingBoxes;
+	protected List<IBoundingBox> _boundingBoxes;
 
 	/// <summary>
 	/// Creates a scene with BVH as an acceleration structure.
@@ -21,7 +21,7 @@ public class BvhScene : Scene
 	/// <param name="lights"></param>
 	public BvhScene(List<Geometry.Geometry> objects, List<LightSource> lights) : base(objects, lights)
 	{
-		BoundingBoxes = CreateBoundingBoxes();
+		_boundingBoxes = CreateBoundingBoxes();
 	}
 
 	/// <summary>

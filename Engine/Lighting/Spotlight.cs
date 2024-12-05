@@ -4,8 +4,8 @@ namespace Engine.Lighting;
 
 public class Spotlight : LightSource
 {
-	/// <inheritdoc />
-	public Spotlight(Vector3 position, Vector3 color) : base(position, color)
-	{
-	}
+    /// <inheritdoc />
+    public Spotlight(Vector3 position, Vector3 color) : base(position, color)
+    {
+    }
 }

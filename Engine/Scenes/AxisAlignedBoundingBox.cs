@@ -8,45 +8,45 @@ namespace Engine.Scenes;
 /// </summary>
 public class AxisAlignedBoundingBox : IBoundingBox
 {
-	/// <summary>
-	/// The corner towards all positive axes.
-	/// </summary>
-	public Vector3 UpperBounds;
+    /// <summary>
+    /// The corner towards all positive axes.
+    /// </summary>
+    public Vector3 UpperBounds;
 
-	/// <summary>
-	/// The corner towards all negative axes.
-	/// </summary>
-	public Vector3 LowerBounds;
+    /// <summary>
+    /// The corner towards all negative axes.
+    /// </summary>
+    public Vector3 LowerBounds;
 
-	// All fields from interface
-	/// <inheritdoc />
-	public IBoundingBox LeftChild { get; }
+    // All fields from interface
+    /// <inheritdoc />
+    public IBoundingBox LeftChild { get; }
 
-	/// <inheritdoc />
-	public IBoundingBox RightChild { get; }
+    /// <inheritdoc />
+    public IBoundingBox RightChild { get; }
 
-	/// <inheritdoc />
-	public IIntersectable Primitives { get; }
+    /// <inheritdoc />
+    public IIntersectable Primitives { get; }
 
-	/// <inheritdoc />
-	public bool IsLeaf { get; }
+    /// <inheritdoc />
+    public bool IsLeaf { get; }
 
-	/// <summary>
-	/// Creates an AABB.
-	/// </summary>
-	/// <param name="upperBounds">The upper boundary of what this AABB encapsulates.</param>
-	/// <param name="lowerBounds">The lower boundary of what this AABB encapsulates.</param>
-	public AxisAlignedBoundingBox(Vector3 upperBounds, Vector3 lowerBounds)
-	{
-		UpperBounds = upperBounds;
-		LowerBounds = lowerBounds;
+    /// <summary>
+    /// Creates an AABB.
+    /// </summary>
+    /// <param name="upperBounds">The upper boundary of what this AABB encapsulates.</param>
+    /// <param name="lowerBounds">The lower boundary of what this AABB encapsulates.</param>
+    public AxisAlignedBoundingBox(Vector3 upperBounds, Vector3 lowerBounds)
+    {
+        UpperBounds = upperBounds;
+        LowerBounds = lowerBounds;
 
-		// TODO: assign fields
-	}
+        // TODO: assign fields
+    }
 
-	/// <inheritdoc />
-	public bool TryIntersect(Ray ray, Interval interval, out Intersection intersection)
-	{
-		throw new NotImplementedException();
-	}
+    /// <inheritdoc />
+    public bool TryIntersect(Ray ray, Interval interval, out Intersection intersection)
+    {
+        throw new NotImplementedException();
+    }
 }

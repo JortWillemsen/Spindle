@@ -1,6 +1,5 @@
 using System.Numerics;
 using Engine.Geometry;
-using System.Diagnostics;
 
 namespace Engine.Scenes;
 
@@ -10,7 +9,7 @@ namespace Engine.Scenes;
 public class AxisAlignedBoundingBox : IBoundingBox
 {
     /// <summary>
-    /// The axis of the bounding box in 3D space
+    /// The axes of the bounding box in 3D space
     /// </summary>
     public Interval X, Y, Z;
 

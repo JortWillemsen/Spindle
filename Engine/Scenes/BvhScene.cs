@@ -34,8 +34,5 @@ public class BvhScene : Scene
     }
 
     /// <inheritdoc />
-    public override bool TryIntersect(Ray ray, Interval interval, out Intersection intersection)
-    {
-        throw new NotImplementedException();
-    }
+    public override PossibleIntersection FindIntersection(Ray ray, Interval interval) => throw new NotImplementedException();
 }

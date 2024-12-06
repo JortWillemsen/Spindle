@@ -1,5 +1,6 @@
 using System.Numerics;
 using Engine.Geometry;
+using OneOf.Types;
 using System.Diagnostics;
 
 namespace Engine.Scenes;
@@ -56,7 +57,7 @@ public class AxisAlignedBoundingBox : IBoundingBox
     }
 
     /// <inheritdoc />
-    public bool TryIntersect(Ray ray, Interval interval, out Intersection intersection)
+    public PossibleIntersection FindIntersection(Ray ray, Interval interval)
     {
         // Using the slab method with the formula t = (box bound - ray origin) / ray direction.
         
@@ -95,11 +96,9 @@ public class AxisAlignedBoundingBox : IBoundingBox
             if (!(interval.Max <= interval.Min)) continue;
             
             // If not, we do not have an intersection.
-            intersection = new Intersection();
-            return false;
+            return new None();
         }
 
-        intersection = new Intersection();
-        return true;
+        return new Intersection(default!, default!, default!, default!, default!); // TODO: actually return an intersection
     }
 }

@@ -23,7 +23,8 @@ public class PathTracingRenderer : IRenderer
             return;
         }
         
-        if (Scene.TryIntersect(ray, new Interval(0.001f, Utils.Infinity), out var intersection))
+        if (Scene.FindIntersection(ray, new Interval(0.001f, Utils.Infinity))
+            .FoundIndeedAnIntersection(out var intersection))
         {
             if (ScatterRay(ray, intersection, out var scatter))
             {

@@ -2,6 +2,7 @@ using System.Numerics;
 using Engine.Geometry;
 using Engine.Lighting;
 using Engine.Materials;
+using OneOf.Types;
 
 namespace Engine.Scenes;
 
@@ -31,30 +32,28 @@ public class Scene : IIntersectable
 
     public void AddLightSource(LightSource lightSource) => Lights.Add(lightSource);
     
-    // Find closest intersection of all objects in the scene
-    public virtual bool TryIntersect(Ray ray, Interval interval, out Intersection intersection)
+    // Find nearest intersection of all objects in the scene
+    public virtual PossibleIntersection FindIntersection(Ray ray, Interval interval)
     {
-        var intersected = false;
         // Current closest intersection, currently infinite for we have no intersection.
-        var closest = interval.Max;
+        float closest = interval.Max;
+        PossibleIntersection storedIntersection = new None();
 
-        // TODO: This feels dirty
-        var storedIntersection = Intersection.Undefined;
-        
         // Loop over all the geometry in the scene to determine what the ray hits.
         foreach (var obj in Objects)
         {
             // If we don't intersect, we continue checking the remaining objects.
-            if (!obj.TryIntersect(ray, new Interval(interval.Min, closest), out var newIntersection))
-               continue;
-            
-            // When we do hit, we set the closest to the new intersection (intersection2)
-            intersected = true;
-            closest = newIntersection.Distance;
-            storedIntersection = newIntersection;
+            obj.FindIntersection(ray, new Interval(interval.Min, closest)).Switch(
+                // When we do hit, we set the closest to the new intersection
+                intersection =>
+                {
+                    closest = intersection.Distance;
+                    storedIntersection = intersection;
+                },
+                // If we do not intersect, do nothing
+                _ => { });
         }
 
-        intersection = storedIntersection;
-        return intersected;
+        return storedIntersection;
     }
 }

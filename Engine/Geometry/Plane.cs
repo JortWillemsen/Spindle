@@ -1,5 +1,6 @@
 using System.Numerics;
 using Engine.Materials;
+using OneOf.Types;
 
 namespace Engine.Geometry;
 
@@ -16,21 +17,19 @@ public class Plane : Geometry
     }
 
     /// <inheritdoc />
-    public override bool TryIntersect(Ray ray, Interval interval, out Intersection intersection)
+    public override PossibleIntersection FindIntersection(Ray ray, Interval interval)
     {
         // Source: https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-plane-and-ray-disk-intersection
         float denominator = Vector3.Dot(ray.Direction, Normal);
         if (denominator > 1e-6)
         {
-            // ReSharper disable once InconsistentNaming
             Vector3 p0l0 = Position - ray.Origin;
             float t = Vector3.Dot(p0l0, Normal) / denominator;
-            intersection = new Intersection(t, ray.At(t), Normal, ray, this);
-            return t >= 0 && interval.Contains(t);
+            if (t >= 0 && interval.Contains(t))
+                return new Intersection(t, ray.At(t), Normal, ray, this);
         }
 
-        intersection = Intersection.Undefined;
-        return false;
+        return new None();
     }
 
     public override Vector3 GetNormalAt(Vector3 pointOnObject) => Normal;

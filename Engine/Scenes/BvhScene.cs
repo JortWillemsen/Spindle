@@ -30,6 +30,14 @@ public class BvhScene : Scene
     /// <returns>The Bounding Boxes defining the Bounding Box Volumes.</returns>
     private List<IBoundingBox> CreateBoundingBoxes()
     {
+        // Put a box around every primitive
+        
+        // Calculate closest primitives
+        
+        // Put them in a box together
+        
+        // Repeat until one box is left
+
         throw new NotImplementedException();
     }
 

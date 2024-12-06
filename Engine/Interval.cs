@@ -17,6 +17,17 @@ public class Interval
         Max = max;
     }
 
+    /// <summary>
+    /// Creates a new interval that encapsulates two existing ones.
+    /// </summary>
+    /// <param name="a"></param>
+    /// <param name="b"></param>
+    public Interval(Interval a, Interval b)
+    {
+        Min = a.Min <= b.Min ? a.Min : b.Min;
+        Max = a.Max >= b.Max ? a.Max : b.Max;
+    }
+
     public static Interval Empty()
     {
         return new Interval(Utils.Infinity, -Utils.Infinity);

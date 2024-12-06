@@ -55,6 +55,13 @@ public class AxisAlignedBoundingBox : IBoundingBox
             : new Interval(upperBounds.Z, lowerBounds.Z);
     }
 
+    public AxisAlignedBoundingBox(AxisAlignedBoundingBox a, AxisAlignedBoundingBox b)
+    {
+        X = new Interval(a.X, b.X);
+        Y = new Interval(a.Y, b.Y);
+        Z = new Interval(a.Z, b.Z);
+    }
+
     /// <inheritdoc />
     public bool TryIntersect(Ray ray, Interval interval, out Intersection intersection)
     {

@@ -2,8 +2,8 @@ namespace Engine;
 
 public class Interval
 {
-    public float Min { get; private set; }
-    public float Max { get; private set; }
+    public float Min;
+    public float Max;
 
     public Interval()
     {
@@ -34,6 +34,18 @@ public class Interval
         return Min <= x && x <= Max;
     }
 
+    /// <summary>
+    /// Method that can expand an interval by some delta.
+    /// This is mainly used when calculating edge cases of the bounding boxes.
+    /// </summary>
+    /// <param name="delta">Amount to expand the interval with</param>
+    /// <returns>An interval expanded with the delta parameter</returns>
+    public Interval Expand(float delta)
+    {
+        var padding = delta / 2;
+        return new Interval(Min - padding, Max + padding);
+    }
+    
     public bool Surrounds(float x)
     {
         return Min < x && x < Max;

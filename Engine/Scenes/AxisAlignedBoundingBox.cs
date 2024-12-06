@@ -55,11 +55,15 @@ public class AxisAlignedBoundingBox : IBoundingBox
             : new Interval(upperBounds.Z, lowerBounds.Z);
     }
 
-    public AxisAlignedBoundingBox(AxisAlignedBoundingBox a, AxisAlignedBoundingBox b)
+    /// <summary>
+    /// Creates an AABB that encapsulates multiple other AABBs
+    /// </summary>
+    /// <param name="boxes"></param>
+    public AxisAlignedBoundingBox(params AxisAlignedBoundingBox[] boxes)
     {
-        X = new Interval(a.X, b.X);
-        Y = new Interval(a.Y, b.Y);
-        Z = new Interval(a.Z, b.Z);
+        X = new Interval(boxes.Select(b => b.X).ToArray());
+        Y = new Interval(boxes.Select(b => b.Y).ToArray());
+        Z = new Interval(boxes.Select(b => b.Z).ToArray());
     }
 
     /// <inheritdoc />

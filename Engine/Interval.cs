@@ -18,14 +18,13 @@ public class Interval
     }
 
     /// <summary>
-    /// Creates a new interval that encapsulates two existing ones.
+    /// Creates a new interval that encapsulates existing ones.
     /// </summary>
-    /// <param name="a"></param>
-    /// <param name="b"></param>
-    public Interval(Interval a, Interval b)
+    /// <param name="intervals">The intervals that need to be enclosed</param>
+    public Interval(params Interval[] intervals)
     {
-        Min = a.Min <= b.Min ? a.Min : b.Min;
-        Max = a.Max >= b.Max ? a.Max : b.Max;
+        Min = intervals.Min(i => i.Min);
+        Max = intervals.Max(i => i.Max);
     }
 
     public static Interval Empty()

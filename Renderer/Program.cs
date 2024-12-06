@@ -2,19 +2,17 @@
 using System.Numerics;
 using Engine.Cameras;
 using Engine.Geometry;
+using Engine.Lighting;
 using Engine.Materials;
 using Engine.Renderers;
+using Engine.Scenes;
 using Renderer.Display;
 
-Console.WriteLine("Welcome to Spindle!");
-
 const float aspectRatio = 16f / 9f;
-
 const int windowWidth = 300 * 2;
 const int windowHeight = (int)(windowWidth / aspectRatio);
 const int maxDepth = 100;
 const int samples = 20;
-
 const float fov = 65f;
 
 var cameraManager = new CameraManager(new Size(windowWidth, windowHeight), CameraLayout.Matrix);
@@ -30,14 +28,16 @@ var orb = new Sphere(new Vector3(-.6f,  0f, 1.2f), matCenter, 0.5f);
 var orb2 = new Sphere(new Vector3(.6f,  0f, 1.2f), matCenter, 0.5f);
 var orb3 = new Sphere(new Vector3(0f,  1f, 1.2f), matReflect, 0.5f);
 
+var objects = new List<Geometry> { groundOrb, orb, orb2, orb3 };
+var lights = new List<LightSource> { new Spotlight(Vector3.One, Vector3.One) };
 
-var scene = new Scene(groundOrb, orb, orb2, orb3);
+var scene = new BvhScene(objects, lights);
 
 var renderer = new PathTracingRenderer(scene);
 
 // IDisplay display = new PhotoDisplay(renderer, camera);
 IDisplay display = args.Length > 0
-	? new PhotoDisplay(renderer, cameraManager)
-	: new OpenGLDisplay(renderer, cameraManager);
+    ? new PhotoDisplay(renderer, cameraManager)
+    : new OpenGLDisplay(renderer, cameraManager);
 
 display.Show(args);

@@ -12,19 +12,14 @@ public class Utils
         return degrees * Pi / 180f;
     }
 
-    public static float RandomFloat(Random r)
+    public static float RandomFloat()
     {
-        return r.NextSingle();
+        return Random.Shared.NextSingle();
     }
 
-    public static float RandomFloat(Random r, float min, float max)
+    public static float RandomFloat(float min, float max)
     {
-        return min + (max - min) * RandomFloat(r);
-    }
-
-    public static Random GetRandom()
-    {
-        return new Random();
+        return min + (max - min) * RandomFloat();
     }
 
     public static int RgbToInt(Vector3 rgb)
@@ -55,9 +50,7 @@ public class Utils
     
     public static Vector3 RandomVector(float min, float max)
     {
-        var r = new Random();
-        
-        return new Vector3(Utils.RandomFloat(r, min, max), Utils.RandomFloat(r, min, max), Utils.RandomFloat(r, min, max));
+        return new Vector3(Utils.RandomFloat(min, max), Utils.RandomFloat(min, max), Utils.RandomFloat(min, max));
     }
     
     public static Vector3 RandomVectorNormalized()

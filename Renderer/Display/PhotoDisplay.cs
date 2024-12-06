@@ -1,7 +1,5 @@
 ﻿using System.Drawing;
-using System.Numerics;
 using Engine;
-using Engine.Cameras;
 using Engine.Renderers;
 
 namespace Renderer.Display;
@@ -26,6 +24,8 @@ public class PhotoDisplay : IDisplay
     /// <inheritdoc />
     public void Show(params string[] args)
     {
+        Console.WriteLine("Welcome to Spindle!");
+
         if (args.Length == 0)
             throw new ArgumentException("No filepath specified");
 
@@ -86,7 +86,7 @@ public class PhotoDisplay : IDisplay
 
     public static string WriteColor(int pixel)
     {
-        (byte r, int g, int b) = ColorInt.SplitRGB(pixel);
+        (byte r, int g, int b) = ColorInt.SplitRgb(pixel);
         return string.Join(" ", r, g, b);
     }
 

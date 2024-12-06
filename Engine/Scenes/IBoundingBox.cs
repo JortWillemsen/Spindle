@@ -15,7 +15,7 @@ public interface IBoundingBox : IIntersectable
     /// <summary>
     /// All objects in the scene in the Bounding Box Volume defined by this Bounding Box.
     /// </summary>
-    public IIntersectable Primitives { get; }
+    public Geometry.Geometry[] Primitives { get; }
     /// <summary>
     /// Whether this Bounding Box cannot be traversed to find another bounding box and thus does not store primitives.
     /// </summary>

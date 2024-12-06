@@ -31,7 +31,7 @@ public class Interval
     {
         return new Interval(Utils.Infinity, -Utils.Infinity);
     }
-
+    
     public static Interval Universe()
     {
         return new Interval(-Utils.Infinity, Utils.Infinity);
@@ -54,6 +54,15 @@ public class Interval
     {
         var padding = delta / 2;
         return new Interval(Min - padding, Max + padding);
+    }
+
+    public (Interval, Interval) Split()
+    {
+        float center = (Min + Max) / 2;
+        
+        return new(
+            new Interval(Min, center), 
+            new Interval(center, Max));
     }
     
     public bool Surrounds(float x)

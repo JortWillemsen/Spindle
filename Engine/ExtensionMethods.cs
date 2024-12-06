@@ -1,3 +1,4 @@
+using Engine.Scenes;
 using System.Numerics;
 
 namespace Engine;
@@ -19,6 +20,17 @@ internal static class ExtensionMethods
             0 => vector.X,
             1 => vector.Y,
             2 => vector.Z,
+            _ => throw new ArgumentOutOfRangeException(nameof(axis), axis, "No such axis")
+        };
+    }
+    
+    public static Interval AxisByInt(this AxisAlignedBoundingBox box, int axis)
+    {
+        return axis switch
+        {
+            0 => box.X,
+            1 => box.Y,
+            2 => box.Z,
             _ => throw new ArgumentOutOfRangeException(nameof(axis), axis, "No such axis")
         };
     }

@@ -1,5 +1,7 @@
 using Engine.Geometry;
 using Engine.Lighting;
+using Engine.Strategies;
+using Engine.Strategies.BVH;
 
 namespace Engine.Scenes;
 
@@ -9,36 +11,31 @@ namespace Engine.Scenes;
 /// </summary>
 public class BvhScene : Scene
 {
+    private IBVHStrategy _bVHStrategy;
     /// <summary>
     /// All Bounding Boxes defining the Bounding Box Volumes used to accelerate ray intersections.
     /// </summary>
-    protected List<IBoundingBox> _boundingBoxes;
+    protected IBoundingBox _boundingBox;
 
     /// <summary>
     /// Creates a scene with BVH as an acceleration structure.
     /// </summary>
+    /// <param name="strategy">Strategy used to create the BVH</param>
     /// <param name="objects"></param>
     /// <param name="lights"></param>
-    public BvhScene(List<Geometry.Geometry> objects, List<LightSource> lights) : base(objects, lights)
+    public BvhScene(IBVHStrategy strategy, List<Geometry.Geometry> objects, List<LightSource> lights) : base(objects, lights)
     {
-        _boundingBoxes = CreateBoundingBoxes();
+        _bVHStrategy = strategy;
+        _boundingBox = CreateBoundingBoxes();
     }
 
     /// <summary>
     /// Divides all geometry in the scene into Bounding Box Volumes, which can be used to accelerate ray intersections.
     /// </summary>
     /// <returns>The Bounding Boxes defining the Bounding Box Volumes.</returns>
-    private List<IBoundingBox> CreateBoundingBoxes()
+    private IBoundingBox CreateBoundingBoxes()
     {
-        // Put a box around every primitive
-        
-        // Calculate closest primitives
-        
-        // Put them in a box together
-        
-        // Repeat until one box is left
-
-        throw new NotImplementedException();
+        return _bVHStrategy.Build(this);
     }
 
     /// <inheritdoc />

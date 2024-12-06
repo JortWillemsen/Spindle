@@ -16,16 +16,16 @@ public class AxisAlignedBoundingBox : IBoundingBox
 
     // All fields from interface
     /// <inheritdoc />
-    public IBoundingBox LeftChild { get; }
+    public IBoundingBox LeftChild { get; set;  }
 
     /// <inheritdoc />
-    public IBoundingBox RightChild { get; }
+    public IBoundingBox RightChild { get; set;  }
 
     /// <inheritdoc />
-    public IIntersectable Primitives { get; }
+    public Geometry.Geometry[] Primitives { get; }
 
     /// <inheritdoc />
-    public bool IsLeaf { get; }
+    public bool IsLeaf { get; set;  }
 
     /// <summary>
     /// Creates an AABB that is empty
@@ -59,13 +59,14 @@ public class AxisAlignedBoundingBox : IBoundingBox
     /// Creates an AABB that encapsulates multiple other AABBs
     /// </summary>
     /// <param name="boxes"></param>
-    public AxisAlignedBoundingBox(params AxisAlignedBoundingBox[] boxes)
+    public AxisAlignedBoundingBox(Geometry.Geometry[] primitives, params AxisAlignedBoundingBox[] boxes)
     {
+        Primitives = primitives;
+        
         X = new Interval(boxes.Select(b => b.X).ToArray());
         Y = new Interval(boxes.Select(b => b.Y).ToArray());
         Z = new Interval(boxes.Select(b => b.Z).ToArray());
     }
-
     /// <inheritdoc />
     public bool TryIntersect(Ray ray, Interval interval, out Intersection intersection)
     {

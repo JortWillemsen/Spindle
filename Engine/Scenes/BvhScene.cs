@@ -33,6 +33,6 @@ public class BvhScene : Scene
     /// <inheritdoc />
     public override bool TryIntersect(Ray ray, Interval interval, out Intersection intersection)
     {
-        throw new NotImplementedException();
+        return _bvh.TryIntersect(ray, interval, out intersection);
     }
 }

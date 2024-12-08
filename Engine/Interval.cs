@@ -1,6 +1,6 @@
 namespace Engine;
 
-public class Interval
+public struct Interval
 {
     public float Min;
     public float Max;

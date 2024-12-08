@@ -1,3 +1,4 @@
+using Engine.AccelerationStructures.BoundingVolumeHierarchy;
 using Engine.Geometry;
 using Engine.Lighting;
 using Engine.Strategies;
@@ -13,9 +14,9 @@ public class BvhScene : Scene
 {
     private IBvhStrategy _bVHStrategy;
     /// <summary>
-    /// All Bounding Boxes defining the Bounding Box Volumes used to accelerate ray intersections.
+    /// The bounding volume hierarchy used for intersection calculation
     /// </summary>
-    protected IBoundingBox _boundingBox;
+    protected BvhNode _bvh;
 
     /// <summary>
     /// Creates a scene with BVH as an acceleration structure.
@@ -26,18 +27,9 @@ public class BvhScene : Scene
     public BvhScene(IBvhStrategy strategy, List<Geometry.Geometry> objects, List<LightSource> lights) : base(objects, lights)
     {
         _bVHStrategy = strategy;
-        _boundingBox = CreateBoundingBoxes();
+        _bvh = strategy.Build(this);
     }
-
-    /// <summary>
-    /// Divides all geometry in the scene into Bounding Box Volumes, which can be used to accelerate ray intersections.
-    /// </summary>
-    /// <returns>The Bounding Boxes defining the Bounding Box Volumes.</returns>
-    private IBoundingBox CreateBoundingBoxes()
-    {
-        return _bVHStrategy.Build(this);
-    }
-
+    
     /// <inheritdoc />
     public override bool TryIntersect(Ray ray, Interval interval, out Intersection intersection)
     {

@@ -34,7 +34,7 @@ public class Plane : Geometry
         return false;
     }
 
-    public override AxisAlignedBoundingBox BuildBoundingBox() => throw new NotImplementedException();
+    public override IBoundingBox GetBoundingBox() => throw new NotImplementedException();
 
     public override Vector3 GetNormalAt(Vector3 pointOnObject) => Normal;
 }

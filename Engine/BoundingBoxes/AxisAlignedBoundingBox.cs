@@ -13,19 +13,6 @@ public class AxisAlignedBoundingBox : IBoundingBox
     /// </summary>
     public Interval X, Y, Z;
 
-    // All fields from interface
-    /// <inheritdoc />
-    public IBoundingBox LeftChild { get; set;  }
-
-    /// <inheritdoc />
-    public IBoundingBox RightChild { get; set;  }
-
-    /// <inheritdoc />
-    public Geometry.Geometry[] Primitives { get; }
-
-    /// <inheritdoc />
-    public bool IsLeaf { get; set;  }
-
     /// <summary>
     /// Creates an AABB that is empty
     /// </summary>
@@ -58,13 +45,14 @@ public class AxisAlignedBoundingBox : IBoundingBox
     /// Creates an AABB that encapsulates multiple other AABBs
     /// </summary>
     /// <param name="boxes"></param>
-    public AxisAlignedBoundingBox(Geometry.Geometry[] primitives, params AxisAlignedBoundingBox[] boxes)
+    public AxisAlignedBoundingBox(params IBoundingBox[] boxes)
     {
-        Primitives = primitives;
+        // TODO: Remove dirty cast
+        var aabbs = boxes.OfType<AxisAlignedBoundingBox>().ToArray();
         
-        X = new Interval(boxes.Select(b => b.X).ToArray());
-        Y = new Interval(boxes.Select(b => b.Y).ToArray());
-        Z = new Interval(boxes.Select(b => b.Z).ToArray());
+        X = new Interval(aabbs.Select(b => b.X).ToArray());
+        Y = new Interval(aabbs.Select(b => b.Y).ToArray());
+        Z = new Interval(aabbs.Select(b => b.Z).ToArray());
     }
     /// <inheritdoc />
     public bool TryIntersect(Ray ray, Interval interval, out Intersection intersection)
@@ -112,5 +100,24 @@ public class AxisAlignedBoundingBox : IBoundingBox
 
         intersection = new Intersection();
         return true;
+    }
+    
+    public IBoundingBox GetBoundingBox() => this;
+
+    public IBoundingBox Combine(IBoundingBox[] boxes)
+    {
+        //TODO: Dirty cast, need to figure out a way to abstract this logic.
+        return new AxisAlignedBoundingBox((AxisAlignedBoundingBox[]) boxes);
+    }
+
+    public Interval AxisByInt(int axis)
+    {
+        return axis switch
+        {
+            0 => X,
+            1 => Y,
+            2 => Z,
+            _ => throw new ArgumentOutOfRangeException(nameof(axis), axis, "No such axis")
+        };
     }
 }

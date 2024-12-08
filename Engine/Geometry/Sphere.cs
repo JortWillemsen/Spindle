@@ -58,7 +58,7 @@ public class Sphere : Geometry
         return true;
     }
     
-    public override AxisAlignedBoundingBox BuildBoundingBox()
+    public override IBoundingBox GetBoundingBox()
     {
         Vector3 radiusVector = new Vector3(Radius, Radius, Radius);
 

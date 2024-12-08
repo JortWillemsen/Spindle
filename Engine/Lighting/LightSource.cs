@@ -1,4 +1,5 @@
 using Engine.Geometry;
+using Engine.Scenes;
 using System.Numerics;
 
 namespace Engine.Lighting;
@@ -15,4 +16,5 @@ public abstract class LightSource : IIntersectable
     }
 
     public bool TryIntersect(Ray ray, Interval interval, out Intersection intersection) => throw new NotImplementedException();
+    public abstract IBoundingBox GetBoundingBox();
 }

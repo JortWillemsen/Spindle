@@ -1,8 +1,9 @@
-﻿using Engine.Scenes;
+﻿using Engine.AccelerationStructures.BoundingVolumeHierarchy;
+using Engine.Scenes;
 
 namespace Engine.Strategies.BVH;
 
 public interface IBvhStrategy
 {
-    public IBoundingBox Build(Scene scene);
+    public BvhNode Build(Scene scene);
 }

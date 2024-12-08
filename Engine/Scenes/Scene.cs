@@ -64,4 +64,9 @@ public class Scene : IIntersectable
         intersection = storedIntersection;
         return intersected;
     }
+
+    public IBoundingBox GetBoundingBox()
+    {
+        return new AxisAlignedBoundingBox(Objects.Select(o => o.GetBoundingBox()).ToArray());
+    }
 }

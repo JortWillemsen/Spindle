@@ -1,6 +1,7 @@
 using System.Numerics;
 using Engine.Exceptions;
 using Engine.Materials;
+using Engine.Scenes;
 
 namespace Engine.Geometry;
 
@@ -55,6 +56,13 @@ public class Sphere : Geometry
         var intersectionPoint = ray.At(root);
         intersection = new Intersection(root, intersectionPoint, GetNormalAt(intersectionPoint), ray, this);
         return true;
+    }
+    
+    public override IBoundingBox GetBoundingBox()
+    {
+        Vector3 radiusVector = new Vector3(Radius, Radius, Radius);
+
+        return new AxisAlignedBoundingBox(Position - radiusVector, Position + radiusVector);
     }
 
     public override Vector3 GetNormalAt(Vector3 pointOnObject)

@@ -25,6 +25,13 @@ public class Scene : IIntersectable
     {
         Lights.Add(obj);
     }
+
+    public IIntersectable[] GetIntersectables()
+    {
+        var intersectables = new List<IIntersectable>();
+
+        return intersectables.Concat(Objects).Concat(Lights).ToArray();
+    }
     
     public void AddSphere(Vector3 position, Material material, float radius)
         => Add(new Sphere(position, material, radius));
@@ -56,5 +63,10 @@ public class Scene : IIntersectable
 
         intersection = storedIntersection;
         return intersected;
+    }
+
+    public IBoundingBox GetBoundingBox()
+    {
+        return new AxisAlignedBoundingBox(Objects.Select(o => o.GetBoundingBox()).ToArray());
     }
 }

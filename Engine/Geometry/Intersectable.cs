@@ -1,3 +1,4 @@
+using Engine.Scenes;
 using System.Numerics;
 
 namespace Engine.Geometry;
@@ -13,6 +14,8 @@ public interface IIntersectable
     /// <param name="intersection">The determined intersection, with all quick information about it.</param>
     /// <returns>Whether an intersection was found, and thus <paramref name="intersection"/> is correctly defined.</returns>
     public bool TryIntersect(Ray ray, Interval interval, out Intersection intersection);
+
+    public IBoundingBox GetBoundingBox();
 }
 
 

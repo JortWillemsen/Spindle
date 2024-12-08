@@ -1,8 +1,10 @@
+using Engine.Geometry;
+using Engine.Scenes;
 using System.Numerics;
 
 namespace Engine.Lighting;
 
-public abstract class LightSource
+public abstract class LightSource : IIntersectable
 {
     public Vector3 Position { get; }
     public Vector3 Color    { get; }
@@ -12,4 +14,7 @@ public abstract class LightSource
         Position = position;
         Color = color * 30; // TODO
     }
+
+    public bool TryIntersect(Ray ray, Interval interval, out Intersection intersection) => throw new NotImplementedException();
+    public abstract IBoundingBox GetBoundingBox();
 }

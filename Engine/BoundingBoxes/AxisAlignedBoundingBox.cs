@@ -1,6 +1,5 @@
 using System.Numerics;
 using Engine.Geometry;
-using System.Diagnostics;
 
 namespace Engine.Scenes;
 
@@ -13,19 +12,6 @@ public class AxisAlignedBoundingBox : IBoundingBox
     /// The axes of the bounding box in 3D space
     /// </summary>
     public Interval X, Y, Z;
-
-    // All fields from interface
-    /// <inheritdoc />
-    public IBoundingBox LeftChild { get; }
-
-    /// <inheritdoc />
-    public IBoundingBox RightChild { get; }
-
-    /// <inheritdoc />
-    public IIntersectable Primitives { get; }
-
-    /// <inheritdoc />
-    public bool IsLeaf { get; }
 
     /// <summary>
     /// Creates an AABB that is empty
@@ -55,6 +41,19 @@ public class AxisAlignedBoundingBox : IBoundingBox
             : new Interval(upperBounds.Z, lowerBounds.Z);
     }
 
+    /// <summary>
+    /// Creates an AABB that encapsulates multiple other AABBs
+    /// </summary>
+    /// <param name="boxes"></param>
+    public AxisAlignedBoundingBox(params IBoundingBox[] boxes)
+    {
+        // TODO: Remove dirty cast
+        var aabbs = boxes.OfType<AxisAlignedBoundingBox>().ToArray();
+        
+        X = new Interval(aabbs.Select(b => b.X).ToArray());
+        Y = new Interval(aabbs.Select(b => b.Y).ToArray());
+        Z = new Interval(aabbs.Select(b => b.Z).ToArray());
+    }
     /// <inheritdoc />
     public bool TryIntersect(Ray ray, Interval interval, out Intersection intersection)
     {
@@ -101,5 +100,24 @@ public class AxisAlignedBoundingBox : IBoundingBox
 
         intersection = new Intersection();
         return true;
+    }
+    
+    public IBoundingBox GetBoundingBox() => this;
+
+    public IBoundingBox Combine(IBoundingBox[] boxes)
+    {
+        //TODO: Dirty cast, need to figure out a way to abstract this logic.
+        return new AxisAlignedBoundingBox((AxisAlignedBoundingBox[]) boxes);
+    }
+
+    public Interval AxisByInt(int axis)
+    {
+        return axis switch
+        {
+            0 => X,
+            1 => Y,
+            2 => Z,
+            _ => throw new ArgumentOutOfRangeException(nameof(axis), axis, "No such axis")
+        };
     }
 }

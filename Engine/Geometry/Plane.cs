@@ -1,5 +1,6 @@
 using System.Numerics;
 using Engine.Materials;
+using Engine.Scenes;
 
 namespace Engine.Geometry;
 
@@ -32,6 +33,8 @@ public class Plane : Geometry
         intersection = Intersection.Undefined;
         return false;
     }
+
+    public override IBoundingBox GetBoundingBox() => throw new NotImplementedException();
 
     public override Vector3 GetNormalAt(Vector3 pointOnObject) => Normal;
 }

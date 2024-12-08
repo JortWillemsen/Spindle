@@ -2,7 +2,7 @@
 
 namespace Engine.Strategies.BVH;
 
-public interface IBVHStrategy
+public interface IBvhStrategy
 {
     public IBoundingBox Build(Scene scene);
 }

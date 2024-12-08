@@ -4,7 +4,7 @@ using Engine.Scenes;
 
 namespace Engine.Strategies.BVH;
 
-public class SplitDirectionStrategy : IBVHStrategy
+public class SplitDirectionStrategy : IBvhStrategy
 {
     public IBoundingBox Build(Scene scene)
     {
@@ -40,7 +40,7 @@ public class SplitDirectionStrategy : IBVHStrategy
         }
         
         // Find the split intervals
-        var (fst, snd) = box.AxisByInt(axisToSplit).Split();
+        (Interval fst, Interval snd) = box.AxisByInt(axisToSplit).Split();
         
         var primsFst = new List<Geometry.Geometry>();
         var primsSnd = new List<Geometry.Geometry>();

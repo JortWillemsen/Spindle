@@ -11,7 +11,7 @@ namespace Engine.Scenes;
 /// </summary>
 public class BvhScene : Scene
 {
-    private IBVHStrategy _bVHStrategy;
+    private IBvhStrategy _bVHStrategy;
     /// <summary>
     /// All Bounding Boxes defining the Bounding Box Volumes used to accelerate ray intersections.
     /// </summary>
@@ -23,7 +23,7 @@ public class BvhScene : Scene
     /// <param name="strategy">Strategy used to create the BVH</param>
     /// <param name="objects"></param>
     /// <param name="lights"></param>
-    public BvhScene(IBVHStrategy strategy, List<Geometry.Geometry> objects, List<LightSource> lights) : base(objects, lights)
+    public BvhScene(IBvhStrategy strategy, List<Geometry.Geometry> objects, List<LightSource> lights) : base(objects, lights)
     {
         _bVHStrategy = strategy;
         _boundingBox = CreateBoundingBoxes();

@@ -42,7 +42,7 @@ public class TraversalStepsCamera : Camera
                 }
 
                 Vector3 color = Vector3.Lerp(new Vector3(0, 255, 0), new Vector3(255, 0, 0),
-                    (float) intersectionDebugInfo.NumberOfIntersectionTests / DisplayedTraversalStepsRange);
+                    Math.Clamp((float) intersectionDebugInfo.NumberOfTraversals / DisplayedTraversalStepsRange, 0, 1f));
 
                 pixels[j * ImageSize.Width + i] = ColorInt.Make(color);
             }

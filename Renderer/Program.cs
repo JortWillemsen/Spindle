@@ -20,9 +20,9 @@ var cameraManager = new CameraManager(new Size(windowWidth, windowHeight), Camer
 // cameraManager.AddBasicCamera(Vector3.Zero, maxDepth, samples, fov);
 // cameraManager.AddCamera(new BasicCamera(new Vector3(1, 1, 3), Vector3.UnitY, new Vector3(-1, 0, -3), new Size(), fov, maxDepth, samples));
 cameraManager.AddCamera(new IntersectionTestsCamera(new Vector3(1, 1, 3), Vector3.UnitY, new Vector3(-1, 0, -3), new Size(), fov, maxDepth, samples,
-    displayedIntersectionsRange: 50));
+    displayedIntersectionsRange: 100));
 cameraManager.AddCamera(new TraversalStepsCamera(new Vector3(1, 1, 3), Vector3.UnitY, new Vector3(-1, 0, -3), new Size(), fov, maxDepth, samples,
-    displayedTraversalStepsRange: 10));
+    displayedTraversalStepsRange: 200));
 
 var matGround = new Diffuse(0.5f, new Vector3(0.8f, 0.8f, 0f));
 var matCenter = new Diffuse(0.5f, new Vector3(.1f, .2f, .5f));

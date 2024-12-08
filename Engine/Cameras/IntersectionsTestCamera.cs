@@ -42,7 +42,7 @@ public class IntersectionTestsCamera : Camera
                 }
 
                 Vector3 color = Vector3.Lerp(new Vector3(0, 255, 0), new Vector3(255, 0, 0),
-                    (float) intersectionDebugInfo.NumberOfIntersectionTests / DisplayedIntersectionsRange);
+                    Math.Clamp((float) intersectionDebugInfo.NumberOfIntersectionTests / DisplayedIntersectionsRange, 0, 1f));
 
                 pixels[j * ImageSize.Width + i] = ColorInt.Make(color);
             }

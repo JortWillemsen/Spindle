@@ -93,7 +93,7 @@ public class AxisAlignedBoundingBox : IBoundingBox
         }
     }
 
-    intersection = Intersection.Undefined;
+    intersection = new Intersection { Distance = interval.Min };
     return true;
 }
 

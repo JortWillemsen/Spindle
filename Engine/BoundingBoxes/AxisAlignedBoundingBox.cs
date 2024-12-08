@@ -56,52 +56,48 @@ public class AxisAlignedBoundingBox : IBoundingBox
     }
     /// <inheritdoc />
     public bool TryIntersect(Ray ray, Interval interval, out Intersection intersection)
+{
+    for (int axis = 0; axis < 3; axis++)
     {
-        // Using the slab method with the formula t = (box bound - ray origin) / ray direction.
-        
-        for (int axis = 0; axis < 3; axis++)
+        // Finding the correct axis.
+        Interval ax = axis switch
         {
-            // Finding the correct axis.
-            Interval ax = axis switch
-            {
-                0 => X,
-                1 => Y,
-                2 => Z,
-                _ => throw new ArgumentOutOfRangeException(nameof(axis), axis, "No such axis")
-            };
+            0 => X,
+            1 => Y,
+            2 => Z,
+            _ => throw new ArgumentOutOfRangeException(nameof(axis), axis, "No such axis")
+        };
 
-            // We need the inverse of the direction since it is much faster to calculate using multiplication.
-            float adInv = 1f / ray.Direction.AxisByInt(axis);
+        // We need the inverse of the direction since it is much faster to calculate using multiplication.
+        float adInv = 1f / ray.Direction.AxisByInt(axis);
 
-            // t values that determine the intersection of the ray with the minimum and maximum bounds of the box.
-            float t0 = (ax.Min - ray.Origin.AxisByInt(axis) * adInv);
-            float t1 = (ax.Max - ray.Origin.AxisByInt(axis) * adInv);
-            
-            if (t0 < t1)
-            {
-                // intersection is in reverse, thus we need to swap.
-                if (t0 > interval.Min) interval.Min = t0;
-                if (t1 < interval.Max) interval.Max = t1;
-            }
-            else
-            {
-                // Update the interval
-                if (t1 > interval.Min) interval.Min = t1;
-                if (t0 < interval.Max) interval.Max = t0;
-            }
+        // t values that determine the intersection of the ray with the minimum and maximum bounds of the box.
+        float t0 = (ax.Min - ray.Origin.AxisByInt(axis)) * adInv;
+        float t1 = (ax.Max - ray.Origin.AxisByInt(axis)) * adInv;
 
-            // If this is the case, we are still on track for an intersection, thus continue calculating other axis.
-            if (!(interval.Max <= interval.Min)) continue;
-            
-            // If not, we do not have an intersection.
-            intersection = new Intersection();
-            return false;
+        if (t0 > t1)
+        {
+            // Swap t0 and t1 if t0 is greater than t1
+            (t0, t1) = (t1, t0);
         }
 
-        intersection = new Intersection();
-        return true;
+        // Update the interval
+        if (t0 > interval.Min) interval.Min = t0;
+        if (t1 < interval.Max) interval.Max = t1;
+
+        // If this is the case, we are still on track for an intersection, thus continue calculating other axis.
+        if (interval.Max <= interval.Min)
+        {
+            intersection = Intersection.Undefined;
+            return false;
+        }
     }
-    
+
+    intersection = Intersection.Undefined;
+    return true;
+}
+
+
     public IBoundingBox GetBoundingBox() => this;
 
     public IBoundingBox Combine(IBoundingBox[] boxes)

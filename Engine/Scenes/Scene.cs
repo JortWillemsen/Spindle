@@ -1,3 +1,4 @@
+using Engine.BoundingBoxes;
 using System.Numerics;
 using Engine.Geometry;
 using Engine.Lighting;
@@ -38,8 +39,8 @@ public class Scene : IIntersectable
 
     public void AddLightSource(LightSource lightSource) => Lights.Add(lightSource);
     
-    // Find closest intersection of all objects in the scene
-    public virtual bool TryIntersect(Ray ray, Interval interval, out Intersection intersection)
+    // Find nearest intersection of all objects in the scene
+    public virtual bool TryIntersect(Ray ray, Interval interval, out Intersection intersection, ref IntersectionDebugInfo intersectionDebugInfo)
     {
         var intersected = false;
         // Current closest intersection, currently infinite for we have no intersection.
@@ -49,10 +50,10 @@ public class Scene : IIntersectable
         var storedIntersection = Intersection.Undefined;
         
         // Loop over all the geometry in the scene to determine what the ray hits.
-        foreach (var obj in Objects)
+        foreach (Geometry.Geometry obj in Objects)
         {
             // If we don't intersect, we continue checking the remaining objects.
-            if (!obj.TryIntersect(ray, new Interval(interval.Min, closest), out var newIntersection))
+            if (!obj.TryIntersect(ray, new Interval(interval.Min, closest), out var newIntersection, ref intersectionDebugInfo))
                continue;
             
             // When we do hit, we set the closest to the new intersection (intersection2)

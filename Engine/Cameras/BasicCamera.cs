@@ -1,3 +1,4 @@
+using Engine.Geometry;
 using System.Drawing;
 using System.Numerics;
 using Engine.Renderers;
@@ -20,6 +21,7 @@ public class BasicCamera : Camera
             for (var i = 0; i < this.ImageSize.Width; i++)
             {
                 // int pixelColor = 0x0;
+                IntersectionDebugInfo intersectionDebugInfo = new();
                 Vector3 pixelColor = Vector3.Zero;
                 int sample = 0;
 
@@ -27,7 +29,7 @@ public class BasicCamera : Camera
                 {
                     var color = Vector3.One;
                     var ray = GetRayTowardsPixel(i, j);
-                    renderer.TraceRay(ray, MaxDepth, ref color);
+                    renderer.TraceRay(ray, MaxDepth, ref color, ref intersectionDebugInfo);
 
                     pixelColor += color;
                     // pixelColor = ColorInt.Make(ColorInt.GetVector(pixelColor) * ((float)sample / (sample + 1)) + color / (sample + 1)); // TODO: make other vector3s ints as well

@@ -1,0 +1,51 @@
+using Engine.Geometry;
+using System.Drawing;
+using System.Numerics;
+using Engine.Renderers;
+
+namespace Engine.Cameras;
+
+/// <summary>
+/// Creates a heat-map for the number of intersections
+/// </summary>
+public class IntersectionTestsCamera : Camera
+{
+    /// <summary>
+    /// The coloring scale is based on 0 until this value.
+    /// Values higher than this are clipped to the most intense color.
+    /// </summary>
+    public int DisplayedIntersectionsRange { get; }
+
+    // ReSharper disable once InconsistentNaming
+    /// <inheritdoc />
+    public IntersectionTestsCamera(Vector3 position, Vector3 up, Vector3 front, Size imageSize, float FOV, int maxDepth, int samples, int displayedIntersectionsRange)
+        : base(position, up, front, imageSize, FOV, maxDepth, samples)
+    {
+        DisplayedIntersectionsRange = displayedIntersectionsRange;
+    }
+
+    public override void RenderShot(IRenderer renderer, in Span<int> pixels)
+    {
+        for (var j = 0; j < this.ImageSize.Height; j++)
+        {
+            for (var i = 0; i < this.ImageSize.Width; i++)
+            {
+                IntersectionDebugInfo intersectionDebugInfo = new();
+                Vector3 pixelColor = Vector3.Zero;
+                int sample = 0;
+
+                while (sample < Samples)
+                {
+                    var ray = GetRayTowardsPixel(i, j);
+                    renderer.TraceRay(ray, MaxDepth, ref pixelColor, ref intersectionDebugInfo);
+                    sample++;
+                }
+
+                Vector3 color = Vector3.Lerp(new Vector3(0, 255, 0), new Vector3(255, 0, 0),
+                    (float) intersectionDebugInfo.NumberOfIntersectionTests / DisplayedIntersectionsRange);
+
+                pixels[j * ImageSize.Width + i] = ColorInt.Make(color);
+            }
+        }
+    }
+}

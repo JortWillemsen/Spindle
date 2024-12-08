@@ -1,3 +1,4 @@
+using Engine.BoundingBoxes;
 using System.Numerics;
 using Engine.Exceptions;
 using Engine.Materials;
@@ -17,8 +18,10 @@ public class Sphere : Geometry
         Radius = radius;
     }
 
-    public override bool TryIntersect(Ray ray, Interval distanceInterval, out Intersection intersection)
+    public override bool TryIntersect(Ray ray, Interval distanceInterval, out Intersection intersection, ref IntersectionDebugInfo intersectionDebugInfo)
     {
+        intersectionDebugInfo.NumberOfIntersectionTests++;
+
         // Calculate intersection point
         var oc = Position - ray.Origin;
 

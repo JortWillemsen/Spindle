@@ -1,5 +1,5 @@
-﻿using Engine.Geometry;
-using Engine.Scenes;
+﻿using Engine.BoundingBoxes;
+using Engine.Geometry;
 
 namespace Engine.AccelerationStructures.BoundingVolumeHierarchy;
 

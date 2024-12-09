@@ -1,7 +1,7 @@
-using System.Numerics;
 using Engine.Geometry;
+using System.Numerics;
 
-namespace Engine.Scenes;
+namespace Engine.BoundingBoxes;
 
 /// <summary>
 /// A Bounding Box aligned to the 3D axes.

@@ -1,5 +1,5 @@
+using Engine.BoundingBoxes;
 using Engine.Geometry;
-using Engine.Scenes;
 using System.Numerics;
 
 namespace Engine.Lighting;

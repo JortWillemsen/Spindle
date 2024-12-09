@@ -1,6 +1,6 @@
+using Engine.BoundingBoxes;
 using System.Numerics;
 using Engine.Materials;
-using Engine.Scenes;
 
 namespace Engine.Geometry;
 

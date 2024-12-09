@@ -1,6 +1,6 @@
 ﻿using Engine.AccelerationStructures.BoundingVolumeHierarchy;
+using Engine.BoundingBoxes;
 using Engine.Geometry;
-using Engine.Lighting;
 using Engine.Scenes;
 
 namespace Engine.Strategies.BVH;

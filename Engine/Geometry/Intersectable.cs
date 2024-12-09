@@ -1,4 +1,4 @@
-using Engine.Scenes;
+using Engine.BoundingBoxes;
 using System.Numerics;
 
 namespace Engine.Geometry;

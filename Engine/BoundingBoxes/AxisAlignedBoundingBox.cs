@@ -116,4 +116,10 @@ public class AxisAlignedBoundingBox : IBoundingBox
             _ => throw new ArgumentOutOfRangeException(nameof(axis), axis, "No such axis")
         };
     }
+
+    /// <inheritdoc />
+    public Vector3 GetLowerBound() => new(X.Min, Y.Min, Z.Min);
+
+    /// <inheritdoc />
+    public Vector3 GetUpperBound() => new(X.Max, Y.Max, Z.Max);
 }

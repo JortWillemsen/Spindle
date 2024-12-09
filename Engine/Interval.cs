@@ -38,6 +38,7 @@ public struct Interval
     }
 
     public float Size =>  Max - Min;
+    public float Middle => Min + Size / 2;
 
     public bool Contains(float x)
     {

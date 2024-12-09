@@ -31,7 +31,7 @@ public class BvhNode : IIntersectable
             {
                 return Left.TryIntersect(ray, interval, out intersection);
             }
-            
+
             if (!intersectsLeftBox && intersectsRightBox)
             {
                 return Right.TryIntersect(ray, interval, out intersection);
@@ -42,16 +42,16 @@ public class BvhNode : IIntersectable
                 intersection = Intersection.Undefined;
                 return false;
             }
-            
+
             // We do intersect with both boxes, thus we recurse the one that is closest to us.
             if (leftIntersection.Distance < rightIntersection.Distance)
             {
-                return Left.TryIntersect(ray, interval, out intersection) 
+                return Left.TryIntersect(ray, interval, out intersection) // TODO: return the one which is closest, always
                        ||
                        Right.TryIntersect(ray, interval, out intersection);
             }
             
-            return Right.TryIntersect(ray, interval, out intersection)
+            return Right.TryIntersect(ray, interval, out intersection) // TODO: return the one which is closest, always
                 || 
                 Left.TryIntersect(ray, interval, out intersection);
         }

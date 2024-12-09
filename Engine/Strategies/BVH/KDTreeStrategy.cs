@@ -101,24 +101,24 @@ public class KDTreeStrategy : IBvhStrategy
                 .AxisByInt((int)splitAxis).Max < splitPoint; // Most extreme point is not on right side of the split
 
             if (primitiveIsCompletelyToTheLeftOfSplit)
-                rightPrimitives.Add(primitive);
+                leftPrimitives.Add(primitive);
             else
-                leftPrimitives.Add(primitive); // Objects intersecting the split point are added to the right as well
+                rightPrimitives.Add(primitive); // Objects intersecting the split point are added to the right as well
         }
 
         // Now that we know everything, we create the new nodes
         BvhNode left = new()
         {
             BoundingBox = new AxisAlignedBoundingBox(leftLowerBounds, leftUpperBounds),
-            IsLeaf = ShouldBeLeaf(node),
             Primitives = leftPrimitives.ToArray()
         };
         BvhNode right = new()
         {
             BoundingBox = new AxisAlignedBoundingBox(rightLowerBounds, rightUpperBounds),
-            IsLeaf = ShouldBeLeaf(node),
             Primitives = rightPrimitives.ToArray()
         };
+        left.IsLeaf = ShouldBeLeaf(left);
+        right.IsLeaf = ShouldBeLeaf(right);
 
         return (left, right);
     }

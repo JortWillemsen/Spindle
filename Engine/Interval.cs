@@ -1,5 +1,8 @@
+using System.Diagnostics;
+
 namespace Engine;
 
+[DebuggerDisplay("[{Min}, {Max}]")]
 public struct Interval
 {
     public float Min;

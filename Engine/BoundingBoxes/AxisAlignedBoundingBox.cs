@@ -1,8 +1,10 @@
 using Engine.Geometry;
+using System.Diagnostics;
 using System.Numerics;
 
 namespace Engine.BoundingBoxes;
 
+[DebuggerDisplay("Bounds: X:{X}, Y:{Y}, Z:{Z}")]
 /// <summary>
 /// A Bounding Box aligned to the 3D axes.
 /// </summary>

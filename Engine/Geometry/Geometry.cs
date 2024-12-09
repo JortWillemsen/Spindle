@@ -19,4 +19,7 @@ public abstract class Geometry : IIntersectable
 
     public abstract bool TryIntersect(Ray ray, Interval interval, out Intersection intersection);
     public abstract IBoundingBox GetBoundingBox();
+
+    /// <inheritdoc />
+    public abstract Vector3 GetCentroid();
 }

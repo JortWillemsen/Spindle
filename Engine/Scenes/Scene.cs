@@ -70,4 +70,7 @@ public class Scene : IIntersectable
     {
         return new AxisAlignedBoundingBox(Objects.Select(o => o.GetBoundingBox()).ToArray());
     }
+
+    /// <inheritdoc />
+    public Vector3 GetCentroid() => GetBoundingBox().GetCentroid();
 }

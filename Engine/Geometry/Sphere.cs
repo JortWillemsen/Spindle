@@ -8,6 +8,7 @@ namespace Engine.Geometry;
 public class Sphere : Geometry
 {
     public float Radius { get; protected set; }
+    private IBoundingBox? _boundingBox;
 
     public Sphere(Vector3 position, Material material, float radius) : base(position, material)
     {
@@ -58,13 +59,18 @@ public class Sphere : Geometry
         return true;
     }
     
+    /// <inheritdoc />
     public override IBoundingBox GetBoundingBox()
     {
-        Vector3 radiusVector = new Vector3(Radius, Radius, Radius);
-
-        return new AxisAlignedBoundingBox(Position - radiusVector, Position + radiusVector);
+        Vector3 radiusVector = new(Radius, Radius, Radius);
+        _boundingBox ??= new AxisAlignedBoundingBox(Position - radiusVector, Position + radiusVector);
+        return _boundingBox;
     }
 
+    /// <inheritdoc />
+    public override Vector3 GetCentroid() => Position;
+
+    /// <inheritdoc />
     public override Vector3 GetNormalAt(Vector3 pointOnObject)
         => (pointOnObject - Position) / Radius; // Accurate enough for normalization
 

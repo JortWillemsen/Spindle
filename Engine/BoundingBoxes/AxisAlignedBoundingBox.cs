@@ -102,6 +102,9 @@ public class AxisAlignedBoundingBox : IBoundingBox
 
     public IBoundingBox GetBoundingBox() => this;
 
+    /// <inheritdoc />
+    public Vector3 GetCentroid() => GetLowerBound() + GetUpperBound() / 2;
+
     public IBoundingBox Combine(IBoundingBox[] boxes)
     {
         //TODO: Dirty cast, need to figure out a way to abstract this logic.

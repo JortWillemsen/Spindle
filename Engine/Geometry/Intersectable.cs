@@ -16,6 +16,7 @@ public interface IIntersectable
     public bool TryIntersect(Ray ray, Interval interval, out Intersection intersection);
 
     public IBoundingBox GetBoundingBox();
+    public Vector3 GetCentroid();
 }
 
 

@@ -17,4 +17,7 @@ public abstract class LightSource : IIntersectable
 
     public bool TryIntersect(Ray ray, Interval interval, out Intersection intersection) => throw new NotImplementedException();
     public abstract IBoundingBox GetBoundingBox();
+
+    /// <inheritdoc />
+    public Vector3 GetCentroid() => Position;
 }

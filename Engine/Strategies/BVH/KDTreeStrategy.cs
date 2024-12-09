@@ -144,24 +144,25 @@ public class KDTreeStrategy : IBvhStrategy
         Axis splitAxis = Axis.X;
         float lowerBoundOffset = 0;
         float cost = 0;
+        // TODO: what if all primitives are on exactly the same place and rotation?
 
         // Try to split along each axis most efficiently,
         // and store result if more efficient than known result
-        foreach (Axis axis in new[] { Axis.X, Axis.Y, Axis.Z })
+        foreach (Axis testAxis in new[] { Axis.X, Axis.Y, Axis.Z })
         {
-            float nodeLowerBound = nodeToSplit.GetBoundingBox().GetLowerBound().AxisByInt((int)axis);
+            float nodeLowerBound = nodeToSplit.GetBoundingBox().GetLowerBound().AxisByInt((int)testAxis);
 
             // Try to split at after each primitive TODO: might be optimised
             foreach (IIntersectable primitive in nodeToSplit.Primitives)
             {
-                float primitiveCentroidPointOnAxis = primitive.GetBoundingBox().AxisByInt((int)axis).Middle;
-                float testOffset = primitiveCentroidPointOnAxis - nodeLowerBound; // Determine offset of primitive from node lower bounds
-                float testCost = DetermineSplitCost(axis, nodeToSplit, testOffset); // Test the split
+                float primitiveCentroidPointOnAxis = primitive.GetCentroid().AxisByInt((int)testAxis);
+                float testOffset = primitiveCentroidPointOnAxis - nodeLowerBound + (float)1e-5; // Determine offset of primitive from node lower bounds
+                float testCost = DetermineSplitCost(testAxis, nodeToSplit, testOffset); // Test the split
                 if (testCost <= cost) continue; // Not a better solution
 
                 cost = testCost;
                 lowerBoundOffset = testOffset;
-                splitAxis = axis;
+                splitAxis = testAxis;
             }
         }
 
@@ -170,23 +171,33 @@ public class KDTreeStrategy : IBvhStrategy
 
     // TODO: do something smarter such that optimal balance between surface area and number of primitives is found.
     /// <summary>
-    /// A lower cost means that, given that all child primitives are equally divided
-    /// along the left and right side of the split, the split is closest to the center
-    /// of the axis along which to split.
+    /// A lower cost means that all child primitives are better divided along the left and
+    /// right side of the split, and that the split is closest to the center of the axis along which to split.
     /// </summary>
     /// <param name="splitAxis">The axis along which is split.</param>
-    /// <param name="parent">The parent which is split.</param>
-    /// <param name="offset">Distance to split at, offset from most negative parent coordinate.</param>
-    /// <returns></returns>
-    private static float DetermineSplitCost(Axis splitAxis, BvhNode parent, float offset)
+    /// <param name="node">The node which is split.</param>
+    /// <param name="offset">Distance to split at, offset from most negative node coordinate.</param>
+    /// <returns>The cost of the split.</returns>
+    private static float DetermineSplitCost(Axis splitAxis, BvhNode node, float offset)
     {
-        // Return absolute distance to axis centre
-        float axisCentre = parent.BoundingBox.AxisByInt((int)splitAxis).Size / 2;
-        return MathF.Abs(offset - axisCentre);
+        Interval axisInterval = node.BoundingBox.AxisByInt((int)splitAxis);
+        float axisCentre = axisInterval.Middle;
+        float splitPoint = axisInterval.Min + offset;
+
+        // Determine absolute distance to axis centre
+        float distanceToCentre = MathF.Abs(splitPoint - axisCentre);
+
+        // Determine the amount of imbalance between primitives left and right of the split
+        float numberOfPrimitiveCentroidsLeftOfSplit = node.Primitives.Count(
+            x => x.GetCentroid().AxisByInt((int)splitAxis) < splitPoint);
+        float primitiveImbalance = MathF.Abs(numberOfPrimitiveCentroidsLeftOfSplit - (float)node.Primitives.Length / 2);
+
+        // Determine cost
+        return distanceToCentre * primitiveImbalance;
     }
 }
 
 enum Axis
 {
-    X = 0, Y = 1, Z = 2 // Numbered for AxisByInt()
+    X = 0, Y = 1, Z = 2 // Numbered for AxisByInt() TODO: create other extensionmethod
 }

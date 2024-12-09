@@ -1,5 +1,6 @@
 ﻿using Engine.BoundingBoxes;
 using Engine.Geometry;
+using System.Numerics;
 
 namespace Engine.AccelerationStructures.BoundingVolumeHierarchy;
 
@@ -12,6 +13,9 @@ public class BvhNode : IIntersectable
     public IIntersectable[] Primitives;
     
     public IBoundingBox GetBoundingBox() => BoundingBox;
+
+    /// <inheritdoc />
+    public Vector3 GetCentroid() => BoundingBox.GetCentroid();
 
     public bool TryIntersect(Ray ray, Interval interval, out Intersection intersection)
     {

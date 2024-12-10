@@ -43,7 +43,7 @@ var tri = new Triangle(
 var objects = new List<Geometry> { groundOrb, orb, orb2, orb3, tri };
 var lights = new List<LightSource> { new Spotlight(Vector3.One, Vector3.One) };
 
-var meshImporter = new ObjMeshImporter("Assets/dragon/xyzrgb_dragon.obj", matCenter);
+var meshImporter = new ObjMeshImporter("Assets/teapot.obj", matCenter);
 var scene = new BvhScene(new SplitDirectionStrategy(), objects, lights, meshImporter);
 
 var renderer = new PathTracingRenderer(scene);

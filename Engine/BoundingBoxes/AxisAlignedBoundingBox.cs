@@ -1,12 +1,13 @@
-using Engine.BoundingBoxes;
 using System.Numerics;
 using Engine.Geometry;
+using System.Diagnostics;
 
-namespace Engine.Scenes;
+namespace Engine.BoundingBoxes;
 
 /// <summary>
 /// A Bounding Box aligned to the 3D axes.
 /// </summary>
+[DebuggerDisplay("Bounds: X:{X}, Y:{Y}, Z:{Z}")]
 public class AxisAlignedBoundingBox : IBoundingBox
 {
     /// <summary>
@@ -40,6 +41,15 @@ public class AxisAlignedBoundingBox : IBoundingBox
         Z = (lowerBounds.Z <= upperBounds.Z)
             ? new Interval(lowerBounds.Z, upperBounds.Z)
             : new Interval(upperBounds.Z, lowerBounds.Z);
+
+        // Prevent infinitely small dimensions of a bounding box
+        const float minimalDimensionSize = 1E-5f;
+        if (MathF.Abs(lowerBounds.X - upperBounds.X) < minimalDimensionSize)
+            X.Max += minimalDimensionSize;
+        if (MathF.Abs(lowerBounds.Y - upperBounds.Y) < minimalDimensionSize)
+            Y.Max += minimalDimensionSize;
+        if (MathF.Abs(lowerBounds.Z - upperBounds.Z) < minimalDimensionSize)
+            Z.Max += minimalDimensionSize;
     }
 
     /// <summary>

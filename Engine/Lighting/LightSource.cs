@@ -1,6 +1,5 @@
 using Engine.BoundingBoxes;
 using Engine.Geometry;
-using Engine.Scenes;
 using System.Numerics;
 
 namespace Engine.Lighting;
@@ -22,4 +21,7 @@ public abstract class LightSource : IIntersectable
         throw new NotImplementedException();
 
     public abstract IBoundingBox GetBoundingBox();
+
+    /// <inheritdoc />
+    public Vector3 GetCentroid() => Position;
 }

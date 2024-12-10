@@ -122,6 +122,9 @@ public class AxisAlignedBoundingBox : IBoundingBox
 
     public IBoundingBox GetBoundingBox() => this;
 
+    /// <inheritdoc />
+    public Vector3 GetCentroid() => GetLowerBound() + GetUpperBound() / 2;
+
     public IBoundingBox Combine(IBoundingBox[] boxes)
     {
         //TODO: Dirty cast, need to figure out a way to abstract this logic.
@@ -138,4 +141,10 @@ public class AxisAlignedBoundingBox : IBoundingBox
             _ => throw new ArgumentOutOfRangeException(nameof(axis), axis, "No such axis")
         };
     }
+
+    /// <inheritdoc />
+    public Vector3 GetLowerBound() => new(X.Min, Y.Min, Z.Min);
+
+    /// <inheritdoc />
+    public Vector3 GetUpperBound() => new(X.Max, Y.Max, Z.Max);
 }

@@ -2,7 +2,6 @@ using Engine.AccelerationStructures.BoundingVolumeHierarchy;
 using Engine.Geometry;
 using Engine.Lighting;
 using Engine.MeshImporters;
-using Engine.Strategies;
 using Engine.Strategies.BVH;
 
 namespace Engine.Scenes;

@@ -44,7 +44,7 @@ var objects = new List<Geometry> { groundOrb, orb, orb2, orb3, tri };
 var lights = new List<LightSource> { new Spotlight(Vector3.One, Vector3.One) };
 
 var meshImporter = new ObjMeshImporter("Assets/teapot.obj", matCenter);
-var scene = new BvhScene(new SplitDirectionStrategy(), objects, lights, meshImporter);
+var scene = new BvhScene(new KDTreeStrategy(1), objects, lights, meshImporter);
 
 var renderer = new PathTracingRenderer(scene);
 

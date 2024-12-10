@@ -86,4 +86,7 @@ public class Triangle : Geometry
 
         return new AxisAlignedBoundingBox(lowerBounds, upperBounds);
     }
+
+    /// <inheritdoc />
+    public override Vector3 GetCentroid() => Position;
 }

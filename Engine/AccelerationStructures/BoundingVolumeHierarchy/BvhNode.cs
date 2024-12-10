@@ -1,6 +1,6 @@
 ﻿using Engine.BoundingBoxes;
 using Engine.Geometry;
-using Engine.Scenes;
+using System.Numerics;
 
 namespace Engine.AccelerationStructures.BoundingVolumeHierarchy;
 
@@ -13,6 +13,9 @@ public class BvhNode : IIntersectable
     public IIntersectable[] Primitives;
     
     public IBoundingBox GetBoundingBox() => BoundingBox;
+
+    /// <inheritdoc />
+    public Vector3 GetCentroid() => BoundingBox.GetCentroid();
 
     public bool TryIntersect(Ray ray, Interval distanceInterval, out Intersection intersection, ref IntersectionDebugInfo intersectionDebugInfo)
     {
@@ -35,7 +38,7 @@ public class BvhNode : IIntersectable
             {
                 return Left.TryIntersect(ray, distanceInterval, out intersection, ref intersectionDebugInfo);
             }
-            
+
             if (!intersectsLeftBox && intersectsRightBox)
             {
                 return Right.TryIntersect(ray, distanceInterval, out intersection, ref intersectionDebugInfo);
@@ -46,7 +49,7 @@ public class BvhNode : IIntersectable
                 intersection = Intersection.Undefined;
                 return false;
             }
-            
+
             // We do intersect with both boxes, thus we recurse the one that is closest to us.
             if (leftIntersection.Distance < rightIntersection.Distance)
             {
@@ -56,7 +59,7 @@ public class BvhNode : IIntersectable
             }
             
             return Right.TryIntersect(ray, distanceInterval, out intersection, ref intersectionDebugInfo)
-                || 
+                ||
                 Left.TryIntersect(ray, distanceInterval, out intersection, ref intersectionDebugInfo);
         }
 

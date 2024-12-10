@@ -1,7 +1,6 @@
 using Engine.BoundingBoxes;
 using System.Numerics;
 using Engine.Materials;
-using Engine.Scenes;
 
 namespace Engine.Geometry;
 
@@ -38,6 +37,9 @@ public class Plane : Geometry
     }
 
     public override IBoundingBox GetBoundingBox() => throw new NotImplementedException();
+
+    /// <inheritdoc />
+    public override Vector3 GetCentroid() => Position;
 
     public override Vector3 GetNormalAt(Vector3 pointOnObject) => Normal;
 }

@@ -1,6 +1,7 @@
 using Engine.AccelerationStructures.BoundingVolumeHierarchy;
 using Engine.Geometry;
 using Engine.Lighting;
+using Engine.MeshImporters;
 using Engine.Strategies;
 using Engine.Strategies.BVH;
 
@@ -29,7 +30,14 @@ public class BvhScene : Scene
         _bVHStrategy = strategy;
         _bvh = strategy.Build(this);
     }
-    
+
+    public BvhScene(IBvhStrategy strategy, List<Geometry.Geometry> objects, List<LightSource> lights, params MeshImporter[] meshImporters)
+        : base(objects, lights, meshImporters)
+    {
+        _bVHStrategy = strategy;
+        _bvh = strategy.Build(this);
+    }
+
     /// <inheritdoc />
     public override bool TryIntersect(Ray ray, Interval interval, out Intersection intersection, ref IntersectionDebugInfo intersectionDebugInfo)
     {

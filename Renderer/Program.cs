@@ -4,6 +4,7 @@ using Engine.Cameras;
 using Engine.Geometry;
 using Engine.Lighting;
 using Engine.Materials;
+using Engine.MeshImporters;
 using Engine.Renderers;
 using Engine.Scenes;
 using Engine.Strategies.BVH;
@@ -36,7 +37,8 @@ var orb3 = new Sphere(new Vector3(0f,  1f, 1.2f), matReflect, 0.5f);
 var objects = new List<Geometry> { groundOrb, orb, orb2, orb3 };
 var lights = new List<LightSource> { new Spotlight(Vector3.One, Vector3.One) };
 
-var scene = new BvhScene(new SplitDirectionStrategy(), objects, lights);
+var meshImporter = new ObjMeshImporter("Assets/dragon/xyzrgb_dragon.obj", matCenter);
+var scene = new BvhScene(new SplitDirectionStrategy(), objects, lights, meshImporter);
 
 var renderer = new PathTracingRenderer(scene);
 

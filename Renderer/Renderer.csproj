@@ -18,5 +18,10 @@
       <PackageReference Include="Silk.NET.Windowing" Version="2.22.0" />
       <PackageReference Include="StbImageSharp" Version="2.30.15" />
     </ItemGroup>
+    <ItemGroup>
+      <None Update="Assets\dragon\xyzrgb_dragon.obj">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
 
 </Project>

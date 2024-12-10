@@ -16,7 +16,6 @@ public class ObjMeshImporter : MeshImporter
     }
 
     /// <inheritdoc />
-    /// <remarks>Assumes the file format is: vertices and then faces.</remarks>
     public override List<Geometry.Geometry> Import()
     {
         List<Geometry.Geometry> geometries = new();
@@ -29,11 +28,12 @@ public class ObjMeshImporter : MeshImporter
             switch (line[0])
             {
                 case 'v':
+                    if (line[1] is 't' or 'n') continue;
                     vertices.Add(ParseVector3(line[2..])); // Skip "v "
                     break;
 
                 case 'f':
-                    int[] indices = ParseInts(line[2..]); // Skip "f "
+                    int[] indices = ParseVertexInts(line[2..]); // Skip "f "
                     switch (indices.Length)
                     {
                         case 3:
@@ -47,37 +47,17 @@ public class ObjMeshImporter : MeshImporter
                             throw new NotImplementedException("We do not yet support meshes other than triangles.");
                     }
                     break;
-                default:
-                    throw new ArgumentException("This .obj syntax is not supported. Only vertices and faces are.");
             }
         }
 
         return geometries;
     }
-}
 
-public class Triangle : Geometry.Geometry // TODO: this is a placeholder
-{
-    public Vector3 V1 { get; private set; }
-    public Vector3 V2 { get; private set; }
-    public Vector3 V3 { get; private set; }
-
-    // Assumes anti-clockwise vertex order
-    public Triangle(Vector3 v1, Vector3 v2, Vector3 v3, Material material) : base(v1, material)
-    {
-        V1 = v1;
-        V2 = v2;
-        V3 = v3;
-    }
-
-    /// <inheritdoc />
-    public override Vector3 GetNormalAt(Vector3 pointOnGeometry) => throw new NotImplementedException();
-
-    /// <inheritdoc />
-    public override bool TryIntersect(Ray ray, Interval distanceInterval, out Intersection intersection,
-        ref IntersectionDebugInfo intersectionDebugInfo) =>
-        throw new NotImplementedException();
-
-    /// <inheritdoc />
-    public override IBoundingBox GetBoundingBox() => throw new NotImplementedException();
+    /// <summary>
+    /// Parses a string like "[-]n(/+*)*( [-n(/+*)*])*" into an array of any length, where n is an integer.
+    /// Example: -10/20/30 10/20/30 -1/2/3 => [-10, 10, -1]
+    /// </summary>
+    /// <param name="line">The string in said format.</param>
+    /// <returns></returns>
+    protected static int[] ParseVertexInts(string line) => line.Split(' ').Select(x => x.Split('/').First()).Select(int.Parse).ToArray();
 }

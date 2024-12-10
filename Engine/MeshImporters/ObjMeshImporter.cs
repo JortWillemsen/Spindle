@@ -38,9 +38,9 @@ public class ObjMeshImporter : MeshImporter
                     {
                         case 3:
                             geometries.Add(new Triangle(
-                                 vertices[indices[0] + 1], // obj file format is 1-based
-                                 vertices[indices[1] + 1],
-                                 vertices[indices[2] + 1],
+                                 vertices[indices[0] - 1], // obj file format is 1-based
+                                 vertices[indices[1] - 1],
+                                 vertices[indices[2] - 1],
                                  Material));
                             break;
                         default:

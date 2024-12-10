@@ -47,6 +47,14 @@ public class AxisAlignedBoundingBox : IBoundingBox
     /// <param name="boxes"></param>
     public AxisAlignedBoundingBox(params IBoundingBox[] boxes)
     {
+        if (boxes.Length <= 0)
+        {
+            X = new Interval(0, 0);
+            Y = new Interval(0, 0);
+            Z = new Interval(0, 0);
+            return;
+        }
+        
         // TODO: Remove dirty cast
         var aabbs = boxes.OfType<AxisAlignedBoundingBox>().ToArray();
         

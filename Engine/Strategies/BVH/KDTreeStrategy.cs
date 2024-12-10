@@ -97,10 +97,10 @@ public class KDTreeStrategy : IBvhStrategy
 
         foreach (IIntersectable primitive in node.Primitives)
         {
-            bool primitiveIsCompletelyToTheLeftOfSplit = primitive.GetBoundingBox()
-                .AxisByInt((int)splitAxis).Max < splitPoint; // Most extreme point is not on right side of the split
+            bool primitiveIsLeftOfSplit = primitive.GetCentroid()
+                .AxisByInt((int)splitAxis) < splitPoint;
 
-            if (primitiveIsCompletelyToTheLeftOfSplit)
+            if (primitiveIsLeftOfSplit)
                 leftPrimitives.Add(primitive);
             else
                 rightPrimitives.Add(primitive); // Objects intersecting the split point are added to the right as well
@@ -143,7 +143,7 @@ public class KDTreeStrategy : IBvhStrategy
         // Prepare results to saturate
         Axis splitAxis = Axis.X;
         float lowerBoundOffset = 0;
-        float cost = 0;
+        float cost = float.PositiveInfinity;
         // TODO: what if all primitives are on exactly the same place and rotation?
 
         // Try to split along each axis most efficiently,
@@ -156,9 +156,9 @@ public class KDTreeStrategy : IBvhStrategy
             foreach (IIntersectable primitive in nodeToSplit.Primitives)
             {
                 float primitiveCentroidPointOnAxis = primitive.GetCentroid().AxisByInt((int)testAxis);
-                float testOffset = primitiveCentroidPointOnAxis - nodeLowerBound + (float)1e-5; // Determine offset of primitive from node lower bounds
+                float testOffset = primitiveCentroidPointOnAxis - nodeLowerBound + 1E-5f; // Determine offset of primitive from node lower bounds
                 float testCost = DetermineSplitCost(testAxis, nodeToSplit, testOffset); // Test the split
-                if (testCost <= cost) continue; // Not a better solution
+                if (testCost >= cost) continue; // Not a better solution
 
                 cost = testCost;
                 lowerBoundOffset = testOffset;

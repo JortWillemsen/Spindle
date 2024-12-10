@@ -39,6 +39,15 @@ public class AxisAlignedBoundingBox : IBoundingBox
         Z = (lowerBounds.Z <= upperBounds.Z)
             ? new Interval(lowerBounds.Z, upperBounds.Z)
             : new Interval(upperBounds.Z, lowerBounds.Z);
+
+        // Prevent infinitely small dimensions of a bounding box
+        const float minimalDimensionSize = 1E-5f;
+        if (MathF.Abs(lowerBounds.X - upperBounds.X) < minimalDimensionSize)
+            X.Max += minimalDimensionSize;
+        if (MathF.Abs(lowerBounds.Y - upperBounds.Y) < minimalDimensionSize)
+            Y.Max += minimalDimensionSize;
+        if (MathF.Abs(lowerBounds.Z - upperBounds.Z) < minimalDimensionSize)
+            Z.Max += minimalDimensionSize;
     }
 
     /// <summary>

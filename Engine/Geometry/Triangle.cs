@@ -1,4 +1,5 @@
-﻿using Engine.Materials;
+﻿using Engine.BoundingBoxes;
+using Engine.Materials;
 using Engine.Scenes;
 using System.Numerics;
 
@@ -23,7 +24,7 @@ public class Triangle : Geometry
 
     public override Vector3 GetNormalAt(Vector3 pointOnGeometry) => _normal;
 
-    public override bool TryIntersect(Ray ray, Interval interval, out Intersection intersection)
+    public override bool TryIntersect(Ray ray, Interval interval, out Intersection intersection, ref IntersectionDebugInfo intersectionDebugInfo)
     {
         intersection = Intersection.Undefined;
 

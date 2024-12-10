@@ -1,6 +1,6 @@
 using Engine.Geometry;
 
-namespace Engine.Scenes;
+namespace Engine.BoundingBoxes;
 
 public interface IBoundingBox : IIntersectable
 {

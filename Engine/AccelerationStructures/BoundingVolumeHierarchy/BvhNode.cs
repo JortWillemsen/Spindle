@@ -27,37 +27,40 @@ public class BvhNode : IIntersectable
                 // TODO: intersect with all primitives
                 return TryIntersectPrimitives(ray, distanceInterval, Primitives, out intersection, ref intersectionDebugInfo);
             }
-
-            var intersectsLeftBox = Left.BoundingBox.TryIntersect(ray, distanceInterval, out var leftIntersection, ref intersectionDebugInfo);
-            var intersectsRightBox = Right.BoundingBox.TryIntersect(ray, distanceInterval, out var rightIntersection, ref intersectionDebugInfo);
             
-            if (intersectsLeftBox && !intersectsRightBox)
-            {
-                return Left.TryIntersect(ray, distanceInterval, out intersection, ref intersectionDebugInfo);
-            }
-            
-            if (!intersectsLeftBox && intersectsRightBox)
-            {
-                return Right.TryIntersect(ray, distanceInterval, out intersection, ref intersectionDebugInfo);
-            }
+            // We do intersect with both boxes, thus we recurse the one that is closest to us.
+            bool leftIntersected =
+                Left.TryIntersect(ray, distanceInterval, out var leftIntersection, ref intersectionDebugInfo);
+            bool rightIntersected =
+                Right.TryIntersect(ray, distanceInterval, out var rightIntersection, ref intersectionDebugInfo);
 
-            if (!intersectsLeftBox && !intersectsRightBox)
+            if (!leftIntersected && !rightIntersected)
             {
                 intersection = Intersection.Undefined;
                 return false;
             }
             
-            // We do intersect with both boxes, thus we recurse the one that is closest to us.
-            if (leftIntersection.Distance < rightIntersection.Distance)
+            if (leftIntersected && !rightIntersected)
             {
-                return Left.TryIntersect(ray, distanceInterval, out intersection, ref intersectionDebugInfo)
-                       ||
-                       Right.TryIntersect(ray, distanceInterval, out intersection, ref intersectionDebugInfo);
+                intersection = leftIntersection; 
+                return true;
             }
             
-            return Right.TryIntersect(ray, distanceInterval, out intersection, ref intersectionDebugInfo)
-                || 
-                Left.TryIntersect(ray, distanceInterval, out intersection, ref intersectionDebugInfo);
+            if (rightIntersected && !leftIntersected)
+            {
+                intersection = rightIntersection; 
+                return true;
+            }
+
+            // We intersect with both boxes
+            if (leftIntersection.Distance <= rightIntersection.Distance)
+            {
+                intersection = leftIntersection;
+                return true;
+            }
+
+            intersection = rightIntersection;
+            return true;
         }
 
         intersection = Intersection.Undefined;

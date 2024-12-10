@@ -23,7 +23,7 @@ public class SplitDirectionStrategy : IBvhStrategy
     private BvhNode PopulateChildren(BvhNode parent)
     {
         // Base case, we return if the parent node contains 1 primitive
-        if (parent.Primitives.Length <= 1)
+        if (parent.Primitives.Length <= 3)
         {
             parent.IsLeaf = true;
             return parent;

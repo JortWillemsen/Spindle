@@ -10,19 +10,19 @@ using Engine.Strategies.BVH;
 using Renderer.Display;
 
 const float aspectRatio = 16f / 9f;
-const int windowWidth = 300 * 1;
+const int windowWidth = 600 * 1;
 const int windowHeight = (int)(windowWidth / aspectRatio);
-const int maxDepth = 100;
-const int samples = 20;
+const int maxDepth = 20;
+const int samples = 5;
 const float fov = 65f;
 
 var cameraManager = new CameraManager(new Size(windowWidth, windowHeight), CameraLayout.Matrix);
-// cameraManager.AddBasicCamera(Vector3.Zero, maxDepth, samples, fov);
-// cameraManager.AddCamera(new BasicCamera(new Vector3(1, 1, 3), Vector3.UnitY, new Vector3(-1, 0, -3), new Size(), fov, maxDepth, samples));
+//cameraManager.AddBasicCamera(Vector3.Zero, maxDepth, samples, fov);
+cameraManager.AddCamera(new BasicCamera(new Vector3(1, 1, 3), Vector3.UnitY, new Vector3(-1, 0, -3), new Size(), fov, maxDepth, samples));
 cameraManager.AddCamera(new IntersectionTestsCamera(new Vector3(1, 1, 3), Vector3.UnitY, new Vector3(-1, 0, -3), new Size(), fov, maxDepth, samples,
-    displayedIntersectionsRange: 100));
-cameraManager.AddCamera(new TraversalStepsCamera(new Vector3(1, 1, 3), Vector3.UnitY, new Vector3(-1, 0, -3), new Size(), fov, maxDepth, samples,
-    displayedTraversalStepsRange: 200));
+    displayedIntersectionsRange: 5));
+//cameraManager.AddCamera(new TraversalStepsCamera(new Vector3(1, 1, 3), Vector3.UnitY, new Vector3(-1, 0, -3), new Size(), fov, maxDepth, samples,
+    //displayedTraversalStepsRange: 200));
 
 var matGround = new Diffuse(0.5f, new Vector3(0.8f, 0.8f, 0f));
 var matCenter = new Diffuse(0.5f, new Vector3(.1f, .2f, .5f));

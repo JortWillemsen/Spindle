@@ -19,10 +19,10 @@
       <PackageReference Include="StbImageSharp" Version="2.30.15" />
     </ItemGroup>
     <ItemGroup>
-      <None Update="Assets\dragon\xyzrgb_dragon.obj">
+      <None Update="Assets\teapot.obj">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
-      <None Update="Assets\teapot.obj">
+      <None Update="Assets\dragon.obj">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
     </ItemGroup>

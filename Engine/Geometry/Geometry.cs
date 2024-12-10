@@ -1,7 +1,6 @@
 using Engine.BoundingBoxes;
 using System.Numerics;
 using Engine.Materials;
-using Engine.Scenes;
 
 namespace Engine.Geometry;
 
@@ -20,4 +19,7 @@ public abstract class Geometry : IIntersectable
 
     public abstract bool TryIntersect(Ray ray, Interval distanceInterval, out Intersection intersection, ref IntersectionDebugInfo intersectionDebugInfo);
     public abstract IBoundingBox GetBoundingBox();
+
+    /// <inheritdoc />
+    public abstract Vector3 GetCentroid();
 }

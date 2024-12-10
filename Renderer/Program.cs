@@ -18,12 +18,12 @@ const int samples = 20;
 const float fov = 65f;
 
 var cameraManager = new CameraManager(new Size(windowWidth, windowHeight), CameraLayout.Matrix);
-// cameraManager.AddBasicCamera(Vector3.Zero, maxDepth, samples, fov);
+cameraManager.AddBasicCamera(new Vector3(0, 0, -10f), maxDepth, samples, fov);
 // cameraManager.AddCamera(new BasicCamera(new Vector3(1, 1, 3), Vector3.UnitY, new Vector3(-1, 0, -3), new Size(), fov, maxDepth, samples));
-cameraManager.AddCamera(new IntersectionTestsCamera(new Vector3(1, 1, 3), Vector3.UnitY, new Vector3(-1, 0, -3), new Size(), fov, maxDepth, samples,
-    displayedIntersectionsRange: 100));
-cameraManager.AddCamera(new TraversalStepsCamera(new Vector3(1, 1, 3), Vector3.UnitY, new Vector3(-1, 0, -3), new Size(), fov, maxDepth, samples,
-    displayedTraversalStepsRange: 200));
+// cameraManager.AddCamera(new IntersectionTestsCamera(new Vector3(1, 1, 3), Vector3.UnitY, new Vector3(-1, 0, -3), new Size(), fov, maxDepth, samples,
+//     displayedIntersectionsRange: 100));
+// cameraManager.AddCamera(new TraversalStepsCamera(new Vector3(1, 1, 3), Vector3.UnitY, new Vector3(-1, 0, -3), new Size(), fov, maxDepth, samples,
+//     displayedTraversalStepsRange: 200));
 
 var matGround = new Diffuse(0.5f, new Vector3(0.8f, 0.8f, 0f));
 var matCenter = new Diffuse(0.5f, new Vector3(.1f, .2f, .5f));
@@ -40,11 +40,11 @@ var tri = new Triangle(
     new Vector3(.5f, 1f, 2f),
     matTriangle);
 
-var objects = new List<Geometry> { groundOrb, orb, orb2, orb3, tri };
+var objects = new List<Geometry> { };
 var lights = new List<LightSource> { new Spotlight(Vector3.One, Vector3.One) };
 
 var meshImporter = new ObjMeshImporter("Assets/teapot.obj", matCenter);
-var scene = new BvhScene(new KDTreeStrategy(1), objects, lights, meshImporter);
+var scene = new BvhScene(new KDTreeStrategy(100), objects, lights, meshImporter);
 
 var renderer = new PathTracingRenderer(scene);
 

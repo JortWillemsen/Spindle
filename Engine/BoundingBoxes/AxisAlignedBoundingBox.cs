@@ -40,6 +40,15 @@ public class AxisAlignedBoundingBox : IBoundingBox
         Z = (lowerBounds.Z <= upperBounds.Z)
             ? new Interval(lowerBounds.Z, upperBounds.Z)
             : new Interval(upperBounds.Z, lowerBounds.Z);
+
+        // Prevent infinitely small dimensions of a bounding box
+        const float minimalDimensionSize = 1E-5f;
+        if (MathF.Abs(lowerBounds.X - upperBounds.X) < minimalDimensionSize)
+            X.Max += minimalDimensionSize;
+        if (MathF.Abs(lowerBounds.Y - upperBounds.Y) < minimalDimensionSize)
+            Y.Max += minimalDimensionSize;
+        if (MathF.Abs(lowerBounds.Z - upperBounds.Z) < minimalDimensionSize)
+            Z.Max += minimalDimensionSize;
     }
 
     /// <summary>
@@ -48,6 +57,14 @@ public class AxisAlignedBoundingBox : IBoundingBox
     /// <param name="boxes"></param>
     public AxisAlignedBoundingBox(params IBoundingBox[] boxes)
     {
+        if (boxes.Length <= 0)
+        {
+            X = new Interval(0, 0);
+            Y = new Interval(0, 0);
+            Z = new Interval(0, 0);
+            return;
+        }
+        
         // TODO: Remove dirty cast
         var aabbs = boxes.OfType<AxisAlignedBoundingBox>().ToArray();
         

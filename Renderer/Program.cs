@@ -26,14 +26,20 @@ cameraManager.AddCamera(new TraversalStepsCamera(new Vector3(1, 1, 3), Vector3.U
 
 var matGround = new Diffuse(0.5f, new Vector3(0.8f, 0.8f, 0f));
 var matCenter = new Diffuse(0.5f, new Vector3(.1f, .2f, .5f));
+var matTriangle = new Diffuse(0.8f, new Vector3(0.5f, 0.5f, 0.5f));
 var matReflect = new Reflective(1f, new Vector3(.5f, .5f, .5f), 0f);
 
 var groundOrb = new Sphere(new Vector3(0, -100.5f, 1f), matGround, 100f);
 var orb = new Sphere(new Vector3(-.6f,  0f, 1.2f), matCenter, 0.5f);
 var orb2 = new Sphere(new Vector3(.6f,  0f, 1.2f), matCenter, 0.5f);
 var orb3 = new Sphere(new Vector3(0f,  1f, 1.2f), matReflect, 0.5f);
+var tri = new Triangle(
+    new Vector3(-.5f, 1f, 2f),
+    new Vector3(0f, 3f, 2f),
+    new Vector3(.5f, 1f, 2f),
+    matTriangle);
 
-var objects = new List<Geometry> { groundOrb, orb, orb2, orb3 };
+var objects = new List<Geometry> { groundOrb, orb, orb2, orb3, tri };
 var lights = new List<LightSource> { new Spotlight(Vector3.One, Vector3.One) };
 
 var scene = new BvhScene(new SplitDirectionStrategy(), objects, lights);

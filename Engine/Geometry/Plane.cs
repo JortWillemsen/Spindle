@@ -17,8 +17,10 @@ public class Plane : Geometry
     }
 
     /// <inheritdoc />
-    public override bool TryIntersect(Ray ray, Interval interval, out Intersection intersection)
+    public override bool TryIntersect(Ray ray, Interval distanceInterval, out Intersection intersection, ref IntersectionDebugInfo intersectionDebugInfo)
     {
+        intersectionDebugInfo.NumberOfIntersectionTests++;
+            
         // Source: https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-plane-and-ray-disk-intersection
         float denominator = Vector3.Dot(ray.Direction, Normal);
         if (denominator > 1e-6)
@@ -27,7 +29,7 @@ public class Plane : Geometry
             Vector3 p0l0 = Position - ray.Origin;
             float t = Vector3.Dot(p0l0, Normal) / denominator;
             intersection = new Intersection(t, ray.At(t), Normal, ray, this);
-            return t >= 0 && interval.Contains(t);
+            return t >= 0 && distanceInterval.Contains(t);
         }
 
         intersection = Intersection.Undefined;

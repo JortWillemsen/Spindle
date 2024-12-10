@@ -14,7 +14,7 @@ public class PathTracingRenderer : IRenderer
         Scene = scene;
     }
     
-    public void TraceRay(Ray ray, int depth, ref Vector3 pixel)
+    public void TraceRay(Ray ray, int depth, ref Vector3 pixel, ref IntersectionDebugInfo intersectionInfo)
     {
         // TODO: Create shadow ray?
         if (depth <= 0)
@@ -23,11 +23,11 @@ public class PathTracingRenderer : IRenderer
             return;
         }
         
-        if (Scene.TryIntersect(ray, new Interval(0.001f, Utils.Infinity), out var intersection))
+        if (Scene.TryIntersect(ray, new Interval(0.001f, Utils.Infinity), out var intersection, ref intersectionInfo))
         {
             if (ScatterRay(ray, intersection, out var scatter))
             {
-                TraceRay(scatter.Outgoing, depth - 1, ref pixel);
+                TraceRay(scatter.Outgoing, depth - 1, ref pixel, ref intersectionInfo);
                 pixel *= scatter.Color;
 
                 return;

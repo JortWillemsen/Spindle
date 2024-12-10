@@ -15,7 +15,11 @@ public abstract class LightSource : IIntersectable
         Color = color * 30; // TODO
     }
 
-    public bool TryIntersect(Ray ray, Interval interval, out Intersection intersection) => throw new NotImplementedException();
+    /// <inheritdoc />
+    public bool TryIntersect(Ray ray, Interval distanceInterval, out Intersection intersection,
+        ref IntersectionDebugInfo intersectionDebugInfo) =>
+        throw new NotImplementedException();
+
     public abstract IBoundingBox GetBoundingBox();
 
     /// <inheritdoc />

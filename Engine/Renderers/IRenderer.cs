@@ -8,7 +8,7 @@ public interface IRenderer
 {
     public Scene Scene { get; protected set; }
 
-    public void TraceRay(Ray ray, int depth, ref Vector3 pixel);
+    public void TraceRay(Ray ray, int depth, ref Vector3 pixel, ref IntersectionDebugInfo intersectionDebugInfo);
 
     public bool ScatterRay(Ray ray, Intersection intersection, out Scatter scatter);
 }

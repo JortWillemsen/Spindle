@@ -17,28 +17,31 @@ public class BvhNode : IIntersectable
     /// <inheritdoc />
     public Vector3 GetCentroid() => BoundingBox.GetCentroid();
 
-    public bool TryIntersect(Ray ray, Interval interval, out Intersection intersection)
+    public bool TryIntersect(Ray ray, Interval distanceInterval, out Intersection intersection, ref IntersectionDebugInfo intersectionDebugInfo)
     {
+        intersectionDebugInfo.NumberOfTraversals++;
+
         // If we intersect with the bounding box, we need to check the children
-        if (BoundingBox.TryIntersect(ray, interval, out var boxIntersection))
+        if (BoundingBox.TryIntersect(ray, distanceInterval, out var boxIntersection, ref intersectionDebugInfo))
         {
             // If we are a leaf we intersect the primitive
             if (IsLeaf)
             {
-                return Primitives[0].TryIntersect(ray, interval, out intersection);
+                // TODO: intersect with all primitives
+                return Primitives[0].TryIntersect(ray, distanceInterval, out intersection, ref intersectionDebugInfo);
             }
 
-            var intersectsLeftBox = Left.BoundingBox.TryIntersect(ray, interval, out var leftIntersection);
-            var intersectsRightBox = Right.BoundingBox.TryIntersect(ray, interval, out var rightIntersection);
+            var intersectsLeftBox = Left.BoundingBox.TryIntersect(ray, distanceInterval, out var leftIntersection, ref intersectionDebugInfo);
+            var intersectsRightBox = Right.BoundingBox.TryIntersect(ray, distanceInterval, out var rightIntersection, ref intersectionDebugInfo);
             
             if (intersectsLeftBox && !intersectsRightBox)
             {
-                return Left.TryIntersect(ray, interval, out intersection);
+                return Left.TryIntersect(ray, distanceInterval, out intersection, ref intersectionDebugInfo);
             }
 
             if (!intersectsLeftBox && intersectsRightBox)
             {
-                return Right.TryIntersect(ray, interval, out intersection);
+                return Right.TryIntersect(ray, distanceInterval, out intersection, ref intersectionDebugInfo);
             }
 
             if (!intersectsLeftBox && !intersectsRightBox)
@@ -50,14 +53,14 @@ public class BvhNode : IIntersectable
             // We do intersect with both boxes, thus we recurse the one that is closest to us.
             if (leftIntersection.Distance < rightIntersection.Distance)
             {
-                return Left.TryIntersect(ray, interval, out intersection) // TODO: return the one which is closest, always
+                return Left.TryIntersect(ray, distanceInterval, out intersection, ref intersectionDebugInfo)
                        ||
-                       Right.TryIntersect(ray, interval, out intersection);
+                       Right.TryIntersect(ray, distanceInterval, out intersection, ref intersectionDebugInfo);
             }
             
-            return Right.TryIntersect(ray, interval, out intersection) // TODO: return the one which is closest, always
-                || 
-                Left.TryIntersect(ray, interval, out intersection);
+            return Right.TryIntersect(ray, distanceInterval, out intersection, ref intersectionDebugInfo)
+                ||
+                Left.TryIntersect(ray, distanceInterval, out intersection, ref intersectionDebugInfo);
         }
 
         intersection = Intersection.Undefined;

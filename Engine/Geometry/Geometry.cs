@@ -17,7 +17,7 @@ public abstract class Geometry : IIntersectable
 
     public abstract Vector3 GetNormalAt(Vector3 pointOnGeometry);
 
-    public abstract bool TryIntersect(Ray ray, Interval interval, out Intersection intersection);
+    public abstract bool TryIntersect(Ray ray, Interval distanceInterval, out Intersection intersection, ref IntersectionDebugInfo intersectionDebugInfo);
     public abstract IBoundingBox GetBoundingBox();
 
     /// <inheritdoc />

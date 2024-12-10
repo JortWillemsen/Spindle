@@ -24,7 +24,6 @@ public class BvhNode : IIntersectable
             // If we are a leaf we intersect the primitive
             if (IsLeaf)
             {
-                // TODO: intersect with all primitives
                 return TryIntersectPrimitives(ray, distanceInterval, Primitives, out intersection, ref intersectionDebugInfo);
             }
             

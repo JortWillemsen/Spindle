@@ -4,28 +4,35 @@ using Engine.Geometry;
 using Engine.Lighting;
 using Engine.Materials;
 using Engine.MeshImporters;
+using System.Diagnostics;
 
 namespace Engine.Scenes;
 
 public class Scene : IIntersectable
 {
+    protected Stopwatch _sw;
     public List<Geometry.Geometry> Objects { get; private set; }
     public List<LightSource>       Lights  { get; private set; }
     
-    public Scene(List<Geometry.Geometry> objects, List<LightSource> lights, params MeshImporter[] meshImporters)
-        : this(objects, lights)
+    public Scene(List<Geometry.Geometry> objects, List<LightSource> lights,  Stopwatch sw, params MeshImporter[] meshImporters)
+        : this(objects, lights, sw)
     {
+        var since = _sw.ElapsedMilliseconds;
         foreach (MeshImporter meshImporter in meshImporters)
             AddObjects(meshImporter.Import());
+
+        var ms = _sw.ElapsedMilliseconds - since;
         
-        Console.WriteLine("Done importing objects");
+        Console.WriteLine($"Done importing objects, {ms}ms");
 
     }
 
-    public Scene(List<Geometry.Geometry> objects, List<LightSource> lights)
+    public Scene(List<Geometry.Geometry> objects, List<LightSource> lights, Stopwatch sw)
     {
         Objects = objects;
         Lights = lights;
+        _sw = sw;
+
     }
 
     public void AddObject(Geometry.Geometry obj)

@@ -1,6 +1,7 @@
 using System.Drawing;
 using System.Numerics;
 using Engine.Renderers;
+using System.Diagnostics;
 
 namespace Engine.Cameras;
 

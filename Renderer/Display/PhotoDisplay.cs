@@ -1,11 +1,13 @@
 ﻿using System.Drawing;
 using Engine;
 using Engine.Renderers;
+using System.Diagnostics;
 
 namespace Renderer.Display;
 
 public class PhotoDisplay : IDisplay
 {
+    private Stopwatch _sw;
     /// <inheritdoc />
     public IRenderer     Renderer      { get; set; }
 
@@ -15,8 +17,9 @@ public class PhotoDisplay : IDisplay
     /// <inheritdoc />
     public Size DisplaySize => CameraManager.DisplaySize;
 
-    public PhotoDisplay(IRenderer renderer, CameraManager cameraManager)
+    public PhotoDisplay(IRenderer renderer, CameraManager cameraManager, Stopwatch sw)
     {
+        _sw = sw;
         Renderer = renderer;
         CameraManager = cameraManager;
     }
@@ -24,8 +27,6 @@ public class PhotoDisplay : IDisplay
     /// <inheritdoc />
     public void Show(params string[] args)
     {
-        Console.WriteLine("Welcome to Spindle!");
-
         if (args.Length == 0)
             throw new ArgumentException("No filepath specified");
 
@@ -38,7 +39,10 @@ public class PhotoDisplay : IDisplay
         Console.WriteLine("");
 
         var cameraSlot = CameraManager.GetDisplayedCameraSlots().First();
+        var since = _sw.ElapsedMilliseconds;
         cameraSlot.Camera.RenderShot(Renderer, cameraSlot.Texture.Pixels);
+        var now = _sw.ElapsedMilliseconds - since;
+        Console.WriteLine($"Done creating frame, {now}ms");
         
         var numOfLines = (CameraManager.DisplaySize.Width * CameraManager.DisplaySize.Height) + 3;
         var lines = new string[numOfLines];
@@ -50,14 +54,6 @@ public class PhotoDisplay : IDisplay
         
         for (var j = 0; j < CameraManager.DisplaySize.Height; j++)
         {
-            // Clearing previous progress line
-            Console.SetCursorPosition(0, Console.CursorTop);
-            Console.Write(new string(' ', Console.WindowWidth)); 
-            Console.SetCursorPosition(0, Console.CursorTop);
-            
-            // Writing new progress line
-            Console.Write("Lines remaining: " + (CameraManager.DisplaySize.Height - j) + " of " + CameraManager.DisplaySize.Height);
-            
             for (var i = 0; i < CameraManager.DisplaySize.Width; i++)
             {
                 lines[j * CameraManager.DisplaySize.Width + 3 + i] = WriteColor(cameraSlot.Texture.Pixels[j * CameraManager.DisplaySize.Width + i]);
@@ -73,15 +69,21 @@ public class PhotoDisplay : IDisplay
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
         
         var lines = RenderLines();
+        var since = _sw.ElapsedMilliseconds;
         using var outputFile = new StreamWriter(path);
         foreach (var line in lines)
         {
             outputFile.WriteLine(line);
         }
+        var now = _sw.ElapsedMilliseconds - since;
+        Console.WriteLine($"file creation finished, {now}ms");
         
         Console.WriteLine();
         Console.WriteLine("Image output finished at: \n");
         Console.WriteLine(path);
+        Console.WriteLine();
+        Console.WriteLine($"total time elapsed: {_sw.ElapsedMilliseconds}ms");
+        _sw.Stop();
     }
 
     public static string WriteColor(int pixel)

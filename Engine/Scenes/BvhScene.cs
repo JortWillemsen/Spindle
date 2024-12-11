@@ -3,6 +3,7 @@ using Engine.Geometry;
 using Engine.Lighting;
 using Engine.MeshImporters;
 using Engine.Strategies.BVH;
+using System.Diagnostics;
 
 namespace Engine.Scenes;
 
@@ -24,17 +25,25 @@ public class BvhScene : Scene
     /// <param name="strategy">Strategy used to create the BVH</param>
     /// <param name="objects"></param>
     /// <param name="lights"></param>
-    public BvhScene(IBvhStrategy strategy, List<Geometry.Geometry> objects, List<LightSource> lights) : base(objects, lights)
+    public BvhScene(IBvhStrategy strategy, List<Geometry.Geometry> objects, List<LightSource> lights, Stopwatch sw) : base(objects, lights, sw)
     {
         _bVHStrategy = strategy;
+
+        var start = _sw.ElapsedMilliseconds;
         _bvh = strategy.Build(this);
+        var now = _sw.ElapsedMilliseconds - start;
+        Console.WriteLine($"Done creating acceleration structure, {now}ms");
+
     }
 
-    public BvhScene(IBvhStrategy strategy, List<Geometry.Geometry> objects, List<LightSource> lights, params MeshImporter[] meshImporters)
-        : base(objects, lights, meshImporters)
+    public BvhScene(IBvhStrategy strategy, List<Geometry.Geometry> objects, List<LightSource> lights, Stopwatch sw, params MeshImporter[] meshImporters)
+        : base(objects, lights, sw, meshImporters)
     {
         _bVHStrategy = strategy;
+        var start = _sw.ElapsedMilliseconds;
         _bvh = strategy.Build(this);
+        var now = _sw.ElapsedMilliseconds - start;
+        Console.WriteLine($"Done creating acceleration structure, {now}ms");
     }
 
     /// <inheritdoc />

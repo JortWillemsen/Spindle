@@ -144,10 +144,10 @@ public class KDTreeStrategy : IBvhStrategy
     private static (Axis axis, float lowerBoundOffset) FindSplitPlane(BvhNode nodeToSplit)
     {
         int splitAxis = currentSplitAxis;
-        Array.Sort(nodeToSplit.Primitives, (a, b)
+        nodeToSplit.Primitives.Sort((a, b)
             => a.GetCentroid().AxisByInt(splitAxis) < b.GetCentroid().AxisByInt(splitAxis) ? -1 : 1);
 
-        var nodeToSplitAfter = nodeToSplit.Primitives[nodeToSplit.Primitives.Length / 2];
+        var nodeToSplitAfter = nodeToSplit.Primitives[nodeToSplit.Primitives.Count / 2];
         var splitOffset = nodeToSplitAfter.GetCentroid().AxisByInt(splitAxis) + 1E-5f - nodeToSplit.GetBoundingBox().GetLowerBound().AxisByInt(splitAxis);
 
         return ((Axis) splitAxis, splitOffset);

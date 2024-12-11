@@ -23,6 +23,7 @@ public class Triangle : Geometry
 
     public override Vector3 GetNormalAt(Vector3 pointOnGeometry) => _normal;
 
+    /// <inheritdoc />
     public override bool TryIntersect(Ray ray, Interval interval, out Intersection intersection, ref IntersectionDebugInfo intersectionDebugInfo)
     {
         intersectionDebugInfo.NumberOfIntersectionTests++;

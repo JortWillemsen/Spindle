@@ -20,19 +20,8 @@ public class SplitDirectionStrategy : IBvhStrategy
 
     private BvhNode PopulateChildren(BvhNode root)
     {
-<<<<<<< Updated upstream
-        // Base case, we return if the parent node contains 1 primitive
-        if (parent.Primitives.Length <= 1)
-        {
-            parent.IsLeaf = true;
-            return parent;
-        }
-        
-        int axisToSplit = 0;
-=======
         Stack<BvhNode> stack = new();
         stack.Push(root);
->>>>>>> Stashed changes
 
         while (stack.Count > 0)
         {

@@ -130,6 +130,9 @@ public class KDTreeStrategy : IBvhStrategy
     /// <returns>Whether the given node is a leaf.</returns>
     private bool ShouldBeLeaf(BvhNode node) => node.Primitives.Length <= MaximumPrimitivesPerLeaf; // TODO: move all these defining helpers methods to the interface?
 
+    private static int _currentSplitAXis = 0;
+    private static int currentSplitAxis => _currentSplitAXis++ % 3;
+    
     /// <summary>
     /// Determines along what axis, where to split.
     /// It does so by finding the best split along all axes, where a split is better if
@@ -140,61 +143,88 @@ public class KDTreeStrategy : IBvhStrategy
     /// <remarks>Assumes that <paramref name="nodeToSplit"/> contains at least one primitive.</remarks>
     private static (Axis axis, float lowerBoundOffset) FindSplitPlane(BvhNode nodeToSplit)
     {
-        // Prepare results to saturate
-        Axis splitAxis = Axis.X;
-        float lowerBoundOffset = 0;
-        float cost = float.PositiveInfinity;
-        // TODO: what if all primitives are on exactly the same place and rotation?
+        int splitAxis = currentSplitAxis;
+        Array.Sort(nodeToSplit.Primitives, (a, b)
+            => a.GetCentroid().AxisByInt(splitAxis) < b.GetCentroid().AxisByInt(splitAxis) ? -1 : 1);
 
-        // Try to split along each axis most efficiently,
-        // and store result if more efficient than known result
-        foreach (Axis testAxis in new[] { Axis.X, Axis.Y, Axis.Z })
-        {
-            float nodeLowerBound = nodeToSplit.GetBoundingBox().GetLowerBound().AxisByInt((int)testAxis);
+        var nodeToSplitAfter = nodeToSplit.Primitives[nodeToSplit.Primitives.Length / 2];
+        var splitOffset = nodeToSplitAfter.GetCentroid().AxisByInt(splitAxis) + 1E-5f - nodeToSplit.GetBoundingBox().GetLowerBound().AxisByInt(splitAxis);
 
-            // Try to split at after each primitive TODO: might be optimised
-            foreach (IIntersectable primitive in nodeToSplit.Primitives)
-            {
-                float primitiveCentroidPointOnAxis = primitive.GetCentroid().AxisByInt((int)testAxis);
-                float testOffset = primitiveCentroidPointOnAxis - nodeLowerBound + 1E-5f; // Determine offset of primitive from node lower bounds
-                float testCost = DetermineSplitCost(testAxis, nodeToSplit, testOffset); // Test the split
-                if (testCost >= cost) continue; // Not a better solution
-
-                cost = testCost;
-                lowerBoundOffset = testOffset;
-                splitAxis = testAxis;
-            }
-        }
-
-        return (splitAxis, lowerBoundOffset);
+        return ((Axis) splitAxis, splitOffset);
     }
 
-    // TODO: do something smarter such that optimal balance between surface area and number of primitives is found.
-    /// <summary>
-    /// A lower cost means that all child primitives are better divided along the left and
-    /// right side of the split, and that the split is closest to the center of the axis along which to split.
-    /// </summary>
-    /// <param name="splitAxis">The axis along which is split.</param>
-    /// <param name="node">The node which is split.</param>
-    /// <param name="offset">Distance to split at, offset from most negative node coordinate.</param>
-    /// <returns>The cost of the split.</returns>
-    private static float DetermineSplitCost(Axis splitAxis, BvhNode node, float offset)
-    {
-        Interval axisInterval = node.BoundingBox.AxisByInt((int)splitAxis);
-        float axisCentre = axisInterval.Middle;
-        float splitPoint = axisInterval.Min + offset;
+    // Options below are too slow
+    // private static (Axis axis, float lowerBoundOffset) FindSplitPlane(BvhNode nodeToSplit)
+    // {
+    //     // Prepare results to saturate
+    //     Axis splitAxis = Axis.X;
+    //     float splitOffset = 0;
+    //     float cost = float.PositiveInfinity;
+    //     // TODO: what if all primitives are on exactly the same place and rotation?
+    //
+    //     // Try to split along each axis most efficiently,
+    //     // and store result if more efficient than known result
+    //     foreach (Axis testAxis in new[] { Axis.X, Axis.Y, Axis.Z })
+    //     {
+    //         Interval axisInterval = nodeToSplit.GetBoundingBox().AxisByInt((int)testAxis);
+    //
+    //         // We use binning, because 10.000 vertices is quite a lot
+    //         const int bins = 10;
+    //         float binSize = axisInterval.Size / bins;
+    //         for (float i = 1; i < bins - 1; i++)
+    //         {
+    //             float testOffset = i * binSize;
+    //             float testCost = DetermineSplitCost(testAxis, nodeToSplit, testOffset); // Test the split
+    //             if (testCost >= cost) continue; // Not a better solution
+    //
+    //             cost = testCost;
+    //             splitOffset = testOffset;
+    //             splitAxis = testAxis;
+    //         }
+    //
+    //         // Try to split at after each primitive TODO: might be optimised
+    //         // foreach (IIntersectable primitive in nodeToSplit.Primitives)
+    //         // {
+    //         //     float primitiveCentroidPointOnAxis = primitive.GetCentroid().AxisByInt((int)testAxis);
+    //         //     float testOffset = primitiveCentroidPointOnAxis - nodeLowerBound + 1E-5f; // Determine offset of primitive from node lower bounds
+    //         //     float testCost = DetermineSplitCost(testAxis, nodeToSplit, testOffset); // Test the split
+    //         //     if (testCost >= cost) continue; // Not a better solution
+    //         //
+    //         //     cost = testCost;
+    //         //     splitOffset = testOffset;
+    //         //     splitAxis = testAxis;
+    //         // }
+    //     }
+    //
+    //     return (splitAxis, splitOffset);
+    // }
 
-        // Determine absolute distance to axis centre
-        float distanceToCentre = MathF.Abs(splitPoint - axisCentre);
-
-        // Determine the amount of imbalance between primitives left and right of the split
-        float numberOfPrimitiveCentroidsLeftOfSplit = node.Primitives.Count(
-            x => x.GetCentroid().AxisByInt((int)splitAxis) < splitPoint);
-        float primitiveImbalance = MathF.Abs(numberOfPrimitiveCentroidsLeftOfSplit - (float)node.Primitives.Length / 2);
-
-        // Determine cost
-        return distanceToCentre * primitiveImbalance;
-    }
+    // // TODO: do something smarter such that optimal balance between surface area and number of primitives is found.
+    // /// <summary>
+    // /// A lower cost means that all child primitives are better divided along the left and
+    // /// right side of the split, and that the split is closest to the center of the axis along which to split.
+    // /// </summary>
+    // /// <param name="splitAxis">The axis along which is split.</param>
+    // /// <param name="node">The node which is split.</param>
+    // /// <param name="offset">Distance to split at, offset from most negative node coordinate.</param>
+    // /// <returns>The cost of the split.</returns>
+    // private static float DetermineSplitCost(Axis splitAxis, BvhNode node, float offset)
+    // {
+    //     Interval axisInterval = node.BoundingBox.AxisByInt((int)splitAxis);
+    //     float axisCentre = axisInterval.Middle;
+    //     float splitPoint = axisInterval.Min + offset;
+    //
+    //     // Determine absolute distance to axis centre
+    //     float distanceToCentre = MathF.Abs(splitPoint - axisCentre);
+    //
+    //     // Determine the amount of imbalance between primitives left and right of the split
+    //     float numberOfPrimitiveCentroidsLeftOfSplit = node.Primitives.Count(
+    //         x => x.GetCentroid().AxisByInt((int)splitAxis) < splitPoint);
+    //     float primitiveImbalance = MathF.Abs(numberOfPrimitiveCentroidsLeftOfSplit - (float)node.Primitives.Length / 2);
+    //
+    //     // Determine cost
+    //     return distanceToCentre * primitiveImbalance;
+    // }
 }
 
 enum Axis

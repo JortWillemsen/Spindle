@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Numerics;
 
 namespace Engine.MeshImporters;
@@ -22,7 +23,7 @@ public abstract class MeshImporter
     /// <returns></returns>
     protected static Vector3 ParseVector3(string line)
     {
-        float[] coordinates = line.Split(' ').Select(float.Parse).ToArray();
+        float[] coordinates = line.Split(' ').Select(x => float.Parse(x, CultureInfo.InvariantCulture)).ToArray();
         return new Vector3(coordinates[0], coordinates[1], coordinates[2]);
     }
 

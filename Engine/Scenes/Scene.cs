@@ -17,6 +17,9 @@ public class Scene : IIntersectable
     {
         foreach (MeshImporter meshImporter in meshImporters)
             AddObjects(meshImporter.Import());
+        
+        Console.WriteLine("Done importing objects");
+
     }
 
     public Scene(List<Geometry.Geometry> objects, List<LightSource> lights)
@@ -76,7 +79,7 @@ public class Scene : IIntersectable
 
     public IBoundingBox GetBoundingBox()
     {
-        return new AxisAlignedBoundingBox(Objects.Select(o => o.GetBoundingBox()).ToArray());
+        return new AxisAlignedBoundingBox(Objects.Select(o => o.GetBoundingBox()).ToList());
     }
 
     /// <inheritdoc />

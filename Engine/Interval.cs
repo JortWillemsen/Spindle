@@ -24,7 +24,7 @@ public struct Interval
     /// Creates a new interval that encapsulates existing ones.
     /// </summary>
     /// <param name="intervals">The intervals that need to be enclosed</param>
-    public Interval(params Interval[] intervals)
+    public Interval(IEnumerable<Interval> intervals)
     {
         Min = intervals.Min(i => i.Min);
         Max = intervals.Max(i => i.Max);

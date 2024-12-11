@@ -26,7 +26,7 @@ public class KDTreeStrategy : IBvhStrategy
         {
             BoundingBox = scene.GetBoundingBox(),
             IsLeaf = false,
-            Primitives = scene.Objects.ToArray()
+            Primitives = new List<IIntersectable>(scene.Objects)
         };
 
         Stack<BvhNode> stack = new();
@@ -91,7 +91,7 @@ public class KDTreeStrategy : IBvhStrategy
         }
 
         // Determine which primitives are on which side of the split
-        int numberOfChildren = node.Primitives.Length; // TODO: optimise memory usage here by reusing memory
+        int numberOfChildren = node.Primitives.Count; // TODO: optimise memory usage here by reusing memory
         List<IIntersectable> leftPrimitives = new(numberOfChildren / 2);
         List<IIntersectable> rightPrimitives = new(numberOfChildren / 2);
 
@@ -110,12 +110,12 @@ public class KDTreeStrategy : IBvhStrategy
         BvhNode left = new()
         {
             BoundingBox = new AxisAlignedBoundingBox(leftLowerBounds, leftUpperBounds),
-            Primitives = leftPrimitives.ToArray()
+            Primitives = leftPrimitives
         };
         BvhNode right = new()
         {
             BoundingBox = new AxisAlignedBoundingBox(rightLowerBounds, rightUpperBounds),
-            Primitives = rightPrimitives.ToArray()
+            Primitives = rightPrimitives
         };
         left.IsLeaf = ShouldBeLeaf(left);
         right.IsLeaf = ShouldBeLeaf(right);
@@ -128,7 +128,7 @@ public class KDTreeStrategy : IBvhStrategy
     /// Indicates whether recursion might stop.
     /// </summary>
     /// <returns>Whether the given node is a leaf.</returns>
-    private bool ShouldBeLeaf(BvhNode node) => node.Primitives.Length <= MaximumPrimitivesPerLeaf; // TODO: move all these defining helpers methods to the interface?
+    private bool ShouldBeLeaf(BvhNode node) => node.Primitives.Count <= MaximumPrimitivesPerLeaf; // TODO: move all these defining helpers methods to the interface?
 
     private static int _currentSplitAXis = 0;
     private static int currentSplitAxis => _currentSplitAXis++ % 3;
@@ -144,10 +144,10 @@ public class KDTreeStrategy : IBvhStrategy
     private static (Axis axis, float lowerBoundOffset) FindSplitPlane(BvhNode nodeToSplit)
     {
         int splitAxis = currentSplitAxis;
-        Array.Sort(nodeToSplit.Primitives, (a, b)
+        nodeToSplit.Primitives.Sort((a, b)
             => a.GetCentroid().AxisByInt(splitAxis) < b.GetCentroid().AxisByInt(splitAxis) ? -1 : 1);
 
-        var nodeToSplitAfter = nodeToSplit.Primitives[nodeToSplit.Primitives.Length / 2];
+        var nodeToSplitAfter = nodeToSplit.Primitives[nodeToSplit.Primitives.Count / 2];
         var splitOffset = nodeToSplitAfter.GetCentroid().AxisByInt(splitAxis) + 1E-5f - nodeToSplit.GetBoundingBox().GetLowerBound().AxisByInt(splitAxis);
 
         return ((Axis) splitAxis, splitOffset);

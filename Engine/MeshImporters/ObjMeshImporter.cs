@@ -25,15 +25,17 @@ public class ObjMeshImporter : MeshImporter
 
         while (textReader.ReadLine() is { } line)
         {
+            if (string.IsNullOrEmpty(line)) continue;
+
             switch (line[0])
             {
                 case 'v':
                     if (line[1] is 't' or 'n') continue;
-                    vertices.Add(ParseVector3(line[2..]) + TargetPosition); // Skip "v "
+                    vertices.Add(ParseVector3(line.Trim('v', ' ')) + TargetPosition); // Skip "v "
                     break;
 
                 case 'f':
-                    int[] indices = ParseVertexInts(line[2..]); // Skip "f "
+                    int[] indices = ParseVertexInts(line.Trim('f', ' ')); // Skip "f "
                     switch (indices.Length)
                     {
                         case 3:
@@ -43,8 +45,22 @@ public class ObjMeshImporter : MeshImporter
                                  vertices[indices[2] - 1],
                                  Material));
                             break;
+                        case 4:
+                            geometries.Add(new Triangle(
+                                 vertices[indices[0] - 1], // obj file format is 1-based
+                                 vertices[indices[1] - 1],
+                                 vertices[indices[2] - 1],
+                                 Material));
+                            geometries.Add(new Triangle(
+                                 vertices[indices[0] - 1], // obj file format is 1-based
+                                 vertices[indices[2] - 1],
+                                 vertices[indices[3] - 1],
+                                 Material));
+                            break;
+
+
                         default:
-                            throw new NotImplementedException("We do not yet support meshes other than triangles.");
+                            throw new NotImplementedException("We do not yet support meshes other than triangles and quads.");
                     }
                     break;
             }

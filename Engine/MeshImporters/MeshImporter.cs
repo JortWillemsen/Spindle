@@ -5,10 +5,12 @@ namespace Engine.MeshImporters;
 public abstract class MeshImporter
 {
     public string FilePath { get; private set; }
+    public Vector3 TargetPosition { get; private set; }
 
-    protected MeshImporter(string filePath)
+    protected MeshImporter(string filePath, Vector3 targetPosition)
     {
         FilePath = filePath;
+        TargetPosition = targetPosition;
     }
 
     public abstract List<Geometry.Geometry> Import();

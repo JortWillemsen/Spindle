@@ -43,8 +43,9 @@ var tri = new Triangle(
 var objects = new List<Geometry> { };
 var lights = new List<LightSource> { new Spotlight(Vector3.One, Vector3.One) };
 
-var meshImporter = new ObjMeshImporter("Assets/teapot.obj", matCenter);
-var scene = new BvhScene(new KDTreeStrategy(100), objects, lights, meshImporter);
+var leftTeapotImporter = new ObjMeshImporter("Assets/teapot.obj", new Vector3(0, -1, 0), matCenter);
+var rightTeaPotImporter = new ObjMeshImporter("Assets/teapot.obj", new Vector3(0, 1, 0), matCenter);
+var scene = new BvhScene(new KDTreeStrategy(100), objects, lights, leftTeapotImporter, rightTeaPotImporter);
 
 var renderer = new PathTracingRenderer(scene);
 

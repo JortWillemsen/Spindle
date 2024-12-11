@@ -10,7 +10,7 @@ public class ObjMeshImporter : MeshImporter
     public Material Material { get; }
 
     /// <inheritdoc />
-    public ObjMeshImporter(string filePath, Material material) : base(filePath)
+    public ObjMeshImporter(string filePath, Vector3 targetPosition, Material material) : base(filePath, targetPosition)
     {
         Material = material;
     }
@@ -29,7 +29,7 @@ public class ObjMeshImporter : MeshImporter
             {
                 case 'v':
                     if (line[1] is 't' or 'n') continue;
-                    vertices.Add(ParseVector3(line[2..])); // Skip "v "
+                    vertices.Add(ParseVector3(line[2..]) + TargetPosition); // Skip "v "
                     break;
 
                 case 'f':

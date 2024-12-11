@@ -27,43 +27,72 @@ public class BvhNode : IIntersectable
             // If we are a leaf we intersect the primitive
             if (IsLeaf)
             {
-                // TODO: intersect with all primitives
-                return Primitives[0].TryIntersect(ray, distanceInterval, out intersection, ref intersectionDebugInfo);
+                return TryIntersectPrimitives(ray, distanceInterval, Primitives, out intersection, ref intersectionDebugInfo);
             }
 
-            var intersectsLeftBox = Left.BoundingBox.TryIntersect(ray, distanceInterval, out var leftIntersection, ref intersectionDebugInfo);
-            var intersectsRightBox = Right.BoundingBox.TryIntersect(ray, distanceInterval, out var rightIntersection, ref intersectionDebugInfo);
-            
-            if (intersectsLeftBox && !intersectsRightBox)
-            {
-                return Left.TryIntersect(ray, distanceInterval, out intersection, ref intersectionDebugInfo);
-            }
+            // We do intersect with both boxes, thus we recurse the one that is closest to us.
+            bool leftIntersected =
+                Left.TryIntersect(ray, distanceInterval, out var leftIntersection, ref intersectionDebugInfo);
+            bool rightIntersected =
+                Right.TryIntersect(ray, distanceInterval, out var rightIntersection, ref intersectionDebugInfo);
 
-            if (!intersectsLeftBox && intersectsRightBox)
-            {
-                return Right.TryIntersect(ray, distanceInterval, out intersection, ref intersectionDebugInfo);
-            }
-
-            if (!intersectsLeftBox && !intersectsRightBox)
+            if (!leftIntersected && !rightIntersected)
             {
                 intersection = Intersection.Undefined;
                 return false;
             }
 
-            // We do intersect with both boxes, thus we recurse the one that is closest to us.
-            if (leftIntersection.Distance < rightIntersection.Distance)
+            if (leftIntersected && !rightIntersected)
             {
-                return Left.TryIntersect(ray, distanceInterval, out intersection, ref intersectionDebugInfo)
-                       ||
-                       Right.TryIntersect(ray, distanceInterval, out intersection, ref intersectionDebugInfo);
+                intersection = leftIntersection; 
+                return true;
             }
             
-            return Right.TryIntersect(ray, distanceInterval, out intersection, ref intersectionDebugInfo)
-                ||
-                Left.TryIntersect(ray, distanceInterval, out intersection, ref intersectionDebugInfo);
+            if (rightIntersected && !leftIntersected)
+            {
+                intersection = rightIntersection; 
+                return true;
+            }
+
+            // We intersect with both boxes
+            if (leftIntersection.Distance <= rightIntersection.Distance)
+            {
+                intersection = leftIntersection;
+                return true;
+            }
+
+            intersection = rightIntersection;
+            return true;
         }
 
         intersection = Intersection.Undefined;
         return false;
+    }
+
+    private bool TryIntersectPrimitives(Ray ray, Interval distanceInterval, IIntersectable[] primitives, out Intersection intersection, ref IntersectionDebugInfo intersectionDebugInfo)
+    {
+        var intersected = false;
+        // Current closest intersection, currently infinite for we have no intersection.
+        var closest = distanceInterval.Max;
+
+        // TODO: This feels dirty
+        var storedIntersection = Intersection.Undefined;
+        
+        // Loop over all the geometry in the scene to determine what the ray hits.
+        foreach (var intersectable in Primitives)
+        {
+            
+            // If we don't intersect, we continue checking the remaining objects.
+            if (!intersectable.TryIntersect(ray, new Interval(distanceInterval.Min, closest), out var newIntersection, ref intersectionDebugInfo))
+                continue;
+            
+            // When we do hit, we set the closest to the new intersection (intersection2)
+            intersected = true;
+            closest = newIntersection.Distance;
+            storedIntersection = newIntersection;
+        }
+
+        intersection = storedIntersection;
+        return intersected;
     }
 }

@@ -17,6 +17,7 @@ public interface IIntersectable
     public bool TryIntersect(Ray ray, Interval distanceInterval, out Intersection intersection, ref IntersectionDebugInfo intersectionDebugInfo);
 
     public IBoundingBox GetBoundingBox();
+    public Vector3 GetCentroid();
 }
 
 public record struct Intersection(float Distance, Vector3 Point, Vector3 Normal, Ray Ray, Geometry Geometry)

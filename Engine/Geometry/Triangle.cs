@@ -1,6 +1,5 @@
 ﻿using Engine.BoundingBoxes;
 using Engine.Materials;
-using Engine.Scenes;
 using System.Numerics;
 
 namespace Engine.Geometry;
@@ -24,8 +23,10 @@ public class Triangle : Geometry
 
     public override Vector3 GetNormalAt(Vector3 pointOnGeometry) => _normal;
 
-    public override bool TryIntersect(Ray ray, Interval interval, out Intersection intersection)
+    /// <inheritdoc />
+    public override bool TryIntersect(Ray ray, Interval interval, out Intersection intersection, ref IntersectionDebugInfo intersectionDebugInfo)
     {
+        intersectionDebugInfo.NumberOfIntersectionTests++;
         intersection = Intersection.Undefined;
 
         // Moller-Trumbore intersection algorithm
@@ -85,4 +86,7 @@ public class Triangle : Geometry
 
         return new AxisAlignedBoundingBox(lowerBounds, upperBounds);
     }
+
+    /// <inheritdoc />
+    public override Vector3 GetCentroid() => Position;
 }

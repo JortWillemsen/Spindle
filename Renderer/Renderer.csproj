@@ -18,5 +18,16 @@
       <PackageReference Include="Silk.NET.Windowing" Version="2.22.0" />
       <PackageReference Include="StbImageSharp" Version="2.30.15" />
     </ItemGroup>
+    <ItemGroup>
+      <None Update="Assets\teapot.obj">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Assets\dragon.obj">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Assets\floor.obj">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
 
 </Project>

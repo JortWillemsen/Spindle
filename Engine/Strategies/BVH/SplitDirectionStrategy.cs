@@ -1,12 +1,19 @@
 ﻿using Engine.AccelerationStructures.BoundingVolumeHierarchy;
+using Engine.BoundingBoxes;
 using Engine.Geometry;
-using Engine.Lighting;
 using Engine.Scenes;
 
 namespace Engine.Strategies.BVH;
 
 public class SplitDirectionStrategy : IBvhStrategy
 {
+    public int NumOfPrimitives { get; set; }
+
+    public SplitDirectionStrategy(int numOfPrimitives)
+    {
+        NumOfPrimitives = numOfPrimitives;
+    }
+    
     public BvhNode Build(Scene scene)
     {
         // Create the root bounding box.
@@ -28,7 +35,7 @@ public class SplitDirectionStrategy : IBvhStrategy
             var parent = stack.Pop();
 
             // Base case
-            if (parent.Primitives.Length <= 3)
+            if (parent.Primitives.Length <= NumOfPrimitives)
             {
                 parent.IsLeaf = true;
                 continue;

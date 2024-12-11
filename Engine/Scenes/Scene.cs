@@ -3,6 +3,7 @@ using System.Numerics;
 using Engine.Geometry;
 using Engine.Lighting;
 using Engine.Materials;
+using Engine.MeshImporters;
 
 namespace Engine.Scenes;
 
@@ -11,20 +12,27 @@ public class Scene : IIntersectable
     public List<Geometry.Geometry> Objects { get; private set; }
     public List<LightSource>       Lights  { get; private set; }
     
+    public Scene(List<Geometry.Geometry> objects, List<LightSource> lights, params MeshImporter[] meshImporters)
+        : this(objects, lights)
+    {
+        foreach (MeshImporter meshImporter in meshImporters)
+            AddObjects(meshImporter.Import());
+    }
+
     public Scene(List<Geometry.Geometry> objects, List<LightSource> lights)
     {
         Objects = objects;
         Lights = lights;
     }
 
-    public void Add(Geometry.Geometry obj)
+    public void AddObject(Geometry.Geometry obj)
     {
         Objects.Add(obj);
     }
-    
-    public void Add(LightSource obj)
+
+    public void AddObjects(IEnumerable<Geometry.Geometry> objects)
     {
-        Lights.Add(obj);
+        Objects.AddRange(objects);
     }
 
     public IIntersectable[] GetIntersectables()
@@ -35,7 +43,7 @@ public class Scene : IIntersectable
     }
     
     public void AddSphere(Vector3 position, Material material, float radius)
-        => Add(new Sphere(position, material, radius));
+        => AddObject(new Sphere(position, material, radius));
 
     public void AddLightSource(LightSource lightSource) => Lights.Add(lightSource);
     
@@ -70,4 +78,7 @@ public class Scene : IIntersectable
     {
         return new AxisAlignedBoundingBox(Objects.Select(o => o.GetBoundingBox()).ToArray());
     }
+
+    /// <inheritdoc />
+    public Vector3 GetCentroid() => GetBoundingBox().GetCentroid();
 }

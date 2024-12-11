@@ -14,11 +14,18 @@ public class IntersectionTestsCamera : Camera
     /// The coloring scale is based on 0 until this value.
     /// Values higher than this are clipped to the most intense color.
     /// </summary>
-    public int DisplayedIntersectionsRange { get; }
+    public Interval DisplayedIntersectionsRange { get; }
 
     // ReSharper disable once InconsistentNaming
     /// <inheritdoc />
-    public IntersectionTestsCamera(Vector3 position, Vector3 up, Vector3 front, Size imageSize, float FOV, int maxDepth, int samples, int displayedIntersectionsRange)
+    public IntersectionTestsCamera(Vector3 position,
+        Vector3 up,
+        Vector3 front,
+        Size imageSize,
+        float FOV,
+        int maxDepth,
+        int samples,
+        Interval displayedIntersectionsRange)
         : base(position, up, front, imageSize, FOV, maxDepth, samples)
     {
         DisplayedIntersectionsRange = displayedIntersectionsRange;
@@ -41,8 +48,14 @@ public class IntersectionTestsCamera : Camera
                     sample++;
                 }
 
-                Vector3 color = Vector3.Lerp(new Vector3(0, 255, 0), new Vector3(255, 0, 0),
-                    Math.Clamp((float) intersectionDebugInfo.NumberOfIntersectionTests / DisplayedIntersectionsRange, 0, 1f));
+                // First we process the range which we must visualise
+                float valueClamped = Math.Clamp(
+                    intersectionDebugInfo.NumberOfTraversals - DisplayedIntersectionsRange.Min,
+                    0, DisplayedIntersectionsRange.Max);
+                // Then we log the value to make differences less extreme.
+                float visualisedValue = valueClamped / DisplayedIntersectionsRange.Size;
+
+                Vector3 color = Vector3.Lerp(new Vector3(0, 255, 0), new Vector3(255, 0, 0), visualisedValue);
 
                 pixels[j * ImageSize.Width + i] = ColorInt.Make(color);
             }

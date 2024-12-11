@@ -14,11 +14,18 @@ public class TraversalStepsCamera : Camera
     /// The coloring scale is based on 0 until this value.
     /// Values higher than this are clipped to the most intense color.
     /// </summary>
-    public int DisplayedTraversalStepsRange { get; set; }
+    public Interval DisplayedTraversalStepsRange { get; set; }
 
     // ReSharper disable once InconsistentNaming
     /// <inheritdoc />
-    public TraversalStepsCamera(Vector3 position, Vector3 up, Vector3 front, Size imageSize, float FOV, int maxDepth, int samples, int displayedTraversalStepsRange)
+    public TraversalStepsCamera(Vector3 position,
+        Vector3 up,
+        Vector3 front,
+        Size imageSize,
+        float FOV,
+        int maxDepth,
+        int samples,
+        Interval displayedTraversalStepsRange)
         : base(position, up, front, imageSize, FOV, maxDepth, samples)
     {
         DisplayedTraversalStepsRange = displayedTraversalStepsRange;
@@ -41,8 +48,14 @@ public class TraversalStepsCamera : Camera
                     sample++;
                 }
 
-                Vector3 color = Vector3.Lerp(new Vector3(0, 255, 0), new Vector3(255, 0, 0),
-                    Math.Clamp((float) intersectionDebugInfo.NumberOfTraversals / DisplayedTraversalStepsRange, 0, 1f));
+                // First we process the range which we must visualise
+                float valueClamped = Math.Clamp(
+                    intersectionDebugInfo.NumberOfTraversals - DisplayedTraversalStepsRange.Min,
+                    0, DisplayedTraversalStepsRange.Max);
+                // Then we log the value to make differences less extreme.
+                float visualisedValue = valueClamped / DisplayedTraversalStepsRange.Size;
+
+                Vector3 color = Vector3.Lerp(new Vector3(0, 255, 0), new Vector3(255, 0, 0), visualisedValue);
 
                 pixels[j * ImageSize.Width + i] = ColorInt.Make(color);
             }

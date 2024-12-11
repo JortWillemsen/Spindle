@@ -17,6 +17,8 @@ const int maxDepth = 20;
 const int samples = 5;
 const float fov = 65f;
 
+Console.WriteLine("Starting render");
+
 var cameraManager = new CameraManager(new Size(windowWidth, windowHeight), CameraLayout.Matrix);
 cameraManager.AddBasicCamera(new Vector3(0, 0, -10f), maxDepth, samples, fov);
 // cameraManager.AddCamera(new BasicCamera(new Vector3(1, 1, 3), Vector3.UnitY, new Vector3(-1, 0, -3), new Size(), fov, maxDepth, samples));
@@ -42,10 +44,11 @@ var tri = new Triangle(
 
 var objects = new List<Geometry> { };
 var lights = new List<LightSource> { new Spotlight(Vector3.One, Vector3.One) };
-
 var leftTeapotImporter = new ObjMeshImporter("Assets/teapot.obj", new Vector3(0, -1, 0), matCenter);
-var rightTeaPotImporter = new ObjMeshImporter("Assets/teapot.obj", new Vector3(0, 1, 0), matCenter);
-var scene = new BvhScene(new KDTreeStrategy(100), objects, lights, leftTeapotImporter, rightTeaPotImporter);
+
+var scene = new BvhScene(new SplitDirectionStrategy(100), objects, lights, leftTeapotImporter);
+
+Console.WriteLine("Done creating acceleration structure");
 
 var renderer = new PathTracingRenderer(scene);
 

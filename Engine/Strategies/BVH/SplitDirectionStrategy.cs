@@ -19,13 +19,14 @@ public class SplitDirectionStrategy : IBvhStrategy
         // Create the root bounding box.
         var root = new BvhNode
         {
-            IsLeaf = false, BoundingBox = scene.GetBoundingBox(), Primitives = scene.Objects.ToArray()
+            IsLeaf = false, BoundingBox = scene.GetBoundingBox(), Primitives = new List<IIntersectable>(scene.Objects)
         };
 
-        return PopulateChildren(root);
+        var random = new Random();
+        return PopulateChildren(root, random);
     }
 
-    private BvhNode PopulateChildren(BvhNode root)
+    private BvhNode PopulateChildren(BvhNode root, Random random)
     {
         Stack<BvhNode> stack = new();
         stack.Push(root);
@@ -35,23 +36,13 @@ public class SplitDirectionStrategy : IBvhStrategy
             var parent = stack.Pop();
 
             // Base case
-            if (parent.Primitives.Length <= NumOfPrimitives)
+            if (parent.Primitives.Count <= NumOfPrimitives)
             {
                 parent.IsLeaf = true;
                 continue;
             }
 
-            int axisToSplit = 0;
-
-            // Determine which axis to split i.e. the longest axis.
-            for (int axis = 0; axis < 3; axis++)
-            {
-                // If the size of the current axis is longer than the selected axis, we substitute it.
-                if (parent.BoundingBox.AxisByInt(axis).Size > parent.BoundingBox.AxisByInt(axisToSplit).Size)
-                {
-                    axisToSplit = axis;
-                }
-            }
+            int axisToSplit = random.Next(0, 3);
 
             // Find the split intervals
             (Interval fst, _) = parent.BoundingBox.AxisByInt(axisToSplit).Split();
@@ -62,9 +53,8 @@ public class SplitDirectionStrategy : IBvhStrategy
             // Divide the primitives based on their position in 3D space.
             foreach (IIntersectable primitive in parent.Primitives)
             {
-                Geometry.Geometry geometry = (Geometry.Geometry)primitive;
                 // Check if it falls inside the first or second box and append accordingly.
-                if (fst.Surrounds(geometry.Position.AxisByInt(axisToSplit)))
+                if (fst.Surrounds(primitive.GetCentroid().AxisByInt(axisToSplit)))
                 {
                     primsFst.Add(primitive);
                     continue;
@@ -73,12 +63,12 @@ public class SplitDirectionStrategy : IBvhStrategy
                 primsSnd.Add(primitive);
             }
 
-            var boxFst = new AxisAlignedBoundingBox(primsFst.Select(i => i.GetBoundingBox()).ToArray());
-            var boxSnd = new AxisAlignedBoundingBox(primsSnd.Select(i => i.GetBoundingBox()).ToArray());
+            var boxFst = new AxisAlignedBoundingBox(primsFst.Select(i => i.GetBoundingBox()));
+            var boxSnd = new AxisAlignedBoundingBox(primsSnd.Select(i => i.GetBoundingBox()));
 
-            var left = new BvhNode { IsLeaf = false, Primitives = primsFst.ToArray(), BoundingBox = boxFst };
+            var left = new BvhNode { IsLeaf = false, Primitives = primsFst, BoundingBox = boxFst };
 
-            var right = new BvhNode { IsLeaf = false, Primitives = primsSnd.ToArray(), BoundingBox = boxSnd };
+            var right = new BvhNode { IsLeaf = false, Primitives = primsSnd, BoundingBox = boxSnd };
 
             parent.Left = left;
             parent.Right = right;

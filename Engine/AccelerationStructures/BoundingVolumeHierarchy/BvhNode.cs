@@ -10,7 +10,7 @@ public class BvhNode : IIntersectable
 
     public bool IsLeaf;
     public BvhNode Left, Right;
-    public IIntersectable[] Primitives;
+    public List<IIntersectable> Primitives;
     
     public IBoundingBox GetBoundingBox() => BoundingBox;
 
@@ -69,7 +69,7 @@ public class BvhNode : IIntersectable
         return false;
     }
 
-    private bool TryIntersectPrimitives(Ray ray, Interval distanceInterval, IIntersectable[] primitives, out Intersection intersection, ref IntersectionDebugInfo intersectionDebugInfo)
+    private bool TryIntersectPrimitives(Ray ray, Interval distanceInterval, List<IIntersectable> primitives, out Intersection intersection, ref IntersectionDebugInfo intersectionDebugInfo)
     {
         var intersected = false;
         // Current closest intersection, currently infinite for we have no intersection.

@@ -56,9 +56,9 @@ public class AxisAlignedBoundingBox : IBoundingBox
     /// Creates an AABB that encapsulates multiple other AABBs
     /// </summary>
     /// <param name="boxes"></param>
-    public AxisAlignedBoundingBox(params IBoundingBox[] boxes)
+    public AxisAlignedBoundingBox(IEnumerable<IBoundingBox> boxes)
     {
-        if (boxes.Length <= 0)
+        if (!boxes.Any())
         {
             X = new Interval(0, 0);
             Y = new Interval(0, 0);
@@ -67,11 +67,11 @@ public class AxisAlignedBoundingBox : IBoundingBox
         }
         
         // TODO: Remove dirty cast
-        var aabbs = boxes.OfType<AxisAlignedBoundingBox>().ToArray();
+        var aabbs = boxes.OfType<AxisAlignedBoundingBox>();
         
-        X = new Interval(aabbs.Select(b => b.X).ToArray());
-        Y = new Interval(aabbs.Select(b => b.Y).ToArray());
-        Z = new Interval(aabbs.Select(b => b.Z).ToArray());
+        X = new Interval(aabbs.Select(b => b.X));
+        Y = new Interval(aabbs.Select(b => b.Y));
+        Z = new Interval(aabbs.Select(b => b.Z));
     }
     /// <inheritdoc />
     public bool TryIntersect(Ray ray, Interval distanceInterval, out Intersection intersection, ref IntersectionDebugInfo intersectionDebugInfo)
@@ -125,10 +125,10 @@ public class AxisAlignedBoundingBox : IBoundingBox
     /// <inheritdoc />
     public Vector3 GetCentroid() => GetLowerBound() + GetUpperBound() / 2;
 
-    public IBoundingBox Combine(IBoundingBox[] boxes)
+    public IBoundingBox Combine(List<IBoundingBox> boxes)
     {
         //TODO: Dirty cast, need to figure out a way to abstract this logic.
-        return new AxisAlignedBoundingBox((AxisAlignedBoundingBox[]) boxes);
+        return new AxisAlignedBoundingBox(boxes);
     }
 
     public Interval AxisByInt(int axis)

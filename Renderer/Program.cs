@@ -44,9 +44,13 @@ var tri = new Triangle(
 
 var objects = new List<Geometry> { };
 var lights = new List<LightSource> { new Spotlight(Vector3.One, Vector3.One) };
-var leftTeapotImporter = new ObjMeshImporter("Assets/teapot.obj", new Vector3(0, -1, 0), matCenter);
 
-var scene = new BvhScene(new SplitDirectionStrategy(40), objects, lights, leftTeapotImporter);
+var cuteDragonImporter = new ObjMeshImporter("Assets/cute_dragon.obj", new Vector3(0, 0, 0), matCenter);
+var teaPotImporter1 = new ObjMeshImporter("Assets/teapot.obj", new Vector3(-7, -2, 0), matCenter);
+var teaPotImporter2 = new ObjMeshImporter("Assets/teapot.obj", new Vector3(7, -2, 0), matCenter);
+var teaPotImporter3 = new ObjMeshImporter("Assets/teapot.obj", new Vector3(0, 8, 20), matCenter);
+var teaPotImporter4 = new ObjMeshImporter("Assets/teapot.obj", new Vector3(-20, 40, 80), matCenter);
+var scene = new BvhScene(new KDTreeStrategy(50), objects, lights, teaPotImporter1, teaPotImporter2, teaPotImporter3, teaPotImporter4);
 
 Console.WriteLine("Done creating acceleration structure");
 

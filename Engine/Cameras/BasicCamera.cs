@@ -16,6 +16,7 @@ public class BasicCamera : Camera
         : base(position, up, front, imageSize, FOV, maxDepth)
     {
         AveragedSamples = new Vector3[imageSize.Width * imageSize.Height];
+        OnTransform += () => NumberOfSamples = 0;
     }
 
     /// <inheritdoc />
@@ -24,7 +25,6 @@ public class BasicCamera : Camera
         base.SetImageSize(size);
         AveragedSamples = new Vector3[size.Width * size.Height];
         NumberOfSamples = 0;
-        // TODO: do this for controls as well
     }
 
     public override void RenderShot(IRenderer renderer, in Span<int> pixels)

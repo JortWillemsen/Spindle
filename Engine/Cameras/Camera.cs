@@ -20,6 +20,8 @@ public abstract class Camera
 
     private const float _frustumHeight = 1f;
 
+    protected event Action OnTransform;
+
     // ReSharper disable once InconsistentNaming
     protected Camera(Vector3 position, Vector3 up, Vector3 front, Size imageSize, float FOV, int maxDepth)
     {
@@ -67,9 +69,23 @@ public abstract class Camera
 
     #region Controls
 
-    public void MoveForward(float amount)      => Position += Front * amount;
-    public void MoveHorizontally(float amount) => Position += Right * amount;
-    public void MoveVertically(float amount)   => Position += Up * amount;
+    public void MoveForward(float amount)
+    {
+        Position += Front * amount;
+        OnTransform.Invoke();
+    }
+
+    public void MoveHorizontally(float amount)
+    {
+        Position += Right * amount;
+        OnTransform.Invoke();
+    }
+
+    public void MoveVertically(float amount)
+    {
+        Position += Up * amount;
+        OnTransform.Invoke();
+    }
 
     private float _currentHorizontalRotation;
     public void RotateHorizontally(float degree)
@@ -78,6 +94,7 @@ public abstract class Camera
         (float sin, float cos) = MathF.SinCos(_currentHorizontalRotation * MathF.PI / 180f);
         Front = new Vector3(sin, Front.Y, cos).Normalized();
         Right = Vector3.Cross(Up, Front).Normalized();
+        OnTransform.Invoke();
     }
     private float _currentVerticalRotation;
     public void RotateVertically(float degree)
@@ -86,13 +103,28 @@ public abstract class Camera
         (float sin, float cos) = MathF.SinCos(_currentVerticalRotation * MathF.PI / 180f);
         Up    = new Vector3(Up.X, cos, sin);
         Front = Vector3.Cross(Right, Up).Normalized();
+        OnTransform.Invoke();
     }
 
-    public void SetFocalLength(float focalLength) => FocalLength = focalLength;
-    public void IncreaseFocalLength(float amount) => FocalLength += amount;
+    public void SetFocalLength(float focalLength)
+    {
+        FocalLength = focalLength;
+        OnTransform.Invoke();
+    }
 
-    public void SetZoom(float zoom) => FocalLength = zoom;
-    public void Zoom(float scale) => FocalLength *= scale;
+    public void IncreaseFocalLength(float amount)
+    {
+        FocalLength += amount;
+        OnTransform.Invoke();
+    }
+
+    public void SetZoom(float zoom) => SetFocalLength(zoom);
+
+    public void Zoom(float scale)
+    {
+        FocalLength *= scale;
+        OnTransform.Invoke();
+    }
 
     #endregion Controls
 

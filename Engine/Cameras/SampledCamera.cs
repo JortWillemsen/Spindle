@@ -5,14 +5,14 @@ using Engine.Renderers;
 
 namespace Engine.Cameras;
 
-public class BasicCamera : Camera
+public class SampledCamera : Camera
 {
     protected uint NumberOfSamples { get; private set; }
     protected Vector3[] AveragedSamples { get; private set; }
 
     // ReSharper disable once InconsistentNaming
     /// <inheritdoc />
-    public BasicCamera(Vector3 position, Vector3 up, Vector3 front, Size imageSize, float FOV, int maxDepth)
+    public SampledCamera(Vector3 position, Vector3 up, Vector3 front, Size imageSize, float FOV, int maxDepth)
         : base(position, up, front, imageSize, FOV, maxDepth)
     {
         AveragedSamples = new Vector3[imageSize.Width * imageSize.Height];

@@ -99,7 +99,7 @@ public class CameraManager
 
     public void AddBasicCamera(Vector3 position, int depth, float fov=65)
     {
-        AddCamera(new BasicCamera(
+        AddCamera(new SampledCamera(
             position,
             Vector3.UnitY, Vector3.UnitZ,
             new Size(),

@@ -99,7 +99,7 @@ public abstract class Camera
     private float _currentVerticalRotation;
     public void RotateVertically(float degree)
     {
-        _currentVerticalRotation += degree; // TODO: needs to be inverted somehow
+        _currentVerticalRotation -= degree; // TODO: needs to be inverted somehow
         (float sin, float cos) = MathF.SinCos(_currentVerticalRotation * MathF.PI / 180f);
         Up    = new Vector3(Up.X, cos, sin);
         Front = Vector3.Cross(Right, Up).Normalized();

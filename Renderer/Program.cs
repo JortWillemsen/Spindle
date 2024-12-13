@@ -20,7 +20,7 @@ const float fov = 65f;
 Console.WriteLine("Starting render");
 
 var cameraManager = new CameraManager(new Size(windowWidth, windowHeight), CameraLayout.Matrix);
-cameraManager.AddBasicCamera(new Vector3(0, 3.5f, -15f), maxDepth, samples, fov);
+cameraManager.AddBasicCamera(new Vector3(0, 3.5f, -15f), maxDepth, fov);
 // cameraManager.AddCamera(new BasicCamera(new Vector3(1, 1, 3), Vector3.UnitY, new Vector3(-1, 0, -3), new Size(), fov, maxDepth, samples));
 // cameraManager.AddCamera(new IntersectionTestsCamera(new Vector3(1, 1, 3), Vector3.UnitY, new Vector3(-1, 0, -3), new Size(), fov, maxDepth, samples,
 //     displayedIntersectionsRange: 100));
@@ -50,7 +50,7 @@ var teaPotImporter1 = new ObjMeshImporter("Assets/teapot.obj", new Vector3(-7, -
 var teaPotImporter2 = new ObjMeshImporter("Assets/teapot.obj", new Vector3(7, -2, 0), matCenter);
 var teaPotImporter3 = new ObjMeshImporter("Assets/teapot.obj", new Vector3(0, 8, 20), matCenter);
 var teaPotImporter4 = new ObjMeshImporter("Assets/teapot.obj", new Vector3(-20, 40, 80), matCenter);
-var scene = new BvhScene(new SplitDirectionStrategy(20), objects, lights, teaPotImporter1, teaPotImporter2, teaPotImporter3, teaPotImporter4);
+var scene = new BvhScene(new SplitDirectionStrategy(20), objects, lights, teaPotImporter1);
 
 Console.WriteLine("Done creating acceleration structure");
 

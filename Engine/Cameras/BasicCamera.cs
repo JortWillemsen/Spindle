@@ -7,39 +7,46 @@ namespace Engine.Cameras;
 
 public class BasicCamera : Camera
 {
+    protected uint NumberOfSamples { get; private set; }
+    protected Vector3[] AveragedSamples { get; private set; }
+
     // ReSharper disable once InconsistentNaming
     /// <inheritdoc />
-    public BasicCamera(Vector3 position, Vector3 up, Vector3 front, Size imageSize, float FOV, int maxDepth, int samples)
-        : base(position, up, front, imageSize, FOV, maxDepth, samples)
+    public BasicCamera(Vector3 position, Vector3 up, Vector3 front, Size imageSize, float FOV, int maxDepth)
+        : base(position, up, front, imageSize, FOV, maxDepth)
     {
+        AveragedSamples = new Vector3[imageSize.Width * imageSize.Height];
+    }
+
+    /// <inheritdoc />
+    public override void SetImageSize(Size size)
+    {
+        base.SetImageSize(size);
+        AveragedSamples = new Vector3[size.Width * size.Height];
+        NumberOfSamples = 0;
+        // TODO: do this for controls as well
     }
 
     public override void RenderShot(IRenderer renderer, in Span<int> pixels)
     {
+        IntersectionDebugInfo intersectionDebugInfo = new();
+
         for (var j = 0; j < this.ImageSize.Height; j++)
         {
             for (var i = 0; i < this.ImageSize.Width; i++)
             {
-                // int pixelColor = 0x0;
-                IntersectionDebugInfo intersectionDebugInfo = new();
-                Vector3 pixelColor = Vector3.Zero;
-                int sample = 0;
+                ref Vector3 averagedSample = ref AveragedSamples[j * this.ImageSize.Width + i];
 
-                while (sample < Samples)
-                {
-                    var color = Vector3.One;
-                    var ray = GetRayTowardsPixel(i, j);
-                    renderer.TraceRay(ray, MaxDepth, ref color, ref intersectionDebugInfo);
+                var newSample = Vector3.One;
+                var ray = GetRayTowardsPixel(i, j);
+                renderer.TraceRay(ray, MaxDepth, ref newSample, ref intersectionDebugInfo);
 
-                    pixelColor += color;
-                    // pixelColor = ColorInt.Make(ColorInt.GetVector(pixelColor) * ((float)sample / (sample + 1)) + color / (sample + 1)); // TODO: make other vector3s ints as well
-                    // pixelColor = (int)(pixelColor * ((float) sample / (sample + 1)) + (float) ColorInt.Make(color) / (sample + 1)); // TODO: make other vector3s ints as well
-                    sample++;
-                }
+                averagedSample = ExpandAverage(averagedSample, NumberOfSamples, newSample);
 
-                pixels[j * ImageSize.Width + i] = ColorInt.Make(pixelColor / Samples);
-                // pixels[j * DisplayRegion.Width + i] = pixelColor;
+                pixels[j * ImageSize.Width + i] = ColorInt.Make(averagedSample);
             }
         }
+
+        NumberOfSamples++;
     }
 }

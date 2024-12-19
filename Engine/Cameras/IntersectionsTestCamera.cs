@@ -10,6 +10,8 @@ namespace Engine.Cameras;
 /// </summary>
 public class IntersectionTestsCamera : Camera
 {
+    public int Samples { get; private set; }
+
     /// <summary>
     /// The coloring scale is based on 0 until this value.
     /// Values higher than this are clipped to the most intense color.
@@ -19,8 +21,9 @@ public class IntersectionTestsCamera : Camera
     // ReSharper disable once InconsistentNaming
     /// <inheritdoc />
     public IntersectionTestsCamera(Vector3 position, Vector3 up, Vector3 front, Size imageSize, float FOV, int maxDepth, int samples, int displayedIntersectionsRange)
-        : base(position, up, front, imageSize, FOV, maxDepth, samples)
+        : base(position, up, front, imageSize, FOV, maxDepth)
     {
+        Samples = samples;
         DisplayedIntersectionsRange = displayedIntersectionsRange;
     }
 

@@ -97,14 +97,14 @@ public class CameraManager
         UpdateDisplayedCameraSlots();
     }
 
-    public void AddBasicCamera(Vector3 position, int depth, int samples, float fov=65)
+    public void AddBasicCamera(Vector3 position, int depth, float fov=65)
     {
-        AddCamera(new BasicCamera(
+        AddCamera(new SampledCamera(
             position,
             Vector3.UnitY, Vector3.UnitZ,
             new Size(),
             fov,
-            depth, samples));
+            depth));
     }
 
     public void RemoveCurrentCamera()

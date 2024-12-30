@@ -5,5 +5,4 @@ using Silk.NET.OpenCL;
 
 Console.WriteLine("OpenCL test application");
 
-var wf = new Wavefront();
-wf.Initialize();
+var manager = new OpenCLManager();

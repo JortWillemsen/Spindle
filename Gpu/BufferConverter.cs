@@ -1,19 +1,32 @@
 ﻿using Engine.Cameras;
+using Engine.Geometry;
 using Engine.Renderers;
+using Engine.Scenes;
 using System.Numerics;
 
 namespace Gpu;
 
 public class BufferConverter
 {
-    public static ClBuffers ConvertToBuffers(OpenCLManager manager, IRenderer renderer, SampledCamera camera)
+    public static ClBuffers ConvertToBuffers(OpenCLManager manager, Scene scene, SampledCamera camera)
     {
         var rays = GenerateRayBuffers(manager, camera);
 
+        var triangles = scene.Objects
+            .OfType<Triangle>()
+            .Select(t => new ClTriangle { V1 = t.Vertex1, V2 = t.Vertex2, V3 = t.Vertex3, Normal = t._normal })
+            .ToArray();
+        
+        var spheres = scene.Objects
+            .OfType<Sphere>()
+            .Select(s => new ClSphere { Origin = s.Position, Radius = s.Radius})
+            .ToArray();
+
         return new ClBuffers
         {
-            Origins = new InputBuffer<Vector3>(manager, rays.Origins),
-            Directions = new InputBuffer<Vector3>(manager, rays.Directions)
+            Rays = new InputBuffer<ClRay>(manager, rays),
+            Triangles = new InputBuffer<ClTriangle>(manager, triangles),
+            Spheres = new InputBuffer<ClSphere>(manager, spheres)
         };
     }
 
@@ -23,12 +36,11 @@ public class BufferConverter
     /// <param name="manager"></param>
     /// <param name="camera"></param>
     /// <returns></returns>
-    private static RaySoA GenerateRayBuffers(OpenCLManager manager, SampledCamera camera)
+    private static ClRay[] GenerateRayBuffers(OpenCLManager manager, SampledCamera camera)
     {
         var numOfSamples = camera.ImageSize.Width * camera.ImageSize.Height * camera.NumberOfSamples;
         // Create vector3 buffer that can contain all neccessary random pixel offsets for all samples
-        Vector3[] origins = new Vector3[numOfSamples];
-        Vector3[] directions = new Vector3[numOfSamples];
+        ClRay[] rays = new ClRay[numOfSamples];
         
         for (int i = 0; i < camera.ImageSize.Width; i++)
         {
@@ -43,13 +55,12 @@ public class BufferConverter
                     var sampleIndex = (i * camera.ImageSize.Height + j) * camera.NumberOfSamples + s;
                     
                     // Setting the values
-                    origins[sampleIndex] = ray.Origin;
-                    directions[sampleIndex] = ray.Direction;
+                    rays[sampleIndex] = new ClRay { Origin = ray.Origin, Direction = ray.Direction};
                 }
             }
         }
 
-        return new RaySoA { Directions = directions, Origins = origins };
+        return rays;
     }
 }
 
@@ -57,12 +68,7 @@ public class BufferConverter
 // pixel offset of the ray
 public struct ClBuffers
 {
-    public Buffer Origins { get; set; }
-    public Buffer Directions { get; set; }
-}
-
-public struct RaySoA
-{
-    public Vector3[] Origins { get; set; }
-    public Vector3[] Directions { get; set; }
+    public Buffer Rays { get; set; }
+    public Buffer Triangles { get; set; }
+    public Buffer Spheres { get; set; }
 }

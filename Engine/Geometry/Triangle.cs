@@ -10,7 +10,7 @@ public class Triangle : Geometry
     public Vector3 Vertex2 { get; }
     public Vector3 Vertex3 { get; }
 
-    private readonly Vector3 _normal;
+    public Vector3 _normal { get; }
 
     public Triangle(Vector3 vertex1, Vector3 vertex2, Vector3 vertex3, Material material) : base(
         (vertex1 + vertex2 + vertex3) / 3, material)

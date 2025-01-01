@@ -7,8 +7,8 @@ namespace Engine.Cameras;
 
 public class SampledCamera : Camera
 {
-    protected uint NumberOfSamples { get; private set; }
-    protected Vector3[] AveragedSamples { get; private set; }
+    public uint NumberOfSamples { get; private set; }
+    public Vector3[] AveragedSamples { get; private set; }
 
     // ReSharper disable once InconsistentNaming
     /// <inheritdoc />

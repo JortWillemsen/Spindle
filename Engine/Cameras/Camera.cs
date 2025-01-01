@@ -59,7 +59,7 @@ public abstract class Camera
     /// Calculates the offset for Anti-aliasing
     /// </summary>
     /// <returns>The offset for the ray origin and destination</returns>
-    private Vector3 _sampleSquare()
+    public Vector3 _sampleSquare()
     {
         return new Vector3(
             (Utils.RandomFloat() - .5f) * (AspectRatio / ImageSize.Width), // FrustumHorizontal.Length() == AspectRatio

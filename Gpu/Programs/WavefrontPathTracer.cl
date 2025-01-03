@@ -86,5 +86,5 @@ __kernel void trace(
     }
 
     
-    if (!hit) result[y * info->imageWidth + x] = 0xFF00000;
+    if (!hit) result[y * info->imageWidth + x] = 0xFFFFFFF;
 }

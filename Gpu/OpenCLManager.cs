@@ -78,6 +78,12 @@ public class OpenCLManager
         return this;
     }
 
+    public OpenCLManager SetBuffers<T>(OutputBuffer<T> outputBuffer, params Buffer[] inputBuffers) where T : unmanaged
+    {
+        Memory = new Memory<float>(this, outputBuffer, inputBuffers);
+        return this;
+    }
+
     public OpenCLManager SetWorkSize(nuint[] global, nuint[] local)
     {
         GlobalSize = global;

@@ -26,7 +26,6 @@ public class InputBuffer<T> : Buffer where T : unmanaged
         {
             manager.Cleanup();
             throw new Exception("Failed to create Input Buffer");
-
         }
     }
 

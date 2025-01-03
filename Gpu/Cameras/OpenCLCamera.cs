@@ -1,5 +1,4 @@
 ﻿using Engine.Renderers;
-using Engine.Scenes;
 using Gpu;
 using System.Drawing;
 using System.Numerics;
@@ -16,8 +15,9 @@ public class OpenCLCamera : Camera
 
     public override void RenderShot(IRenderer renderer, in Span<int> pixels)
     {
-        var globalWorkSize = new nuint[2] { (nuint)this.ImageSize.Width, (nuint)this.ImageSize.Height };
-        var localWorkSize = new nuint[1] { 1 };
+        
+        var globalWorkSize = new nuint[2] { (nuint) ImageSize.Width, (nuint) ImageSize.Height };
+        var localWorkSize = new nuint[2] { 1, 1};
         
         Manager = new OpenCLManager()
             .SetProgram("/../../../../Gpu/Programs/WavefrontPathTracer.cl")

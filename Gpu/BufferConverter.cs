@@ -12,8 +12,9 @@ public class BufferConverter
     {
         var sceneInfo = new ClSceneInfo
         {
-            ImageHeight = camera.ImageSize.Height,
+            Padding = 1,
             ImageWidth = camera.ImageSize.Width,
+            ImageHeight = camera.ImageSize.Height,
             NumSpheres = scene.Objects.OfType<Sphere>().Count(),
             NumTriangles = scene.Objects.OfType<Triangle>().Count(),
         };
@@ -27,7 +28,7 @@ public class BufferConverter
         
         var spheres = scene.Objects
             .OfType<Sphere>()
-            .Select(s => new ClSphere { Origin = s.Position, Radius = s.Radius})
+            .Select(s => new ClSphere { Position = s.Position, Radius = s.Radius})
             .ToArray();
 
         return new ClBuffers

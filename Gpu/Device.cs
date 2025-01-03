@@ -17,7 +17,7 @@ public class Device
         Console.WriteLine($"Using Device: {Name}");
     }
     
-    static unsafe string GetDeviceInfoString(CL cl, nint device, DeviceInfo paramName)
+    public unsafe string GetDeviceInfoString(CL cl, nint device, DeviceInfo paramName)
     {
         // Query size of the property
         cl.GetDeviceInfo(device, paramName, 0, null, out nuint size);

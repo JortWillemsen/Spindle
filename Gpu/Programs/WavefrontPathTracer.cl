@@ -1,20 +1,80 @@
-﻿#include "sphere.cl"
-#include "triangle.cl"
-#include "sceneInfo.cl"
+﻿typedef struct
+{
+    int padding;
+    int imageWidth;
+    int imageHeight;
+    int numSpheres;
+    int numTriangles;
+} SceneInfo;
+
+typedef struct
+{
+    float3 v1;
+    float3 v2;
+    float3 v3;
+    float3 normal;
+} Triangle;
+
+typedef struct
+{
+    float3  direction;
+    float3  origin;
+} Ray;
+
+typedef struct
+{
+    float3  position;
+    float   radius;
+} Sphere;
+
+// Takes Ray, Sphere, returns the t distance
+bool intersectSphere(Ray *ray, Sphere *sphere, float *t)
+{
+    float t0, t1;
+    float radius2 = sphere->radius * sphere->radius;
+
+    // Geometric solution
+    float3 L = sphere->position - ray->origin;
+    float tca = dot(L, ray->direction);
+    float d2 = dot(L, L) - tca * tca;
+
+    if (d2 > radius2) return false;
+
+    float thc = sqrt(radius2 - d2);
+    t0 = tca - thc;
+    t1 = tca + thc;
+
+    if (t0 > t1)
+    {
+        float tmp = t0;
+        t0 = t1;
+        t1 = tmp;
+    }
+
+    if (t0 < 0)
+    {
+        t0 = t1;
+        if (t0 < 0) return false;
+    }
+
+    *t = t0;
+
+    return true;
+}
 
 __kernel void trace(
-    __global const SceneInfo *info,
+    __global SceneInfo *info,
     __global const Ray *rays,
     __global const Sphere *spheres,
     __global const Triangle *triangles,
     __global int *result)
 {
-    // int x = get_global_id(0);
-    // int y = get_global_id(1);
-    
-    //result[x * info->imageHeight + y] = 0xFFFFFF;
+    uint x = get_global_id(0);
+    uint y = get_global_id(1);
 
-    // Ray r = rays[x * info->imageHeight + y];
+    result[y * info->imageWidth + x] = 0xFFFFFF;
+
+    // Ray r = rays[x * info->imageWidth + y];
     // bool hit = false;
     // float t = FLT_MAX;
 
@@ -22,21 +82,20 @@ __kernel void trace(
     //     if (intersectSphere(&r, &spheres[i], &t)) {
     //         hit = true;
             
+    //         result[y * info->imageWidth + x] = t;
+    //         return;
+
     //         // Calculate the normal at the intersection point
     //         float3 hitPoint = r.origin + t * r.direction;
     //         float3 normal = normalize(hitPoint - spheres[i].position);
             
     //         // Convert normal to color (for simplicity, we use the normal as the color)
-    //         int color = (int)((normal.x + 1.0f) * 0.5f * 255) << 16 |
-    //                     (int)((normal.y + 1.0f) * 0.5f * 255) << 8 |
-    //                     (int)((normal.z + 1.0f) * 0.5f * 255);
+    //         int color = (int)((normal.x + 1.0f) * 255) << 16 |
+    //                     (int)((normal.y + 1.0f) * 255) << 8 |
+    //                     (int)((normal.z + 1.0f) * 255);
             
-    //         result[x * info->imageHeight + y] = color;
+    //         result[y * info->imageWidth + x] = color;
     //         break;
     //     }
     // }
-
-    // if (!hit) {
-    //     // Set pixel to white if no intersection
-    //     result[x * info->imageHeight + y] = 0xFFFFFF;
-} 
+}

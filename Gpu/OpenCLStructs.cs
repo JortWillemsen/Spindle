@@ -12,7 +12,7 @@ public struct ClTriangle
 
 public struct ClSphere
 {
-    public Vector3 Origin;
+    public Vector3 Position;
     public float Radius;
 }
 
@@ -24,6 +24,7 @@ public struct ClRay
 
 public struct ClSceneInfo
 {
+    public int Padding;
     public int ImageWidth;
     public int ImageHeight;
     public int NumSpheres;

@@ -31,7 +31,7 @@ public class OpenCLManager
         Cl.EnqueueNdrangeKernel(
             Queue.Id, 
             Kernels[0].Id, 
-            1, 
+            2,
             (nuint*) null, 
             GlobalSize, 
             LocalSize,

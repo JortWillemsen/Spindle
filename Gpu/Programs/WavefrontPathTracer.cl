@@ -71,8 +71,6 @@ __kernel void trace(
         if (intersect_sphere(&r, &s, &t)) {
             hit = true;
 
-            result[y * info->imageWidth + x] = 1;
-
             // Calculate the normal at the intersection point
             float3 hitPoint = r.origin + t * r.direction;
             float3 normal = normalize(hitPoint - spheres[i].position);
@@ -83,10 +81,10 @@ __kernel void trace(
                         (int)((normal.z) * 255);
             
             result[y * info->imageWidth + x] = color;
-            break;
+            return;
         }
     }
 
     
-    if (!hit) result[y * info->imageWidth + x] = 0xFFF;
+    if (!hit) result[y * info->imageWidth + x] = 0xFF00000;
 }

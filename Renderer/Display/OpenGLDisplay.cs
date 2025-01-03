@@ -283,7 +283,7 @@ void main()
 
             // Fill the texture 'slot'
             _gl.TexImage2D<int>(TextureTarget.Texture2D, 0, InternalFormat.Rgba, (uint) texture.Width,
-                (uint) texture.Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, texture.Pixels); // todo: these now inclde transparancy, but we will never use that. Switch to bytes
+                (uint) texture.Height, 0, PixelFormat.Bgra, PixelType.UnsignedByte, texture.Pixels); // todo: these now inclde transparancy, but we will never use that. Switch to bytes
 
             // Define attributes to how the texture should be rendered
             // _gl.TexParameterI(GLEnum.Texture2D, GLEnum.TextureWrapS, (int)TextureWrapMode.Repeat);

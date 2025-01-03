@@ -20,7 +20,7 @@ const float fov = 65f;
 Console.WriteLine("Starting render");
 
 var cameraManager = new CameraManager(new Size(windowWidth, windowHeight), CameraLayout.Matrix);
-cameraManager.AddCamera(new OpenCLCamera(new Vector3(1, 1, 3), Vector3.UnitY, new Vector3(0, 0, -3), new Size(), fov, maxDepth));
+cameraManager.AddCamera(new OpenCLCamera(new Vector3(0, 0, -3), Vector3.UnitY, new Vector3(0, 0, 3), new Size(), fov, maxDepth));
 // cameraManager.AddBasicCamera(new Vector3(0, 3.5f, -15f), maxDepth, fov);
 // cameraManager.AddCamera(new BasicCamera(new Vector3(1, 1, 3), Vector3.UnitY, new Vector3(-1, 0, -3), new Size(), fov, maxDepth, samples));
 // cameraManager.AddCamera(new IntersectionTestsCamera(new Vector3(1, 1, 3), Vector3.UnitY, new Vector3(-1, 0, -3), new Size(), fov, maxDepth, samples,
@@ -37,6 +37,7 @@ var matRed = new Diffuse(.8f, new Vector3(0.8f, 0.0f, 0.0f));
 var matKitchenWhite = new Diffuse(.8f, new Vector3(0.8f, .8f, .8f));
 
 var groundOrb = new Sphere(new Vector3(0, -100.5f, 1f), matGround, 100f);
+var orbCentre = new Sphere(new Vector3(0, 0, 0), matBrightYellow, 1f);
 var orbRight = new Sphere(new Vector3(10f,  5f, 1.2f), matDarkBlue, 4.5f);
 var orbUp = new Sphere(new Vector3(1.6f,  6f, 1.2f), matBrightYellow, 2f);
 var orbMirror = new Sphere(new Vector3(3f,  1f, 1.2f), matReflect, 2.5f);
@@ -47,7 +48,7 @@ var tri = new Triangle(
     new Vector3(2.5f, 11f, 3f),
     matTriangle);
 
-var objects = new List<Geometry> { orbUp };
+var objects = new List<Geometry> { orbCentre };
 var lights = new List<LightSource> { new Spotlight(Vector3.One, Vector3.One) };
 
 var cuteDragonImporter = new ObjMeshImporter("Assets/cute_dragon.obj", new Vector3(0, 0, 0), matRed);

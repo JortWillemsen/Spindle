@@ -24,7 +24,6 @@ public struct ClRay
 
 public struct ClSceneInfo
 {
-    public int Padding;
     public int ImageWidth;
     public int ImageHeight;
     public int NumSpheres;

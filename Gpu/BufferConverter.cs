@@ -12,7 +12,6 @@ public class BufferConverter
     {
         var sceneInfo = new ClSceneInfo
         {
-            Padding = 1,
             ImageWidth = camera.ImageSize.Width,
             ImageHeight = camera.ImageSize.Height,
             NumSpheres = scene.Objects.OfType<Sphere>().Count(),
@@ -37,7 +36,7 @@ public class BufferConverter
             Rays = new InputBuffer<ClRay>(manager, rays),
             Spheres = new InputBuffer<ClSphere>(manager, spheres),
             Triangles = new InputBuffer<ClTriangle>(manager, triangles),
-            Output = new OutputBuffer<int>(manager, new int[camera.ImageSize.Width * camera.ImageSize.Height])
+            Output = new OutputBuffer<float>(manager, new float[camera.ImageSize.Width * camera.ImageSize.Height])
         };
     }
 

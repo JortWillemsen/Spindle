@@ -26,7 +26,7 @@ public class OpenCLManager
         Queue = new CommandQueue(this);
     }
 
-    public unsafe int[] Execute()
+    public unsafe float[] Execute()
     {
         Cl.EnqueueNdrangeKernel(
             Queue.Id, 
@@ -39,7 +39,7 @@ public class OpenCLManager
             (nint*) null, 
             (nint*) null);
 
-        int[] output = new int[(int) Memory.OutputBuffer.GetLength()];
+        float[] output = new float[Memory.OutputBuffer.GetLength()];
         
         fixed (void* pValue = output)
         {

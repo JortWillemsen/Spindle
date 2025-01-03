@@ -25,11 +25,12 @@ public class ClProgram
         
         if (errNum != (int) ErrorCodes.Success)
         {
-            _ = manager.Cl.GetProgramBuildInfo(Id, 0, ProgramBuildInfo.BuildLog, 0, null, out nuint buildLogSize);
-            byte[] log = new byte[buildLogSize / (nuint) sizeof(byte)];
+            Console.WriteLine("Error code: " + errNum);
+            _ = manager.Cl.GetProgramBuildInfo(Id, manager.Context.Device.Id, ProgramBuildInfo.BuildLog, 0, null, out nuint buildLogSize);
+            byte[] log = new byte[buildLogSize / sizeof(byte)];
             fixed (void* pValue = log)
             {
-                manager.Cl.GetProgramBuildInfo(Id, 0, ProgramBuildInfo.BuildLog, buildLogSize, pValue, null);
+                manager.Cl.GetProgramBuildInfo(Id,  manager.Context.Device.Id, ProgramBuildInfo.BuildLog, buildLogSize, pValue, null);
             }
             string? build_log = System.Text.Encoding.UTF8.GetString(log);
 
@@ -39,9 +40,8 @@ public class ClProgram
             Console.WriteLine("==========================================================");
 
             manager.Cl.ReleaseProgram(Id);
+            throw new Exception("Error creating program");
         }
-        
-        manager.Programs.Add(this);
     }
     
 }

@@ -8,7 +8,8 @@ public class Kernel
 
     public unsafe Kernel(OpenCLManager manager, ClProgram program, String name)
     {
-        Id = manager.Cl.CreateKernel(program.Id, name, null);
+        int error;
+        Id = manager.Cl.CreateKernel(program.Id, name, &error);
 
         if (Id == IntPtr.Zero)
         {

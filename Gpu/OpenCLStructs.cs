@@ -21,3 +21,11 @@ public struct ClRay
     public Vector3 Origin;
     public Vector3 Direction;
 }
+
+public struct ClSceneInfo
+{
+    public int ImageWidth;
+    public int ImageHeight;
+    public int NumSpheres;
+    public int NumTriangles;
+}

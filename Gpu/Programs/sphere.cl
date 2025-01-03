@@ -6,9 +6,10 @@ typedef struct
     float   radius;
 } Sphere;
 
+// Takes Ray, Sphere, returns the t distance
 inline bool intersectSphere(Ray *ray, Sphere *sphere, float *t)
 {
-  float t0, t1;
+    float t0, t1;
     float radius2 = sphere->radius * sphere->radius;
 
     // Geometric solution

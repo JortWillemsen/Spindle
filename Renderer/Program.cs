@@ -20,7 +20,8 @@ const float fov = 65f;
 Console.WriteLine("Starting render");
 
 var cameraManager = new CameraManager(new Size(windowWidth, windowHeight), CameraLayout.Matrix);
-cameraManager.AddBasicCamera(new Vector3(0, 3.5f, -15f), maxDepth, fov);
+cameraManager.AddCamera(new OpenCLCamera(new Vector3(1, 1, 3), Vector3.UnitY, new Vector3(0, 0, -3), new Size(), fov, maxDepth));
+// cameraManager.AddBasicCamera(new Vector3(0, 3.5f, -15f), maxDepth, fov);
 // cameraManager.AddCamera(new BasicCamera(new Vector3(1, 1, 3), Vector3.UnitY, new Vector3(-1, 0, -3), new Size(), fov, maxDepth, samples));
 // cameraManager.AddCamera(new IntersectionTestsCamera(new Vector3(1, 1, 3), Vector3.UnitY, new Vector3(-1, 0, -3), new Size(), fov, maxDepth, samples,
 //     displayedIntersectionsRange: 100));
@@ -46,7 +47,7 @@ var tri = new Triangle(
     new Vector3(2.5f, 11f, 3f),
     matTriangle);
 
-var objects = new List<Geometry> { groundOrb, orbRight, orbUp, orbMirror, orbMirror, tri, orbBottom };
+var objects = new List<Geometry> { orbUp };
 var lights = new List<LightSource> { new Spotlight(Vector3.One, Vector3.One) };
 
 var cuteDragonImporter = new ObjMeshImporter("Assets/cute_dragon.obj", new Vector3(0, 0, 0), matRed);

@@ -5,4 +5,4 @@ using Silk.NET.OpenCL;
 
 Console.WriteLine("OpenCL test application");
 
-var manager = new OpenCLManager();
+

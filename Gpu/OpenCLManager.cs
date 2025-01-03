@@ -1,4 +1,6 @@
-﻿using Silk.NET.OpenCL;
+﻿using Engine.Cameras;
+using Engine.Scenes;
+using Silk.NET.OpenCL;
 
 namespace Gpu;
 
@@ -11,6 +13,8 @@ public class OpenCLManager
     public List<Kernel> Kernels;
     public List<ClProgram> Programs;
     public Memory<float> Memory;
+    public nuint[] GlobalSize { get; private set; }
+    public nuint[] LocalSize { get; private set; }
 
 
     public unsafe OpenCLManager()
@@ -20,62 +24,76 @@ public class OpenCLManager
         Programs = new List<ClProgram>();
         Kernels = new List<Kernel>();
         Queue = new CommandQueue(this);
+    }
 
-        float[] a = new float[1000];
-        float[] b = new float[1000];
-        float[] o = new float[1000];
-
-        for (int i = 0; i < 1000; i++)
-        {
-            a[i] = i;
-            b[i] = i * 2;
-        }
-
-        var input1 = new InputBuffer<float>(this, a);
-        var input2 = new InputBuffer<float>(this, b);
-        var outputB = new OutputBuffer<float>(this, o);
-
-        Memory = new Memory<float>(this, outputB, input1, input2);
-        
-        var commandQueue = new CommandQueue(this);
-        var program = new ClProgram(this, "/../../../Programs/HelloWorld.cl");
-        var kernel = new Kernel(this, program, "hello_kernel");
-        kernel.SetArguments(this, Memory.InputBuffers, Memory.OutputBuffer);
-        
-        nuint[] globalWorkSize = new nuint[1] { 1000 };
-        nuint[] localWorkSize = new nuint[1] { 1 };
-
+    public unsafe int[] Execute()
+    {
         Cl.EnqueueNdrangeKernel(
             Queue.Id, 
-            kernel.Id, 
+            Kernels[0].Id, 
             1, 
             (nuint*) null, 
-            globalWorkSize, 
-            localWorkSize, 
+            GlobalSize, 
+            LocalSize,
             0, 
             (nint*) null, 
             (nint*) null);
-        
-        float[] output = new float[1000];
+
+        int[] output = new int[(int) Memory.OutputBuffer.GetLength()];
         
         fixed (void* pValue = output)
         {
             // Read the output buffer back to the Host
-            Cl.EnqueueReadBuffer(Queue.Id, Memory.OutputBuffer.Id, true, 0, 1000 * sizeof(float), pValue, 0, null, null);
+            Cl.EnqueueReadBuffer(Queue.Id, Memory.OutputBuffer.Id, true, 0, Memory.OutputBuffer.GetSize(), pValue, 0, null, null);
         }
         
-        for (int i = 0; i < output.Length; i++)
-        {
-            Console.WriteLine(output[i]);
-        }
-        Console.WriteLine("Executed program succesfully.");
-        Cleanup();
+        Console.Write("Kernel executed.");
+
+        return output;
+    }
+    
+    public OpenCLManager SetProgram(string path)
+    {
+        Programs.Add(new ClProgram(this, path));
+        return this;
+    } 
+
+    public OpenCLManager SetKernel(string name)
+    {
+        var kernel = new Kernel(this, Programs[0], name);
+        
+        kernel.SetArguments(this, Memory.InputBuffers, Memory.OutputBuffer);
+        Kernels.Add(kernel);
+        
+        return this;
+    }
+    
+    
+    
+    public OpenCLManager SetBuffers(Scene scene, OpenCLCamera camera)
+    {
+        var buffers = BufferConverter.ConvertToBuffers(this, scene, camera);
+        
+        Memory = new Memory<float>(this, buffers.Output, buffers.SceneInfo, buffers.Rays, buffers.Spheres, buffers.Triangles);
+        return this;
     }
 
+    public OpenCLManager SetWorkSize(nuint[] global, nuint[] local)
+    {
+        GlobalSize = global;
+        LocalSize = local;
+        return this;
+    }
+    
     public void Cleanup()
     {
-        Memory.InputBuffers.ForEach(b => Cl.ReleaseMemObject(b.Id));
-        Cl.ReleaseMemObject(Memory.OutputBuffer.Id);
+        if (Memory != null)
+        {
+            Memory.InputBuffers.ForEach(b => Cl.ReleaseMemObject(b.Id));
+            Cl.ReleaseMemObject(Memory.OutputBuffer.Id);
+        }
+        
+        
         Cl.ReleaseCommandQueue(Queue.Id);
         Kernels.ForEach(k => Cl.ReleaseKernel(k.Id));
         Programs.ForEach(p => Cl.ReleaseProgram(p.Id));

@@ -8,22 +8,22 @@ typedef struct
 } Ray;
 
 __kernel void scatter(
-    __local float3 *hitPosition,
-    __local float3 *normal,
-    __local float3 *incomingRayDirection,
+    __global float3 *hitPosition,
+    __global float3 *normal,
+    __global float3 *incomingRayDirection,
     __global Ray *extensionRays,
     __global Ray *shadowRays,
-    __global Ray *debugOutput)
+    __global int *debugOutput)
 {
     uint x = get_global_id(0);
     uint y = get_global_id(1);
-    uint outputIndex = x * y;
+    uint outputIndex = x + y * get_local_size(0);
 
-    Ray res;
-    res.direction = 0;
-    res.origin = 1;
+    // Ray res;
+    // res.direction = 0;
+    // res.origin = 1;
 
     // extensionRays[outputIndex] = res;
     // shadowRays[outputIndex] = res;
-    debugOutput[outputIndex] = res;
+    debugOutput[outputIndex] = get_global_size(0);
 }

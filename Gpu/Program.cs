@@ -101,12 +101,12 @@ manager.SetBuffers(
     new InputBuffer<ClRay>(manager, new ClRay[numberOfRays])  // shadowRays
 );
 manager.SetKernel("scatter");
-manager.SetWorkSize(new nuint[2] { 4, 4 }, new nuint[2] { 4, 4 });
+manager.SetWorkSize(new nuint[2] { 4, 4 }, new nuint[2] { 2, 2 });
 
 // Execute
 var result = manager.Execute();
 for (int index = 0; index < result.Length; index++)
 {
     var item = result[index];
-    Console.WriteLine($"item at index {index}: {item}");
+    Console.WriteLine($"{(index + 1).ToString(),3}: {item}");
 }

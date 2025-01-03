@@ -47,7 +47,7 @@ public class OpenCLManager
             Cl.EnqueueReadBuffer(Queue.Id, Memory.OutputBuffer.Id, true, 0, Memory.OutputBuffer.GetSize(), pValue, 0, null, null);
         }
         
-        Console.Write("Kernel executed.");
+        Console.WriteLine("Kernel executed.");
 
         return output;
     }

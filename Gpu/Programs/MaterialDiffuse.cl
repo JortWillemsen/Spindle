@@ -17,13 +17,10 @@ __kernel void scatter(
 {
     uint x = get_global_id(0);
     uint y = get_global_id(1);
-    uint outputIndex = x + y * get_local_size(0);
-
-    // Ray res;
-    // res.direction = 0;
-    // res.origin = 1;
+    uint outputIndex = x + y * get_global_size(0);
 
     // extensionRays[outputIndex] = res;
     // shadowRays[outputIndex] = res;
-    debugOutput[outputIndex] = get_global_size(0);
+
+    debugOutput[outputIndex] = x;
 }

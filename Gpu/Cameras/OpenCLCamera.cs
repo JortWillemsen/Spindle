@@ -27,6 +27,6 @@ public class OpenCLCamera : Camera
 
         var output = Manager.Execute();
 
-        //output.CopyTo(pixels); // Assumes equal length
+        output.CopyTo(pixels); // Assumes equal length
     }
 }

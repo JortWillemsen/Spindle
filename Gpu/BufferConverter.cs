@@ -20,23 +20,37 @@ public class BufferConverter
         
         var rays = GenerateRayBuffers(manager, camera);
 
-        var triangles = scene.Objects
-            .OfType<Triangle>()
-            .Select(t => new ClTriangle { V1 = t.Vertex1, V2 = t.Vertex2, V3 = t.Vertex3, Normal = t._normal })
-            .ToArray();
+        var triangles = new List<ClTriangle>();
+
+        foreach (var t in scene.Objects.OfType<Triangle>())
+        {
+            triangles.Add(new ClTriangle
+            {
+                V1 = ClFloat3.FromVector3(t.Vertex1),
+                V2 = ClFloat3.FromVector3(t.Vertex2),
+                V3 = ClFloat3.FromVector3(t.Vertex3),
+                Normal = ClFloat3.FromVector3(t._normal)
+            });
+        }
         
-        var spheres = scene.Objects
-            .OfType<Sphere>()
-            .Select(s => new ClSphere { Position = s.Position, Radius = s.Radius})
-            .ToArray();
+        var spheres = new List<ClSphere>();
+        
+        foreach (var s in scene.Objects.OfType<Sphere>())
+        {
+            spheres.Add(new ClSphere
+            {
+                Position = ClFloat3.FromVector3(s.Position),
+                Radius = s.Radius
+            });
+        }
 
         return new ClBuffers
         {
             SceneInfo = new InputBuffer<ClSceneInfo>(manager, new ClSceneInfo[1] { sceneInfo }),
             Rays = new InputBuffer<ClRay>(manager, rays),
-            Spheres = new InputBuffer<ClSphere>(manager, spheres),
-            Triangles = new InputBuffer<ClTriangle>(manager, triangles),
-            Output = new OutputBuffer<float>(manager, new float[camera.ImageSize.Width * camera.ImageSize.Height])
+            Spheres = new InputBuffer<ClSphere>(manager, spheres.ToArray()),
+            Triangles = new InputBuffer<ClTriangle>(manager, triangles.ToArray()),
+            Output = new OutputBuffer<int>(manager, new int[camera.ImageSize.Width * camera.ImageSize.Height])
         };
     }
 
@@ -50,32 +64,23 @@ public class BufferConverter
     {
         // var numOfSamples = camera.ImageSize.Width * camera.ImageSize.Height * camera.NumberOfSamples;
         // Create vector3 buffer that can contain all neccessary random pixel offsets for all samples
-        ClRay[] rays = new ClRay[camera.ImageSize.Width * camera.ImageSize.Height];
+        var rays = new List<ClRay>();
         
         for (int i = 0; i < camera.ImageSize.Width; i++)
         {
             for (int j = 0; j < camera.ImageSize.Height; j++)
             {
                 var ray = camera.GetRayTowardsPixel(i, j);
-
-                var index = (i * camera.ImageSize.Height) + j;
-                rays[index] = new ClRay { Origin = ray.Origin, Direction = ray.Direction};
-
-                /*for (int s = 0; s < camera.NumberOfSamples; s++)
+                var clRay = new ClRay
                 {
-                    // Calculating a ray
-                    var ray = camera.GetRayTowardsPixel(i, j);
-
-                    // find the index of the sample in the arrays
-                    var sampleIndex = (i * camera.ImageSize.Height + j) * camera.NumberOfSamples + s;
-
-                    // Setting the values
-                    rays[sampleIndex] = new ClRay { Origin = ray.Origin, Direction = ray.Direction};
-                }*/
+                    Direction = ClFloat3.FromVector3(ray.Direction), 
+                    Origin = ClFloat3.FromVector3(ray.Origin)
+                };
+                rays.Add(clRay);
             }
         }
 
-        return rays;
+        return rays.ToArray();
     }
 }
 

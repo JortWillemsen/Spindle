@@ -89,6 +89,26 @@ ClFloat3[] incomingRayDirections = new ClFloat3[numberOfRays]
     new ClFloat3 { X = 0, Y = 0, Z = 1 },
 };
 
+ClFloat3[] albedos = new ClFloat3[numberOfRays]
+{
+    new ClFloat3 { X = 80, Y = 69, Z = 111 },
+    new ClFloat3 { X = 80, Y = 69, Z = 111 },
+    new ClFloat3 { X = 80, Y = 69, Z = 111 },
+    new ClFloat3 { X = 80, Y = 69, Z = 111 },
+    new ClFloat3 { X = 80, Y = 69, Z = 111 },
+    new ClFloat3 { X = 80, Y = 69, Z = 111 },
+    new ClFloat3 { X = 80, Y = 69, Z = 111 },
+    new ClFloat3 { X = 80, Y = 69, Z = 111 },
+    new ClFloat3 { X = 80, Y = 69, Z = 111 },
+    new ClFloat3 { X = 80, Y = 69, Z = 111 },
+    new ClFloat3 { X = 80, Y = 69, Z = 111 },
+    new ClFloat3 { X = 80, Y = 69, Z = 111 },
+    new ClFloat3 { X = 80, Y = 69, Z = 111 },
+    new ClFloat3 { X = 80, Y = 69, Z = 111 },
+    new ClFloat3 { X = 80, Y = 69, Z = 111 },
+    new ClFloat3 { X = 80, Y = 69, Z = 111 },
+};
+
 // Prepare OpenCL
 OpenCLManager manager = new OpenCLManager();
 manager.SetProgram("/../../../../Gpu/Programs/MaterialDiffuse.cl");
@@ -97,6 +117,7 @@ manager.SetBuffers(
     new InputBuffer<ClFloat3>(manager, hitPositions),
     new InputBuffer<ClFloat3>(manager, normals),
     new InputBuffer<ClFloat3>(manager, incomingRayDirections),
+    new InputBuffer<ClFloat3>(manager, albedos),
     new OutputBuffer<ClRay>(manager, new ClRay[numberOfRays]), // extensionRays
     new OutputBuffer<ClRay>(manager, new ClRay[numberOfRays])  // shadowRays
 );

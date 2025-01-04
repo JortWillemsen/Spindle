@@ -11,7 +11,7 @@ __kernel void scatter(
     __global float3 *hitPosition,
     __global float3 *normal,
     __global float3 *incomingRayDirection,
-    __global const float *albedo,
+    __global const float3 *albedo,
     __global Ray *extensionRays,
     __global Ray *shadowRays,
     __global int *debugOutput)

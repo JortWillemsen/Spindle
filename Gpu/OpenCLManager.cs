@@ -47,7 +47,7 @@ public class OpenCLManager
             Cl.EnqueueReadBuffer(Queue.Id, Memory.OutputBuffer.Id, true, 0, Memory.OutputBuffer.GetSize(), pValue, 0, null, null);
         }
         
-        Console.Write("Kernel executed.");
+        Console.WriteLine("Kernel executed.");
 
         return output;
     }
@@ -75,6 +75,12 @@ public class OpenCLManager
         var buffers = BufferConverter.ConvertToBuffers(this, scene, camera);
         
         Memory = new Memory<float>(this, buffers.Output, buffers.SceneInfo, buffers.Rays, buffers.Spheres, buffers.Triangles);
+        return this;
+    }
+
+    public OpenCLManager SetBuffers<T>(OutputBuffer<T> outputBuffer, params Buffer[] inputBuffers) where T : unmanaged
+    {
+        Memory = new Memory<float>(this, outputBuffer, inputBuffers);
         return this;
     }
 

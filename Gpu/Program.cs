@@ -93,15 +93,15 @@ ClFloat3[] incomingRayDirections = new ClFloat3[numberOfRays]
 OpenCLManager manager = new OpenCLManager();
 manager.SetProgram("/../../../../Gpu/Programs/MaterialDiffuse.cl");
 manager.SetBuffers(
-    new OutputBuffer<nint>(manager, new nint[numberOfRays]), // debug output
+    new OutputBuffer<nint>(manager, new nint[numberOfRays]),  // debug output
     new InputBuffer<ClFloat3>(manager, hitPositions),
     new InputBuffer<ClFloat3>(manager, normals),
     new InputBuffer<ClFloat3>(manager, incomingRayDirections),
-    new InputBuffer<ClRay>(manager, new ClRay[numberOfRays]), // extensionRays
-    new InputBuffer<ClRay>(manager, new ClRay[numberOfRays])  // shadowRays
+    new OutputBuffer<ClRay>(manager, new ClRay[numberOfRays]), // extensionRays
+    new OutputBuffer<ClRay>(manager, new ClRay[numberOfRays])  // shadowRays
 );
 manager.SetKernel("scatter");
-manager.SetWorkSize(new nuint[2] { 4, 4 }, new nuint[2] { 2, 2 });
+manager.SetWorkSize(new nuint[2] { numberOfRays / 4, numberOfRays / 4 }, new nuint[2] { 2, 2 });
 
 // Execute
 var result = manager.Execute();

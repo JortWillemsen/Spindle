@@ -11,11 +11,11 @@ public abstract class Buffer
     public abstract nuint GetLength();
 }
 
-public class InputBuffer<T> : Buffer where T : unmanaged
+public class ReadOnlyBuffer<T> : Buffer where T : unmanaged
 {
     public T[] Array { get; private set; }
     
-    public unsafe InputBuffer(OpenCLManager manager, T[] arr)
+    public unsafe ReadOnlyBuffer(OpenCLManager manager, T[] arr)
     {
         Array = arr;
         fixed (void* pointer = arr)
@@ -33,11 +33,11 @@ public class InputBuffer<T> : Buffer where T : unmanaged
     public override nuint GetLength() => (nuint) Array.Length;
 }
 
-public class OutputBuffer<T> : Buffer where T : unmanaged
+public class ReadWriteBuffer<T> : Buffer where T : unmanaged
 {
     public T[] Array { get; private set; }
     
-    public unsafe OutputBuffer(OpenCLManager manager, T[] arr)
+    public unsafe ReadWriteBuffer(OpenCLManager manager, T[] arr)
     {
         Array = arr;
         

@@ -12,7 +12,7 @@ public class OpenCLManager
     public CommandQueue Queue { get; private set; }
     public List<Kernel> Kernels;
     public List<ClProgram> Programs;
-    public Memory<float> Memory;
+    public Memory Memory;
     public nuint[] GlobalSize { get; private set; }
     public nuint[] LocalSize { get; private set; }
 
@@ -24,6 +24,7 @@ public class OpenCLManager
         Programs = new List<ClProgram>();
         Kernels = new List<Kernel>();
         Queue = new CommandQueue(this);
+        Memory = new Memory();
     }
 
     public unsafe int[] Execute()
@@ -39,48 +40,44 @@ public class OpenCLManager
             (nint*) null, 
             (nint*) null);
 
-        int[] output = new int[Memory.OutputBuffer.GetLength()];
+        /*int[] output = new int[Memory.OutputBuffer.GetLength()];
         
         fixed (void* pValue = output)
         {
             // Read the output buffer back to the Host
             Cl.EnqueueReadBuffer(Queue.Id, Memory.OutputBuffer.Id, true, 0, Memory.OutputBuffer.GetSize(), pValue, 0, null, null);
         }
+        */
         
         Console.WriteLine("Kernel executed.");
 
-        return output;
+        return new int[] {};
     }
     
-    public OpenCLManager SetProgram(string path)
+    public OpenCLManager AddProgram(string path)
     {
         Programs.Add(new ClProgram(this, path));
         return this;
     } 
 
-    public OpenCLManager SetKernel(string name)
+    public OpenCLManager AddKernel(string name, params Buffer[] arguments)
     {
         var kernel = new Kernel(this, Programs[0], name);
-        
-        kernel.SetArguments(this, Memory.InputBuffers, Memory.OutputBuffer);
         Kernels.Add(kernel);
+        kernel.SetArguments(this, arguments);
         
         return this;
     }
     
-    
-    
-    public OpenCLManager SetBuffers(Scene scene, OpenCLCamera camera)
+    public OpenCLManager AddBuffers(params Buffer[] buffers)
     {
-        var buffers = BufferConverter.ConvertToBuffers(this, scene, camera);
-        
-        Memory = new Memory<float>(this, buffers.Output, buffers.SceneInfo, buffers.Rays, buffers.Spheres, buffers.Triangles);
+        Memory.AddBuffers(buffers);
         return this;
     }
 
-    public OpenCLManager SetBuffers<T>(OutputBuffer<T> outputBuffer, params Buffer[] inputBuffers) where T : unmanaged
+    public OpenCLManager AddBuffer(Buffer buffer)
     {
-        Memory = new Memory<float>(this, outputBuffer, inputBuffers);
+        Memory.AddBuffer(buffer);
         return this;
     }
 
@@ -95,8 +92,7 @@ public class OpenCLManager
     {
         if (Memory != null)
         {
-            Memory.InputBuffers.ForEach(b => Cl.ReleaseMemObject(b.Id));
-            Cl.ReleaseMemObject(Memory.OutputBuffer.Id);
+            Memory.Buffers.ForEach(b => Cl.ReleaseMemObject(b.Id));
         }
         
         
@@ -104,5 +100,10 @@ public class OpenCLManager
         Kernels.ForEach(k => Cl.ReleaseKernel(k.Id));
         Programs.ForEach(p => Cl.ReleaseProgram(p.Id));
         Cl.ReleaseContext(Context.Id);
+    }
+
+    public String GetKernelId(string kernel)
+    {
+        return this.Kernels.Select(k => k.Name).First();
     }
 }

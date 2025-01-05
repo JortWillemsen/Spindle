@@ -111,17 +111,17 @@ ClFloat3[] albedos = new ClFloat3[numberOfRays]
 
 // Prepare OpenCL
 OpenCLManager manager = new OpenCLManager();
-manager.SetProgram("/../../../../Gpu/Programs/MaterialDiffuse.cl");
-manager.SetBuffers(
-    new OutputBuffer<nint>(manager, new nint[numberOfRays]),  // debug output
-    new InputBuffer<ClFloat3>(manager, hitPositions),
-    new InputBuffer<ClFloat3>(manager, normals),
-    new InputBuffer<ClFloat3>(manager, incomingRayDirections),
-    new InputBuffer<ClFloat3>(manager, albedos),
-    new OutputBuffer<ClRay>(manager, new ClRay[numberOfRays]), // extensionRays
-    new OutputBuffer<ClRay>(manager, new ClRay[numberOfRays])  // shadowRays
+manager.AddProgram("/../../../../Gpu/Programs/MaterialDiffuse.cl");
+manager.AddBuffers(
+    new ReadWriteBuffer<nint>(manager, new nint[numberOfRays]),  // debug output
+    new ReadOnlyBuffer<ClFloat3>(manager, hitPositions),
+    new ReadOnlyBuffer<ClFloat3>(manager, normals),
+    new ReadOnlyBuffer<ClFloat3>(manager, incomingRayDirections),
+    new ReadOnlyBuffer<ClFloat3>(manager, albedos),
+    new ReadWriteBuffer<ClRay>(manager, new ClRay[numberOfRays]), // extensionRays
+    new ReadWriteBuffer<ClRay>(manager, new ClRay[numberOfRays])  // shadowRays
 );
-manager.SetKernel("scatter");
+manager.AddKernel("scatter");
 manager.SetWorkSize(new nuint[2] { numberOfRays / 4, numberOfRays / 4 }, new nuint[2] { 2, 2 });
 
 // Execute

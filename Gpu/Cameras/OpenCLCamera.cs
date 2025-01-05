@@ -20,9 +20,11 @@ public class OpenCLCamera : Camera
         var localWorkSize = new nuint[2] { 1, 1};
         
         Manager = new OpenCLManager()
-            .SetProgram("/../../../../Gpu/Programs/WavefrontPathTracer.cl")
+            .AddProgram("/../../../../Gpu/Programs/WavefrontPathTracer.cl")
+            /*
             .SetBuffers(renderer.Scene, this)
-            .SetKernel("trace")
+            */
+            .AddKernel("trace")
             .SetWorkSize(globalWorkSize, localWorkSize);
 
         var output = Manager.Execute();

@@ -1,8 +1,4 @@
-﻿typedef struct
-{
-    float3 direction;
-    float3 origin;
-} Ray;
+﻿#include "structs.h"
 
 __kernel void extend(
   __global Ray *rays,

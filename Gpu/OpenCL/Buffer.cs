@@ -25,7 +25,7 @@ public class ReadOnlyBuffer<T> : Buffer where T : unmanaged
         if (Id == IntPtr.Zero)
         {
             manager.Cleanup();
-            throw new Exception("Failed to create Input Buffer");
+            throw new Exception("Failed to create ReadOnly buffer of type: " + typeof(T));
         }
     }
 
@@ -48,7 +48,7 @@ public class ReadWriteBuffer<T> : Buffer where T : unmanaged
         if (Id == IntPtr.Zero)
         {
             manager.Cleanup();
-            throw new Exception("Failed to create Output Buffer");
+            throw new Exception("Failed to create ReadWrite buffer of type: " + typeof(T));
         }
     }
     

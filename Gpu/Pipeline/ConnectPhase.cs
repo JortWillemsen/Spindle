@@ -23,8 +23,14 @@ public class ConnectPhase : Phase
         Buffer trianglesBuffer,
         Buffer intersectionsBuffer)
     {
-        manager.AddProgram(path)
-            .AddKernel(kernel, shadowRaysBuffer, sceneInfobuffer, spheresBuffer, trianglesBuffer, intersectionsBuffer);
+        manager.AddProgram(path, "connect.cl")
+            .AddKernel("connect.cl", 
+                kernel, 
+                shadowRaysBuffer,
+                sceneInfobuffer, 
+                spheresBuffer,
+                trianglesBuffer, 
+                intersectionsBuffer);
 
         KernelId = manager.GetKernelId(kernel);
     }

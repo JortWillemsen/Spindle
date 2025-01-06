@@ -30,9 +30,10 @@ public class ExtendPhase : Phase
         var intersectionsBuffer = new ReadWriteBuffer<ClIntersectionResult>(manager, intersections);
         IntersectionsBuffer = intersectionsBuffer;
         
-        manager.AddProgram(path)
+        manager.AddProgram(path, "extend.cl")
             .AddBuffers(intersectionsBuffer)
             .AddKernel(
+                "extend.cl",
                 kernel, 
                 rayBuffer, 
                 sceneInfoBuffer,

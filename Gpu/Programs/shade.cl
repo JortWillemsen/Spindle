@@ -1,8 +1,10 @@
-﻿__kernel void shade(
+﻿#include "structs.h"
+
+__kernel void shade(
   __global Intersection *intersections,
   __global Ray *extensionRays,
   __global Ray *shadowRays,
-  __global Color *colors)
+  __global int *colors)
 {
     int x = get_global_id(0);
     int y = get_global_id(1);

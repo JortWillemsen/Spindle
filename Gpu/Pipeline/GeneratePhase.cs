@@ -22,9 +22,9 @@ public class GeneratePhase : Phase
         var rayBuffer = new ReadWriteBuffer<ClRay>(manager, rays);
         RayBuffer = rayBuffer;
         
-        manager.AddProgram(path)
+        manager.AddProgram(path, "generate.cl")
             .AddBuffers(rayBuffer)
-            .AddKernel(kernel, rayBuffer);
+            .AddKernel("generate.cl",kernel, rayBuffer);
 
         KernelId = manager.GetKernelId(kernel);
     }

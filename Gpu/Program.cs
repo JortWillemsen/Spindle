@@ -6,8 +6,10 @@ using Engine.Cameras;
 using Engine.Geometry;
 using Engine.Lighting;
 using Engine.Materials;
+using Engine.MeshImporters;
 using Engine.Scenes;
 using Gpu;
+using Gpu.Pipeline;
 using System.Drawing;
 using System.Numerics;
 
@@ -16,16 +18,20 @@ Console.WriteLine("OpenCL test application");
 // Prepare scene
 const float fov = 65f;
 const int maxDepth = 20;
-OpenCLCamera camera = new OpenCLCamera(new Vector3(0, 0, -3), Vector3.UnitY, new Vector3(0, 0, 3), new Size(), fov, maxDepth);
+OpenCLCamera camera = new OpenCLCamera(new Vector3(0, 0, -3), Vector3.UnitY, new Vector3(0, 0, 3), new Size(600, 400), fov, maxDepth);
 
 var matBrightYellow = new Diffuse(.9f, new Vector3(0.8f, 0.8f, 0.0f));
 var orbCentre = new Sphere(new Vector3(0, 0, 0), matBrightYellow, 1f);
+var teaPotImporter1 = new ObjMeshImporter("../../../../Renderer/Assets/teapot.obj", new Vector3(-7, -2, 0), matBrightYellow);
 var objects = new List<Geometry> { orbCentre };
+objects.AddRange(teaPotImporter1.Import());
 var lights = new List<LightSource> { new Spotlight(Vector3.One, Vector3.One) };
 
 Scene scene = new Scene(objects, lights);
 
-// Prepare input data
+var pipeline = new WavefrontPipeline(scene, camera);
+
+/*// Prepare input data
 const int numberOfRays = 16;
 
 ClFloat3[] hitPositions = new ClFloat3[numberOfRays]
@@ -130,4 +136,4 @@ for (int index = 0; index < result.Length; index++)
 {
     var item = result[index];
     Console.WriteLine($"{(index + 1).ToString(),3}: {item}");
-}
+}*/

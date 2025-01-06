@@ -21,9 +21,11 @@ public class WavefrontPipeline
         Manager = new OpenCLManager();
         SceneBuffers = BufferConverter.ConvertSceneToBuffers(Manager, scene);
 
+        // Add structs that will be bound with every program
+        Manager.AddUtilsProgram("/../../../../Gpu/Programs/structs.h", "structs.h");
+        
         // Add buffers to the manager
         Manager.AddBuffers(SceneBuffers.SceneInfo, SceneBuffers.Spheres, SceneBuffers.Triangles);
-
         // Find number of rays, used for calculating buffer sizes
         var numOfRays = camera.ImageSize.Width * camera.ImageSize.Height;
 
@@ -32,13 +34,13 @@ public class WavefrontPipeline
         
         GeneratePhase = new GeneratePhase(
             Manager, 
-            "/../../../../Gpu/Programs/Wavefront/Generate.cl", 
+            "/../../../../Gpu/Programs/generate.cl", 
             "generate", 
             numOfRays);
 
         ExtendPhase = new ExtendPhase(
             Manager,
-            "/../../../../Gpu/Programs/Wavefront/Extend.cl",
+            "/../../../../Gpu/Programs/extend.cl",
             "extend",
             GeneratePhase.RayBuffer,
             SceneBuffers.SceneInfo,
@@ -47,7 +49,7 @@ public class WavefrontPipeline
 
         ShadePhase = new ShadePhase(
             Manager,
-            "/../../../../Gpu/Programs/Wavefront/Shade.cl",
+            "/../../../../Gpu/Programs/shade.cl",
             "shade",
             ExtendPhase.IntersectionsBuffer,
             GeneratePhase.RayBuffer,
@@ -55,7 +57,7 @@ public class WavefrontPipeline
 
         ConnectPhase = new ConnectPhase(
             Manager,
-            "/../../../../Gpu/Programs/Wavefront/Connect.cl",
+            "/../../../../Gpu/Programs/connect.cl",
             "connect",
             ShadePhase.ShadowRaysBuffer,
             SceneBuffers.SceneInfo,

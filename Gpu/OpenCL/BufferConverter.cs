@@ -43,8 +43,9 @@ public class BufferConverter
 
         return new ClSceneBuffers
         {
-            Spheres = new ReadOnlyBuffer<ClSphere>(manager, spheres.ToArray()),
-            Triangles = new ReadOnlyBuffer<ClTriangle>(manager, triangles.ToArray()),
+            SceneInfo = new ReadWriteBuffer<ClSceneInfo>(manager, new [] {sceneInfo}),
+            Spheres = new ReadWriteBuffer<ClSphere>(manager, spheres.ToArray()),
+            Triangles = new ReadWriteBuffer<ClTriangle>(manager, triangles.ToArray()),
         };
     }
 

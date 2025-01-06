@@ -27,11 +27,12 @@ public class ShadePhase : Phase
 
         var extensionRaysBuffer = rayBuffer;
         var shadowRaysBuffer = new ReadWriteBuffer<ClShadowRay>(manager, shadowRays);
+        ShadowRaysBuffer = shadowRaysBuffer;
 
         
-        manager.AddProgram(path)
+        manager.AddProgram(path, "shade.cl")
             .AddBuffers(shadowRaysBuffer)
-            .AddKernel(kernel, intersectionResults, extensionRaysBuffer, shadowRaysBuffer, colorsBuffer);
+            .AddKernel("shade.cl", kernel, intersectionResults, extensionRaysBuffer, shadowRaysBuffer, colorsBuffer);
 
         KernelId = manager.GetKernelId(kernel);
     }

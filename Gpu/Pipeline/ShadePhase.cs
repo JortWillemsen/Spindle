@@ -2,9 +2,8 @@
 
 public class ShadePhase : Phase
 {
-    public Buffer ExtensionRaysBuffer { get; private set; }
     public Buffer ShadowRaysBuffer { get; private set; }
-    
+
     /// <summary>
     /// Calculates extension rays and shadow rays to trace in phases 2 and 4.
     /// Writes to three buffers, extensionRays (phase 2), shadowRays (phase 4) and colors.
@@ -17,7 +16,7 @@ public class ShadePhase : Phase
     /// <param name="colorsBuffer">Buffer that contains the color values for each pixel</param>
 
     public ShadePhase(
-        OpenCLManager manager, 
+        OpenCLManager manager,
         String path, String kernel,
         Buffer intersectionResults,
         Buffer rayBuffer,
@@ -29,10 +28,16 @@ public class ShadePhase : Phase
         var shadowRaysBuffer = new ReadWriteBuffer<ClShadowRay>(manager, shadowRays);
         ShadowRaysBuffer = shadowRaysBuffer;
 
-        
+
         manager.AddProgram(path, "shade.cl")
             .AddBuffers(shadowRaysBuffer)
-            .AddKernel("shade.cl", kernel, intersectionResults, extensionRaysBuffer, shadowRaysBuffer, colorsBuffer);
+            .AddKernel(
+                "shade.cl", 
+                kernel, 
+                intersectionResults, 
+                extensionRaysBuffer, 
+                shadowRaysBuffer, 
+                colorsBuffer);
 
         KernelId = manager.GetKernelId(kernel);
     }

@@ -2,5 +2,15 @@
 
 public abstract class Phase
 {
-    public String KernelId { get; set; }
+    public nint KernelId { get; protected set; }
+
+    public void Execute(OpenCLManager manager, nuint[] globalSize, nuint[] localSize)
+    {
+        manager.Queue.EnqueueKernel(
+            manager,
+            KernelId,
+            globalSize,
+            localSize
+        );
+    }
 }

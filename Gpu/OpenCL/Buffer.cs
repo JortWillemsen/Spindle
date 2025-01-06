@@ -6,7 +6,7 @@ namespace Gpu;
 public abstract class Buffer
 {
     public nint Id { get; protected set; }
-
+    
     public abstract nuint GetSize();
     public abstract nuint GetLength();
 }
@@ -40,15 +40,15 @@ public class ReadWriteBuffer<T> : Buffer where T : unmanaged
     public unsafe ReadWriteBuffer(OpenCLManager manager, T[] arr)
     {
         Array = arr;
-        
+        int err = 0;
         fixed (void* pointer = arr)
-            Id = manager.Cl.CreateBuffer(manager.Context.Id, MemFlags.ReadWrite,
-                (nuint) (sizeof(T) * arr.Length), null, null);
+            Id = manager.Cl.CreateBuffer(manager.Context.Id, MemFlags.ReadWrite | MemFlags.CopyHostPtr,
+                (nuint) (sizeof(T) * arr.Length), pointer, &err);
 
         if (Id == IntPtr.Zero)
         {
             manager.Cleanup();
-            throw new Exception("Failed to create ReadWrite buffer of type: " + typeof(T));
+            throw new Exception($"Error: {err} Failed to create ReadWrite buffer of type: {typeof(T)}");
         }
     }
     

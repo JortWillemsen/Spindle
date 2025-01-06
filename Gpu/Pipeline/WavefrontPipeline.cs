@@ -1,14 +1,19 @@
 ﻿using Engine.Cameras;
 using Engine.Scenes;
+using Silk.NET.OpenCL;
+using System.Drawing;
 
 namespace Gpu.Pipeline;
 
 public class WavefrontPipeline
 {
     public OpenCLManager Manager { get; private set; }
-
+    public OpenCLCamera Camera { get; private set; }
+    
+    public nuint[] GlobalSize { get; set; }
+    public nuint[] LocalSize { get; set; }
     public ClSceneBuffers SceneBuffers { get; private set; }
-    public Buffer ColorsBuffer { get; private set; }
+    public ReadWriteBuffer<int> ColorsBuffer { get; private set; }
     public GeneratePhase GeneratePhase { get; private set; }
     public ConnectPhase ConnectPhase { get; private set; }
     public ShadePhase ShadePhase { get; private set; }
@@ -19,8 +24,12 @@ public class WavefrontPipeline
         OpenCLCamera camera)
     {
         Manager = new OpenCLManager();
+        Camera = camera;
         SceneBuffers = BufferConverter.ConvertSceneToBuffers(Manager, scene);
 
+        GlobalSize = new nuint[2] { (nuint)camera.ImageSize.Width, (nuint)camera.ImageSize.Height };
+        LocalSize = new nuint[2] { 1, 1 };
+        
         // Add structs that will be bound with every program
         Manager.AddUtilsProgram("/../../../../Gpu/Programs/structs.h", "structs.h");
         
@@ -30,6 +39,7 @@ public class WavefrontPipeline
         var numOfRays = camera.ImageSize.Width * camera.ImageSize.Height;
 
         var colors = new int[numOfRays];
+        
         ColorsBuffer = new ReadWriteBuffer<int>(Manager, colors);
         
         GeneratePhase = new GeneratePhase(
@@ -68,7 +78,27 @@ public class WavefrontPipeline
 
     public int[] Execute()
     {
-        // TODO: Loop through phases until we don't need to anymore
-        return Array.Empty<int>();
+        // Generate initial rays
+        GeneratePhase.Execute(Manager, GlobalSize, LocalSize);
+
+        // Keep looping all phases until we run out of samples
+        for (int sample = 0; sample < Camera.Samples; sample++)
+        {
+            ExtendPhase.Execute(Manager, GlobalSize, LocalSize);
+            ShadePhase.Execute(Manager, GlobalSize, LocalSize);
+            ConnectPhase.Execute(Manager, GlobalSize, LocalSize);
+        }
+        
+        // wait for all queued commands to finish
+        var err = Manager.Cl.Finish(Manager.Queue.Id);
+        
+        if (err != (int)ErrorCodes.Success)
+        {
+            throw new Exception($"Error {err}: finishing queue");
+        }
+        
+        Manager.ReadBufferToHost(ColorsBuffer, out int[] colors);
+        
+        return colors;
     }
 }

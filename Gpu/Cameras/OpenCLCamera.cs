@@ -8,9 +8,11 @@ namespace Engine.Cameras;
 public class OpenCLCamera : Camera
 {
     public OpenCLManager Manager { get; private set; }
-    public OpenCLCamera(Vector3 position, Vector3 up, Vector3 front, Size imageSize, float FOV, int maxDepth)
+    public int Samples { get; private set; }
+    public OpenCLCamera(Vector3 position, Vector3 up, Vector3 front, Size imageSize, float FOV, int maxDepth, int samples)
         : base(position, up, front, imageSize, FOV, maxDepth)
     {
+        Samples = samples;
     }
 
     public override void RenderShot(IRenderer renderer, in Span<int> pixels)
@@ -27,7 +29,7 @@ public class OpenCLCamera : Camera
             .AddKernel("WavefrontPathTracer.cl", "trace")
             .SetWorkSize(globalWorkSize, localWorkSize);
 
-        var output = Manager.Execute();
+        var output = new int[] { };
 
         output.CopyTo(pixels); // Assumes equal length
     }

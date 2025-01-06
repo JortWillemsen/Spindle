@@ -13,4 +13,7 @@ __kernel void shade(
     // Updates the colors buffer with the new color.
     // Traces shadow rays and writes them to the shadowRays buffer.
     // Traces extension rays and writes them to the extensionRays buffer.
+
+    int index = (y * get_global_size(0) + x);
+    colors[0] = 1;
 }

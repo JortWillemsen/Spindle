@@ -29,33 +29,6 @@ public class OpenCLManager
         Memory = new Memory();
     }
 
-    public unsafe int[] Execute()
-    {
-        Cl.EnqueueNdrangeKernel(
-            Queue.Id, 
-            Kernels[0].Id, 
-            2,
-            (nuint*) null, 
-            GlobalSize, 
-            LocalSize,
-            0, 
-            (nint*) null, 
-            (nint*) null);
-
-        /*int[] output = new int[Memory.OutputBuffer.GetLength()];
-        
-        fixed (void* pValue = output)
-        {
-            // Read the output buffer back to the Host
-            Cl.EnqueueReadBuffer(Queue.Id, Memory.OutputBuffer.Id, true, 0, Memory.OutputBuffer.GetSize(), pValue, 0, null, null);
-        }
-        */
-        
-        Console.WriteLine("Kernel executed.");
-
-        return new int[] {};
-    }
-
     public unsafe OpenCLManager AddUtilsProgram(string path, string name)
     {
         var utilsProgram = new ClProgram(this, path, name);
@@ -134,17 +107,6 @@ public class OpenCLManager
             Programs.Add(new ClProgram(final, name));
             
         }
-        
-            /*var id = Cl.LinkProgram(
-                this.Context.Id,
-                1,
-                this.Context.Device.Id,
-                "",
-                (uint)UtilsPrograms.Count + 1,
-                pointer,
-                null,
-                null,
-                &err);*/
 
         return this;
     }
@@ -182,6 +144,30 @@ public class OpenCLManager
         LocalSize = local;
         return this;
     }
+
+    public unsafe void ReadBufferToHost<T>(ReadWriteBuffer<T> buffer, out T[] output) where T : unmanaged
+    {
+        output = new T[buffer.GetLength()];
+        
+        fixed (void* pValue = output)
+        {
+            // Read the output buffer back to the Host
+            var err = Cl.EnqueueReadBuffer(Queue.Id, buffer.Id, true, 0, buffer.GetSize(), pValue, 0, null, null);
+            
+            if (err != (int)ErrorCodes.Success)
+            {
+                throw new Exception($"Error {err}: enqueuing read buffer");
+            }
+            err = Cl.Finish(Queue.Id);
+            
+            if (err != (int)ErrorCodes.Success)
+            {
+                throw new Exception($"Error {err}: finishing queue");
+            }
+
+            Console.WriteLine("Read Buffer Queued");
+        }
+    }
     
     public void Cleanup()
     {
@@ -189,7 +175,6 @@ public class OpenCLManager
         {
             Memory.Buffers.ForEach(b => Cl.ReleaseMemObject(b.Id));
         }
-        
         
         Cl.ReleaseCommandQueue(Queue.Id);
         Kernels.ForEach(k => Cl.ReleaseKernel(k.Id));
@@ -199,8 +184,8 @@ public class OpenCLManager
         Cl.ReleaseContext(Context.Id);
     }
 
-    public String GetKernelId(string kernel)
+    public nint GetKernelId(string kernel)
     {
-        return this.Kernels.Select(k => k.Name).First();
+        return this.Kernels.Select(k => k.Id).First();
     }
 }

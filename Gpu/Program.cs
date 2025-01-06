@@ -18,7 +18,14 @@ Console.WriteLine("OpenCL test application");
 // Prepare scene
 const float fov = 65f;
 const int maxDepth = 20;
-OpenCLCamera camera = new OpenCLCamera(new Vector3(0, 0, -3), Vector3.UnitY, new Vector3(0, 0, 3), new Size(600, 400), fov, maxDepth);
+OpenCLCamera camera = new OpenCLCamera(
+    new Vector3(0, 0, -3), 
+    Vector3.UnitY, 
+    new Vector3(0, 0, 3), 
+    new Size(5, 5), 
+    fov, 
+    maxDepth, 
+    20);
 
 var matBrightYellow = new Diffuse(.9f, new Vector3(0.8f, 0.8f, 0.0f));
 var orbCentre = new Sphere(new Vector3(0, 0, 0), matBrightYellow, 1f);
@@ -30,6 +37,12 @@ var lights = new List<LightSource> { new Spotlight(Vector3.One, Vector3.One) };
 Scene scene = new Scene(objects, lights);
 
 var pipeline = new WavefrontPipeline(scene, camera);
+var colors = pipeline.Execute();
+
+for (int i = 0; i < colors.Length; i++)
+{
+    Console.WriteLine($"{i}: {colors[i]}");
+}
 
 /*// Prepare input data
 const int numberOfRays = 16;

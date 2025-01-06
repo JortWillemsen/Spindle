@@ -16,4 +16,24 @@ public class CommandQueue
             throw new Exception("Failed to create Command Queue");
         }
     }
+
+    public unsafe void EnqueueKernel(
+        OpenCLManager manager, 
+        nint kernelId, 
+        nuint[] globalSize,
+        nuint[] localSize)
+    {
+        manager.Cl.EnqueueNdrangeKernel(
+            Id, 
+            kernelId, 
+            2,
+            (nuint*) null, 
+            globalSize, 
+            localSize,
+            0, 
+            (nint*) null, 
+            (nint*) null);
+        
+        Console.WriteLine("Kernel queued.");
+    }
 }

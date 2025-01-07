@@ -79,14 +79,14 @@ public class WavefrontPipeline
     public int[] Execute()
     {
         // Generate initial rays
-        GeneratePhase.Execute(Manager, GlobalSize, LocalSize);
+        GeneratePhase.EnqueueExecute(Manager, GlobalSize, LocalSize);
 
         // Keep looping all phases until we run out of samples
         for (int sample = 0; sample < Camera.Samples; sample++)
         {
-            ExtendPhase.Execute(Manager, GlobalSize, LocalSize);
-            ShadePhase.Execute(Manager, GlobalSize, LocalSize);
-            ConnectPhase.Execute(Manager, GlobalSize, LocalSize);
+            ExtendPhase.EnqueueExecute(Manager, GlobalSize, LocalSize);
+            ShadePhase.EnqueueExecute(Manager, GlobalSize, LocalSize);
+            ConnectPhase.EnqueueExecute(Manager, GlobalSize, LocalSize);
         }
         
         // wait for all queued commands to finish

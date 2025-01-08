@@ -23,6 +23,11 @@ public struct ClFloat3
     {
         return new ClFloat3 { X = v.X, Y = v.Y, Z = v.Z };
     }
+
+    /// <inheritdoc />
+    public override string ToString() {
+        return $"<{X}, {Y}, {Z}>";
+    }
 }
 
 public struct ClSphere
@@ -35,12 +40,21 @@ public struct ClRay
 {
     public ClFloat3 Direction;
     public ClFloat3 Origin;
+
+    /// <inheritdoc />
+    public override string ToString()
+    {
+        return $"ClRay: (Origin {Origin}, Dir {Direction})";
+    }
 }
 
 public struct ClIntersectionResult
 {
+    public bool Hit;
     public ClFloat3 HitPoint;
     public ClFloat3 Normal;
+    public float T;
+    public int Material;
 }
 
 public struct ClSceneInfo

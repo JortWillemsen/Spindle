@@ -8,17 +8,14 @@ namespace Gpu;
 
 public class BufferConverter
 {
-    public static ClBuffers ConvertToBuffers(OpenCLManager manager, Scene scene, OpenCLCamera camera)
+    public static ClSceneBuffers ConvertSceneToBuffers(OpenCLManager manager, Scene scene)
     {
         var sceneInfo = new ClSceneInfo
         {
-            ImageWidth = camera.ImageSize.Width,
-            ImageHeight = camera.ImageSize.Height,
             NumSpheres = scene.Objects.OfType<Sphere>().Count(),
             NumTriangles = scene.Objects.OfType<Triangle>().Count(),
         };
         
-        var rays = GenerateRayBuffers(manager, camera);
 
         var triangles = new List<ClTriangle>();
 
@@ -44,13 +41,11 @@ public class BufferConverter
             });
         }
 
-        return new ClBuffers
+        return new ClSceneBuffers
         {
-            SceneInfo = new InputBuffer<ClSceneInfo>(manager, new ClSceneInfo[1] { sceneInfo }),
-            Rays = new InputBuffer<ClRay>(manager, rays),
-            Spheres = new InputBuffer<ClSphere>(manager, spheres.ToArray()),
-            Triangles = new InputBuffer<ClTriangle>(manager, triangles.ToArray()),
-            Output = new OutputBuffer<int>(manager, new int[camera.ImageSize.Width * camera.ImageSize.Height])
+            SceneInfo = new ReadWriteBuffer<ClSceneInfo>(manager, new [] {sceneInfo}),
+            Spheres = new ReadWriteBuffer<ClSphere>(manager, spheres.ToArray()),
+            Triangles = new ReadWriteBuffer<ClTriangle>(manager, triangles.ToArray()),
         };
     }
 
@@ -84,13 +79,9 @@ public class BufferConverter
     }
 }
 
-// This is a structure of arrays that would represent the structure to complete a trace of one pixel
-// pixel offset of the ray
-public struct ClBuffers
+public struct ClSceneBuffers
 {
     public Buffer SceneInfo { get; set; }
-    public Buffer Rays { get; set; }
     public Buffer Triangles { get; set; }
     public Buffer Spheres { get; set; }
-    public Buffer Output { get; set; }
 }

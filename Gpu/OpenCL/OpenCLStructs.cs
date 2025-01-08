@@ -37,10 +37,22 @@ public struct ClRay
     public ClFloat3 Origin;
 }
 
+public struct ClIntersectionResult
+{
+    public ClFloat3 HitPoint;
+    public ClFloat3 Normal;
+}
+
 public struct ClSceneInfo
 {
-    public int ImageWidth;
-    public int ImageHeight;
     public int NumSpheres;
     public int NumTriangles;
+}
+
+public struct ClExtensionRay {
+ // TODO: Add whatever you need
+}
+
+public struct ClShadowRay {
+    // TODO: Add whatever you need
 }

@@ -6,16 +6,16 @@ namespace Gpu;
 public abstract class Buffer
 {
     public nint Id { get; protected set; }
-
+    
     public abstract nuint GetSize();
     public abstract nuint GetLength();
 }
 
-public class InputBuffer<T> : Buffer where T : unmanaged
+public class ReadOnlyBuffer<T> : Buffer where T : unmanaged
 {
     public T[] Array { get; private set; }
     
-    public unsafe InputBuffer(OpenCLManager manager, T[] arr)
+    public unsafe ReadOnlyBuffer(OpenCLManager manager, T[] arr)
     {
         Array = arr;
         fixed (void* pointer = arr)
@@ -25,7 +25,7 @@ public class InputBuffer<T> : Buffer where T : unmanaged
         if (Id == IntPtr.Zero)
         {
             manager.Cleanup();
-            throw new Exception("Failed to create Input Buffer");
+            throw new Exception("Failed to create ReadOnly buffer of type: " + typeof(T));
         }
     }
 
@@ -33,22 +33,22 @@ public class InputBuffer<T> : Buffer where T : unmanaged
     public override nuint GetLength() => (nuint) Array.Length;
 }
 
-public class OutputBuffer<T> : Buffer where T : unmanaged
+public class ReadWriteBuffer<T> : Buffer where T : unmanaged
 {
     public T[] Array { get; private set; }
     
-    public unsafe OutputBuffer(OpenCLManager manager, T[] arr)
+    public unsafe ReadWriteBuffer(OpenCLManager manager, T[] arr)
     {
         Array = arr;
-        
+        int err = 0;
         fixed (void* pointer = arr)
-            Id = manager.Cl.CreateBuffer(manager.Context.Id, MemFlags.ReadWrite,
-                (nuint) (sizeof(T) * arr.Length), null, null);
+            Id = manager.Cl.CreateBuffer(manager.Context.Id, MemFlags.ReadWrite | MemFlags.CopyHostPtr,
+                (nuint) (sizeof(T) * arr.Length), pointer, &err);
 
         if (Id == IntPtr.Zero)
         {
             manager.Cleanup();
-            throw new Exception("Failed to create Output Buffer");
+            throw new Exception($"Error: {err} Failed to create ReadWrite buffer of type: {typeof(T)}");
         }
     }
     

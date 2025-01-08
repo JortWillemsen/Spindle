@@ -6,8 +6,10 @@ using Engine.Cameras;
 using Engine.Geometry;
 using Engine.Lighting;
 using Engine.Materials;
+using Engine.MeshImporters;
 using Engine.Scenes;
 using Gpu;
+using Gpu.Pipeline;
 using System.Drawing;
 using System.Numerics;
 
@@ -16,16 +18,33 @@ Console.WriteLine("OpenCL test application");
 // Prepare scene
 const float fov = 65f;
 const int maxDepth = 20;
-OpenCLCamera camera = new OpenCLCamera(new Vector3(0, 0, -3), Vector3.UnitY, new Vector3(0, 0, 3), new Size(), fov, maxDepth);
+OpenCLCamera camera = new OpenCLCamera(
+    new Vector3(0, 0, -3), 
+    Vector3.UnitY, 
+    new Vector3(0, 0, 3), 
+    new Size(5, 5), 
+    fov, 
+    maxDepth, 
+    20);
 
 var matBrightYellow = new Diffuse(.9f, new Vector3(0.8f, 0.8f, 0.0f));
 var orbCentre = new Sphere(new Vector3(0, 0, 0), matBrightYellow, 1f);
+var teaPotImporter1 = new ObjMeshImporter("../../../../Renderer/Assets/teapot.obj", new Vector3(-7, -2, 0), matBrightYellow);
 var objects = new List<Geometry> { orbCentre };
+objects.AddRange(teaPotImporter1.Import());
 var lights = new List<LightSource> { new Spotlight(Vector3.One, Vector3.One) };
 
 Scene scene = new Scene(objects, lights);
 
-// Prepare input data
+var pipeline = new WavefrontPipeline(scene, camera);
+var colors = pipeline.Execute();
+
+for (int i = 0; i < colors.Length; i++)
+{
+    Console.WriteLine($"{i}: {colors[i]}");
+}
+
+/*// Prepare input data
 const int numberOfRays = 16;
 
 nuint[] randomStates = new nuint[numberOfRays]
@@ -152,23 +171,18 @@ ClFloat3[] mat_colors = new ClFloat3[numberOfRays]
 
 // Prepare OpenCL
 OpenCLManager manager = new OpenCLManager();
-manager.SetProgram("/../../../../Gpu/Programs/MaterialDiffuse.cl");
-manager.SetBuffers(
-    new OutputBuffer<nint>(manager, new nint[numberOfRays]), // debug output
-    new InputBuffer<nuint>(manager, randomStates),
-    new InputBuffer<ClFloat3>(manager, hitPositions),
-    new InputBuffer<ClFloat3>(manager, normals),
-    new InputBuffer<float>(manager, mat_albedos),
-    new InputBuffer<ClFloat3>(manager, mat_colors),
-    new OutputBuffer<ClRay>(manager, new ClRay[numberOfRays]),// extensionRays
-    new OutputBuffer<ClRay>(manager, new ClRay[numberOfRays]), // shadowRays
-    new OutputBuffer<ClFloat3>(manager, new ClFloat3[numberOfRays]) // pixelColors
+manager.AddProgram("/../../../../Gpu/Programs/MaterialDiffuse.cl");
+manager.AddBuffers(
+    new ReadWriteBuffer<nint>(manager, new nint[numberOfRays]),  // debug output
+    new ReadOnlyBuffer<ClFloat3>(manager, hitPositions),
+    new ReadOnlyBuffer<ClFloat3>(manager, normals),
+    new ReadOnlyBuffer<ClFloat3>(manager, incomingRayDirections),
+    new ReadOnlyBuffer<ClFloat3>(manager, albedos),
+    new ReadWriteBuffer<ClRay>(manager, new ClRay[numberOfRays]), // extensionRays
+    new ReadWriteBuffer<ClRay>(manager, new ClRay[numberOfRays])  // shadowRays
 );
-manager.SetKernel("scatter_diffuse");
-manager.SetWorkSize(new nuint[2] {
-    (nuint) MathF.Ceiling(MathF.Sqrt(numberOfRays)),
-    (nuint) MathF.Ceiling(MathF.Sqrt(numberOfRays))
-}, new nuint[2] { 2, 2 });
+manager.AddKernel("scatter");
+manager.SetWorkSize(new nuint[2] { numberOfRays / 4, numberOfRays / 4 }, new nuint[2] { 2, 2 });
 
 // Execute
 var result = manager.Execute();
@@ -176,4 +190,4 @@ for (int index = 0; index < result.Length; index++)
 {
     var item = result[index];
     Console.WriteLine($"{(index + 1).ToString(),3}: {item}");
-}
+}*/

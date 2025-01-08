@@ -23,6 +23,6 @@ public class OpenCLCamera : Camera
 
         var output = Pipeline.Execute();
 
-        //output.CopyTo(pixels); // Assumes equal length
+        output.CopyTo(pixels); // Assumes equal length
     }
 }

@@ -39,6 +39,11 @@ public class WavefrontPipeline
         var numOfRays = camera.ImageSize.Width * camera.ImageSize.Height;
 
         var colors = new int[numOfRays];
+
+        for (int i = 0; i < colors.Length; i++)
+        {
+            colors[i] = i ;
+        }
         
         ColorsBuffer = new ReadWriteBuffer<int>(Manager, colors);
         
@@ -79,15 +84,17 @@ public class WavefrontPipeline
     public int[] Execute()
     {
         // Generate initial rays
-        GeneratePhase.EnqueueExecute(Manager, GlobalSize, LocalSize);
+        // GeneratePhase.EnqueueExecute(Manager, GlobalSize, LocalSize);
 
         // Keep looping all phases until we run out of samples
-        for (int sample = 0; sample < Camera.Samples; sample++)
+        /*for (int sample = 0; sample < Camera.Samples; sample++)
         {
             ExtendPhase.EnqueueExecute(Manager, GlobalSize, LocalSize);
             ShadePhase.EnqueueExecute(Manager, GlobalSize, LocalSize);
             ConnectPhase.EnqueueExecute(Manager, GlobalSize, LocalSize);
-        }
+        }*/
+        
+        ShadePhase.EnqueueExecute(Manager, GlobalSize, LocalSize);
         
         // wait for all queued commands to finish
         var err = Manager.Cl.Finish(Manager.Queue.Id);

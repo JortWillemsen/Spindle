@@ -18,7 +18,6 @@ public class Kernel
             manager.Cleanup();
             throw new Exception("Failed to create kernel");
         }
-        manager.Kernels.Add(this);
     }
 
     public unsafe void SetArguments(OpenCLManager manager, Buffer[] args)
@@ -33,7 +32,7 @@ public class Kernel
         if (errNum != (int)ErrorCodes.Success)
         {
             manager.Cleanup();
-            throw new Exception("Error setting kernel arguments.");
+            throw new Exception($"Error {errNum}: setting kernel arguments.");
         }
     }
 }

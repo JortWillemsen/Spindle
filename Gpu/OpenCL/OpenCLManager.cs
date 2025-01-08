@@ -120,9 +120,9 @@ public class OpenCLManager
             throw new Exception("Could not find program with name: " + programName);
         }
         var kernel = new Kernel(this, program, name);
-        Kernels.Add(kernel);
         kernel.SetArguments(this, arguments);
-        
+        Kernels.Add(kernel);
+
         return this;
     }
     
@@ -186,6 +186,9 @@ public class OpenCLManager
 
     public nint GetKernelId(string kernel)
     {
-        return this.Kernels.Select(k => k.Id).First();
+        return this.Kernels
+            .Where(k => k.Name == kernel)
+            .Select(k => k.Id)
+            .First();
     }
 }

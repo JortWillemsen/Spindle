@@ -23,7 +23,7 @@ public class CommandQueue
         nuint[] globalSize,
         nuint[] localSize)
     {
-        manager.Cl.EnqueueNdrangeKernel(
+        var err = manager.Cl.EnqueueNdrangeKernel(
             Id, 
             kernelId, 
             2,
@@ -33,6 +33,11 @@ public class CommandQueue
             0, 
             (nint*) null, 
             (nint*) null);
+
+        if (err != (int) ErrorCodes.Success)
+        {
+            throw new Exception("Whoops");
+        }
         
         Console.WriteLine("Kernel queued.");
     }

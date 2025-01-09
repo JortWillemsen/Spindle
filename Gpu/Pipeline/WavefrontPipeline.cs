@@ -13,7 +13,7 @@ public class WavefrontPipeline
     public nuint[]                GlobalSize         { get; set; }
     public nuint[]                LocalSize          { get; set; }
     public ClSceneBuffers         SceneBuffers       { get; private set; }
-    public ReadWriteBuffer<nuint> RandomStatesBuffer { get; private set; }
+    public ReadWriteBuffer<uint>  RandomStatesBuffer { get; private set; }
     public GeneratePhase          GeneratePhase      { get; private set; }
     public ConnectPhase           ConnectPhase       { get; private set; }
     public ShadePhase             ShadePhase         { get; private set; }
@@ -27,7 +27,7 @@ public class WavefrontPipeline
         Manager = new OpenCLManager();
         Camera = camera;
         SceneBuffers = BufferConverter.ConvertSceneToBuffers(Manager, scene);
-        RandomStatesBuffer = new ReadWriteBuffer<nuint>(Manager, new nuint[]
+        RandomStatesBuffer = new ReadWriteBuffer<uint>(Manager, new uint[]
         {
             // TODO generate this with random seed in a dedicated method
             69, 420, 10, 20, 9000, 90001, 42069, 804930, 02380923809, 032093, 480239805, 8934820, 89023402, 4092094389,

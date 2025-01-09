@@ -3,9 +3,9 @@ uint xorshift32(uint* state) // Marsaglia’s xorshift32 (from slideset)
 {
     uint v = *state;
 
-    v ^= v << 13u;
-    v ^= v >> 17u;
-    v ^= v << 5u;
+    v ^= v << 13;
+    v ^= v >> 17;
+    v ^= v << 5;
 
     *state = v;
     return v;

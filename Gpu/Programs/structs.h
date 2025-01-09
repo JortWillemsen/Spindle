@@ -12,8 +12,8 @@ typedef struct
 
 typedef struct
 {
-    float3  position;
-    float   radius;
+    float3 position;
+    float radius;
 } Sphere;
 
 typedef struct
@@ -30,5 +30,5 @@ typedef struct
     float3 hitPoint;
     float3 normal;
     float t;
-    int material;
+    uint material;
 } Intersection;

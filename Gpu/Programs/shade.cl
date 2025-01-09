@@ -7,12 +7,13 @@
 
 __kernel void shade(
     __global uint *randomStates,
-    __global Intersection *intersectionResults,
+    __global Intersection *intersections,
     __global const float *mat_albedos,
     __global const float3 *mat_colors,
     __global Ray *extensionRays,
     __global Ray *shadowRays,
-    __global float3 *pixelColors)
+    __global float3 *pixelColors,
+    __global float3 *debug)
 {
     uint x = get_global_id(0);
     uint y = get_global_id(1);
@@ -20,9 +21,11 @@ __kernel void shade(
 
     // ==> Calculate extension ray
 
-    float3 bounceDirection = CosineSampleHemisphere(intersectionResults[i].normal, &randomStates[i]);
+    float3 bounceDirection = CosineSampleHemisphere(intersections[i].normal, &randomStates[i]);
+    debug[i] = intersections[i].normal;
+
     Ray extensionRay; // TODO: does C allow to immediatly assign the fields within the array without declaring a new instance?
-    extensionRay.origin = intersectionResults[i].hitPoint;
+    extensionRay.origin = intersections[i].hitPoint;
     extensionRay.direction = bounceDirection;
     extensionRays[i] = extensionRay;
 

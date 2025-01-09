@@ -6,6 +6,8 @@ public class ShadePhase : Phase
     public Buffer DiffuseAlbedosBuffer { get; private set; }
     public Buffer DiffuseColorBuffer { get; private set; }
 
+    public Buffer DebugBuffer { get; private set; }
+
     /// <summary>
     /// Calculates extension rays and shadow rays to trace in phases 2 and 4.
     /// Writes to three buffers, extensionRays (phase 2), shadowRays (phase 4) and colors.
@@ -14,20 +16,20 @@ public class ShadePhase : Phase
     /// <param name="path">Path to OpenCL program</param>
     /// <param name="kernel">Kernel to execute</param>
     /// <param name="randomStates">The current seeds or states for the random number generator</param>
-    /// <param name="intersectionResults">Takes buffer of intersection results</param>
+    /// <param name="intersections">Takes buffer of intersection results</param>
     /// <param name="extensionRays">Takes ray buffer that is used in phase 2 for intersection calculation</param>
     /// <param name="pixelColors">Buffer that contains the color values for each pixel</param>
     public ShadePhase(
         OpenCLManager manager,
         string path, string kernel,
         Buffer randomStates,
-        Buffer intersectionResults,
+        Buffer intersections,
         Buffer extensionRays,
         Buffer pixelColors)
     {
         float[] mat_albedos = new float[]
         {
-            6.9f, 6.9f, 6.9f, 6.9f, 6.9f, 6.9f, 6.9f, 6.9f, 6.9f, 6.9f, 6.9f, 6.9f, 6.9f, 6.9f, 6.9f, 6.9f
+            .69f, .69f, .69f, .69f, .69f, .69f, .69f, .69f, .69f, .69f, .69f, .69f, .69f, .69f, .69f, .69f
         };
 
         ClFloat3[] mat_colors = new ClFloat3[]
@@ -50,27 +52,28 @@ public class ShadePhase : Phase
             new ClFloat3 { X = 80, Y = 69, Z = 111 },
         };
 
-        var shadowRays = new ClShadowRay[intersectionResults.GetLength()];
+        var shadowRays = new ClShadowRay[intersections.GetLength()];
         ShadowRaysBuffer  = new ReadWriteBuffer<ClShadowRay>(manager, shadowRays);
 
-        var diffuseAlbedos = mat_albedos;
-        DiffuseAlbedosBuffer = new ReadWriteBuffer<float>(manager, diffuseAlbedos);
+        DiffuseAlbedosBuffer = new ReadWriteBuffer<float>(manager, mat_albedos);
 
-        var diffuseColor = mat_colors;
-        DiffuseColorBuffer = new ReadWriteBuffer<ClFloat3>(manager, diffuseColor);
+        DiffuseColorBuffer = new ReadWriteBuffer<ClFloat3>(manager, mat_colors);
+
+        DebugBuffer = new ReadWriteBuffer<ClFloat3>(manager, new ClFloat3[16]);
 
         manager.AddProgram(path, "shade.cl")
-            .AddBuffers(ShadowRaysBuffer, DiffuseAlbedosBuffer, DiffuseColorBuffer)
+            .AddBuffers(ShadowRaysBuffer, DiffuseAlbedosBuffer, DiffuseColorBuffer, DebugBuffer)
             .AddKernel(
                 "shade.cl", 
                 kernel,
                 randomStates,
-                intersectionResults, // TODO: Intersection zelf is al genoeg info
+                intersections,
                 DiffuseAlbedosBuffer,
                 DiffuseColorBuffer,
                 extensionRays, 
                 ShadowRaysBuffer,
-                pixelColors);
+                pixelColors,
+                DebugBuffer);
 
         KernelId = manager.GetKernelId(kernel);
     }

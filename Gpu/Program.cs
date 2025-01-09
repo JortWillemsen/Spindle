@@ -15,16 +15,10 @@ using System.Numerics;
 
 Console.WriteLine("OpenCL test application");
 
-// Prepare scene
-var matBrightYellow = new Diffuse(.9f, new Vector3(0.8f, 0.8f, 0.0f));
-var orbCentre = new Sphere(new Vector3(0, 0, 0), matBrightYellow, 1f);
-var objects = new List<Geometry> { orbCentre };
-var lights = new List<LightSource> { new Spotlight(Vector3.One, Vector3.One) };
-
 // Prepare input data
 const int numberOfRays = 16;
 
-nuint[] randomStates = new nuint[numberOfRays]
+uint[] randomStates = new uint[numberOfRays]
 {
     // TODO generate this with random seed
     1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
@@ -46,87 +40,135 @@ nuint[] randomStates = new nuint[numberOfRays]
     //03488035
 };
 
-ClIntersectionResult[] intersectionResults = new ClIntersectionResult[numberOfRays]
+ClIntersection[] intersections = new ClIntersection[numberOfRays]
 {
     new()
     {
-        HitPoint = new ClFloat3 { X = 1, Y = 2, Z = 3 },
+        HitPoint = new ClFloat3 { X = 20, Y = 30, Z = 40 },
         Normal = new ClFloat3 { X = 1, Y = 2, Z = 3 },
+        Hit = true,
+        T = 69f,
+        Material = 420
     },
     new()
     {
-        HitPoint = new ClFloat3 { X = 1, Y = 2, Z = 3 },
+        HitPoint = new ClFloat3 { X = 20, Y = 30, Z = 40 },
         Normal = new ClFloat3 { X = 1, Y = 2, Z = 3 },
+        Hit = true,
+        T = 69f,
+        Material = 420
     },
     new()
     {
-        HitPoint = new ClFloat3 { X = 1, Y = 2, Z = 3 },
+        HitPoint = new ClFloat3 { X = 20, Y = 30, Z = 40 },
         Normal = new ClFloat3 { X = 1, Y = 2, Z = 3 },
+        Hit = true,
+        T = 69f,
+        Material = 420
     },
     new()
     {
-        HitPoint = new ClFloat3 { X = 1, Y = 2, Z = 3 },
+        HitPoint = new ClFloat3 { X = 20, Y = 30, Z = 40 },
         Normal = new ClFloat3 { X = 1, Y = 2, Z = 3 },
+        Hit = true,
+        T = 69f,
+        Material = 420
     },
     new()
     {
-        HitPoint = new ClFloat3 { X = 1, Y = 2, Z = 3 },
+        HitPoint = new ClFloat3 { X = 20, Y = 30, Z = 40 },
         Normal = new ClFloat3 { X = 1, Y = 2, Z = 3 },
+        Hit = true,
+        T = 69f,
+        Material = 420
     },
     new()
     {
-        HitPoint = new ClFloat3 { X = 1, Y = 2, Z = 3 },
+        HitPoint = new ClFloat3 { X = 20, Y = 30, Z = 40 },
         Normal = new ClFloat3 { X = 1, Y = 2, Z = 3 },
+        Hit = true,
+        T = 69f,
+        Material = 420
     },
     new()
     {
-        HitPoint = new ClFloat3 { X = 1, Y = 2, Z = 3 },
+        HitPoint = new ClFloat3 { X = 20, Y = 30, Z = 40 },
         Normal = new ClFloat3 { X = 1, Y = 2, Z = 3 },
+        Hit = true,
+        T = 69f,
+        Material = 420
     },
     new()
     {
-        HitPoint = new ClFloat3 { X = 1, Y = 2, Z = 3 },
+        HitPoint = new ClFloat3 { X = 20, Y = 30, Z = 40 },
         Normal = new ClFloat3 { X = 1, Y = 2, Z = 3 },
+        Hit = true,
+        T = 69f,
+        Material = 420
     },
     new()
     {
-        HitPoint = new ClFloat3 { X = 1, Y = 2, Z = 3 },
+        HitPoint = new ClFloat3 { X = 20, Y = 30, Z = 40 },
         Normal = new ClFloat3 { X = 1, Y = 2, Z = 3 },
+        Hit = true,
+        T = 69f,
+        Material = 420
     },
     new()
     {
-        HitPoint = new ClFloat3 { X = 1, Y = 2, Z = 3 },
+        HitPoint = new ClFloat3 { X = 20, Y = 30, Z = 40 },
         Normal = new ClFloat3 { X = 1, Y = 2, Z = 3 },
+        Hit = true,
+        T = 69f,
+        Material = 420
     },
     new()
     {
-        HitPoint = new ClFloat3 { X = 1, Y = 2, Z = 3 },
+        HitPoint = new ClFloat3 { X = 20, Y = 30, Z = 40 },
         Normal = new ClFloat3 { X = 1, Y = 2, Z = 3 },
+        Hit = true,
+        T = 69f,
+        Material = 420
     },
     new()
     {
-        HitPoint = new ClFloat3 { X = 1, Y = 2, Z = 3 },
+        HitPoint = new ClFloat3 { X = 20, Y = 30, Z = 40 },
         Normal = new ClFloat3 { X = 1, Y = 2, Z = 3 },
+        Hit = true,
+        T = 69f,
+        Material = 420
     },
     new()
     {
-        HitPoint = new ClFloat3 { X = 1, Y = 2, Z = 3 },
+        HitPoint = new ClFloat3 { X = 20, Y = 30, Z = 40 },
         Normal = new ClFloat3 { X = 1, Y = 2, Z = 3 },
+        Hit = true,
+        T = 69f,
+        Material = 420
     },
     new()
     {
-        HitPoint = new ClFloat3 { X = 1, Y = 2, Z = 3 },
+        HitPoint = new ClFloat3 { X = 20, Y = 30, Z = 40 },
         Normal = new ClFloat3 { X = 1, Y = 2, Z = 3 },
+        Hit = true,
+        T = 69f,
+        Material = 420
     },
     new()
     {
-        HitPoint = new ClFloat3 { X = 1, Y = 2, Z = 3 },
+        HitPoint = new ClFloat3 { X = 20, Y = 30, Z = 40 },
         Normal = new ClFloat3 { X = 1, Y = 2, Z = 3 },
+        Hit = true,
+        T = 69f,
+        Material = 420
     },
     new()
     {
-        HitPoint = new ClFloat3 { X = 1, Y = 2, Z = 3 },
+        HitPoint = new ClFloat3 { X = 20, Y = 30, Z = 40 },
         Normal = new ClFloat3 { X = 1, Y = 2, Z = 3 },
+        Hit = true,
+        T = 69f,
+        Material = 420
     },
 };
 
@@ -217,11 +259,10 @@ ClRay[] extensionRays = new ClRay[numberOfRays]
 // Prepare OpenCL
 OpenCLManager manager = new();
 
-ReadOnlyBuffer<nuint> randomStatesBuffer = new(manager, randomStates);
-ReadOnlyBuffer<ClIntersectionResult> intersectionResultsBuffer = new(manager, intersectionResults);
+ReadOnlyBuffer<uint> randomStatesBuffer = new(manager, randomStates);
+ReadOnlyBuffer<ClIntersection> intersectionResultsBuffer = new(manager, intersections);
 ReadWriteBuffer<ClRay> extensionRaysBuffer = new(manager, extensionRays);
 ReadWriteBuffer<ClFloat3> pixelColorsBuffer = new(manager, new ClFloat3[numberOfRays]);
-// ReadWriteBuffer<nint> debugBuffer = new(manager, new nint[numberOfRays]);
 
 manager.AddBuffers(randomStatesBuffer, intersectionResultsBuffer, extensionRaysBuffer, pixelColorsBuffer);
 manager.AddUtilsProgram("/../../../../Gpu/Programs/structs.h", "structs.h");
@@ -246,7 +287,7 @@ if (err != (int)ErrorCodes.Success)
     throw new Exception($"Error {err}: finishing queue");
 }
 
-manager.ReadBufferToHost(extensionRaysBuffer, out ClRay[] result);
+manager.ReadBufferToHost(phase.DebugBuffer, out ClFloat3[] result);
 for (int index = 0; index < result.Length; index++)
 {
     var item = result[index];

@@ -27,16 +27,20 @@ public class WavefrontPipeline
         Manager = new OpenCLManager();
         Camera = camera;
         SceneBuffers = BufferConverter.ConvertSceneToBuffers(Manager, scene);
-        RandomStatesBuffer = new ReadWriteBuffer<uint>(Manager, new uint[]
-        {
-            // TODO generate this with random seed in a dedicated method
-            69, 420, 10, 20, 9000, 90001, 42069, 804930, 02380923809, 032093, 480239805, 8934820, 89023402, 4092094389,
-            043289040, 03488035
-        });
 
         GlobalSize = new nuint[2] { (nuint)camera.ImageSize.Width, (nuint)camera.ImageSize.Height };
         LocalSize = new nuint[2] { 1, 1 };
-        
+
+        // Find number of rays, used for calculating buffer sizes
+        var numOfRays = camera.ImageSize.Width * camera.ImageSize.Height;
+
+        // Create buffer with random seeds
+        Random random = new(20283497); // TODO: supply custom seed
+        uint[] randomStates = new uint[camera.ImageSize.Width * camera.ImageSize.Height];
+        for (int i = 0; i < randomStates.Length; ++i)
+            randomStates[i] = (uint) random.Next();
+        RandomStatesBuffer = new ReadWriteBuffer<uint>(Manager, randomStates);
+
         // Add structs that will be bound with every program
         Manager.AddUtilsProgram("/../../../../Gpu/Programs/structs.h", "structs.h");
         Manager.AddUtilsProgram("/../../../../Gpu/Programs/random.cl", "random.cl");
@@ -44,17 +48,12 @@ public class WavefrontPipeline
 
         // Add buffers to the manager
         Manager.AddBuffers(SceneBuffers.SceneInfo, SceneBuffers.Spheres, SceneBuffers.Triangles, RandomStatesBuffer);
-        // Find number of rays, used for calculating buffer sizes
-        var numOfRays = camera.ImageSize.Width * camera.ImageSize.Height;
 
         var colors = new int[numOfRays];
-
         for (int i = 0; i < colors.Length; i++)
-        {
             colors[i] = i ;
-        }
-        
-        ImageBuffer = new ReadWriteBuffer<int>(Manager, colors);
+
+        ImageBuffer = new ReadWriteBuffer<int>(Manager, colors); // TODO: musn't this be added as a buffer as well (Manager.AddBuffer)?
         
         GeneratePhase = new GeneratePhase(
             Manager, 

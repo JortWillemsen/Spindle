@@ -2,259 +2,38 @@
 // This is code to test a single GPU kernel
 //
 
-using Engine.Cameras;
-using Engine.Geometry;
-using Engine.Lighting;
-using Engine.Materials;
-using Engine.Scenes;
 using Gpu;
 using Gpu.Pipeline;
 using Silk.NET.OpenCL;
-using System.Drawing;
 using System.Numerics;
-
-Console.WriteLine("OpenCL test application");
 
 // Prepare input data
 const int numberOfRays = 16;
 
 uint[] randomStates = new uint[numberOfRays]
 {
-    // TODO generate this with random seed
-    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-    //69,
-    //420,
-    //10,
-    //20,
-    //9000,
-    //90001,
-    //42069,
-    //804930,
-    //02380923809,
-    //032093,
-    //480239805,
-    //8934820,
-    //89023402,
-    //4092094389,
-    //043289040,
-    //03488035
+    69, 420, 10, 20, 9000, 90001, 42069, 804930, 02380923809, 032093, 480239805,
+    8934820, 89023402, 4092094389, 043289040, 03488035
 };
 
-ClIntersection[] intersections = new ClIntersection[numberOfRays]
-{
-    new()
+ClIntersection[] intersections = Enumerable.Repeat(
+    new ClIntersection()
     {
         HitPoint = new ClFloat3 { X = 20, Y = 30, Z = 40 },
-        Normal = new ClFloat3 { X = 1, Y = 2, Z = 3 },
+        Normal = ClFloat3.FromVector3(Vector3.Normalize(new Vector3(0, 1, 1))),
         Hit = true,
         T = 69f,
         Material = 420
     },
-    new()
-    {
-        HitPoint = new ClFloat3 { X = 20, Y = 30, Z = 40 },
-        Normal = new ClFloat3 { X = 1, Y = 2, Z = 3 },
-        Hit = true,
-        T = 69f,
-        Material = 420
-    },
-    new()
-    {
-        HitPoint = new ClFloat3 { X = 20, Y = 30, Z = 40 },
-        Normal = new ClFloat3 { X = 1, Y = 2, Z = 3 },
-        Hit = true,
-        T = 69f,
-        Material = 420
-    },
-    new()
-    {
-        HitPoint = new ClFloat3 { X = 20, Y = 30, Z = 40 },
-        Normal = new ClFloat3 { X = 1, Y = 2, Z = 3 },
-        Hit = true,
-        T = 69f,
-        Material = 420
-    },
-    new()
-    {
-        HitPoint = new ClFloat3 { X = 20, Y = 30, Z = 40 },
-        Normal = new ClFloat3 { X = 1, Y = 2, Z = 3 },
-        Hit = true,
-        T = 69f,
-        Material = 420
-    },
-    new()
-    {
-        HitPoint = new ClFloat3 { X = 20, Y = 30, Z = 40 },
-        Normal = new ClFloat3 { X = 1, Y = 2, Z = 3 },
-        Hit = true,
-        T = 69f,
-        Material = 420
-    },
-    new()
-    {
-        HitPoint = new ClFloat3 { X = 20, Y = 30, Z = 40 },
-        Normal = new ClFloat3 { X = 1, Y = 2, Z = 3 },
-        Hit = true,
-        T = 69f,
-        Material = 420
-    },
-    new()
-    {
-        HitPoint = new ClFloat3 { X = 20, Y = 30, Z = 40 },
-        Normal = new ClFloat3 { X = 1, Y = 2, Z = 3 },
-        Hit = true,
-        T = 69f,
-        Material = 420
-    },
-    new()
-    {
-        HitPoint = new ClFloat3 { X = 20, Y = 30, Z = 40 },
-        Normal = new ClFloat3 { X = 1, Y = 2, Z = 3 },
-        Hit = true,
-        T = 69f,
-        Material = 420
-    },
-    new()
-    {
-        HitPoint = new ClFloat3 { X = 20, Y = 30, Z = 40 },
-        Normal = new ClFloat3 { X = 1, Y = 2, Z = 3 },
-        Hit = true,
-        T = 69f,
-        Material = 420
-    },
-    new()
-    {
-        HitPoint = new ClFloat3 { X = 20, Y = 30, Z = 40 },
-        Normal = new ClFloat3 { X = 1, Y = 2, Z = 3 },
-        Hit = true,
-        T = 69f,
-        Material = 420
-    },
-    new()
-    {
-        HitPoint = new ClFloat3 { X = 20, Y = 30, Z = 40 },
-        Normal = new ClFloat3 { X = 1, Y = 2, Z = 3 },
-        Hit = true,
-        T = 69f,
-        Material = 420
-    },
-    new()
-    {
-        HitPoint = new ClFloat3 { X = 20, Y = 30, Z = 40 },
-        Normal = new ClFloat3 { X = 1, Y = 2, Z = 3 },
-        Hit = true,
-        T = 69f,
-        Material = 420
-    },
-    new()
-    {
-        HitPoint = new ClFloat3 { X = 20, Y = 30, Z = 40 },
-        Normal = new ClFloat3 { X = 1, Y = 2, Z = 3 },
-        Hit = true,
-        T = 69f,
-        Material = 420
-    },
-    new()
-    {
-        HitPoint = new ClFloat3 { X = 20, Y = 30, Z = 40 },
-        Normal = new ClFloat3 { X = 1, Y = 2, Z = 3 },
-        Hit = true,
-        T = 69f,
-        Material = 420
-    },
-    new()
-    {
-        HitPoint = new ClFloat3 { X = 20, Y = 30, Z = 40 },
-        Normal = new ClFloat3 { X = 1, Y = 2, Z = 3 },
-        Hit = true,
-        T = 69f,
-        Material = 420
-    },
-};
+    numberOfRays).ToArray();
 
-ClRay[] extensionRays = new ClRay[numberOfRays]
-{
+ClRay[] extensionRays = Enumerable.Repeat(
     new ClRay
     {
         Direction = new ClFloat3 { X = 10, Y = 20, Z = 30 },
         Origin = new ClFloat3 { X = -5, Y = -5, Z = -5 }
     },
-    new ClRay
-    {
-        Direction = new ClFloat3 { X = 10, Y = 20, Z = 30 },
-        Origin = new ClFloat3 { X = -5, Y = -5, Z = -5 }
-    },
-    new ClRay
-    {
-        Direction = new ClFloat3 { X = 10, Y = 20, Z = 30 },
-        Origin = new ClFloat3 { X = -5, Y = -5, Z = -5 }
-    },
-    new ClRay
-    {
-        Direction = new ClFloat3 { X = 10, Y = 20, Z = 30 },
-        Origin = new ClFloat3 { X = -5, Y = -5, Z = -5 }
-    },
-    new ClRay
-    {
-        Direction = new ClFloat3 { X = 10, Y = 20, Z = 30 },
-        Origin = new ClFloat3 { X = -5, Y = -5, Z = -5 }
-    },
-    new ClRay
-    {
-        Direction = new ClFloat3 { X = 10, Y = 20, Z = 30 },
-        Origin = new ClFloat3 { X = -5, Y = -5, Z = -5 }
-    },
-    new ClRay
-    {
-        Direction = new ClFloat3 { X = 10, Y = 20, Z = 30 },
-        Origin = new ClFloat3 { X = -5, Y = -5, Z = -5 }
-    },
-    new ClRay
-    {
-        Direction = new ClFloat3 { X = 10, Y = 20, Z = 30 },
-        Origin = new ClFloat3 { X = -5, Y = -5, Z = -5 }
-    },
-    new ClRay
-    {
-        Direction = new ClFloat3 { X = 10, Y = 20, Z = 30 },
-        Origin = new ClFloat3 { X = -5, Y = -5, Z = -5 }
-    },
-    new ClRay
-    {
-        Direction = new ClFloat3 { X = 10, Y = 20, Z = 30 },
-        Origin = new ClFloat3 { X = -5, Y = -5, Z = -5 }
-    },
-    new ClRay
-    {
-        Direction = new ClFloat3 { X = 10, Y = 20, Z = 30 },
-        Origin = new ClFloat3 { X = -5, Y = -5, Z = -5 }
-    },
-    new ClRay
-    {
-        Direction = new ClFloat3 { X = 10, Y = 20, Z = 30 },
-        Origin = new ClFloat3 { X = -5, Y = -5, Z = -5 }
-    },
-    new ClRay
-    {
-        Direction = new ClFloat3 { X = 10, Y = 20, Z = 30 },
-        Origin = new ClFloat3 { X = -5, Y = -5, Z = -5 }
-    },
-    new ClRay
-    {
-        Direction = new ClFloat3 { X = 10, Y = 20, Z = 30 },
-        Origin = new ClFloat3 { X = -5, Y = -5, Z = -5 }
-    },
-    new ClRay
-    {
-        Direction = new ClFloat3 { X = 10, Y = 20, Z = 30 },
-        Origin = new ClFloat3 { X = -5, Y = -5, Z = -5 }
-    },
-    new ClRay
-    {
-        Direction = new ClFloat3 { X = 10, Y = 20, Z = 30 },
-        Origin = new ClFloat3 { X = -5, Y = -5, Z = -5 }
-    },
-};
+    numberOfRays).ToArray();
 
 // Prepare OpenCL
 OpenCLManager manager = new();
@@ -287,7 +66,7 @@ if (err != (int)ErrorCodes.Success)
     throw new Exception($"Error {err}: finishing queue");
 }
 
-manager.ReadBufferToHost(phase.DebugBuffer, out ClFloat3[] result);
+manager.ReadBufferToHost(extensionRaysBuffer, out ClRay[] result);
 for (int index = 0; index < result.Length; index++)
 {
     var item = result[index];

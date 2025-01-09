@@ -22,12 +22,8 @@ __kernel void shade(
     // ==> Calculate extension ray
 
     float3 bounceDirection = CosineSampleHemisphere(intersections[i].normal, &randomStates[i]);
-    debug[i] = intersections[i].normal;
-
-    Ray extensionRay; // TODO: does C allow to immediatly assign the fields within the array without declaring a new instance?
-    extensionRay.origin = intersections[i].hitPoint;
-    extensionRay.direction = bounceDirection;
-    extensionRays[i] = extensionRay;
+    extensionRays[i].origin = intersections[i].hitPoint;
+    extensionRays[i].direction = bounceDirection;
 
     // ==> Calculate shadow ray
 

@@ -25,6 +25,8 @@ public struct ClFloat3
         return new ClFloat3 { X = v.X, Y = v.Y, Z = v.Z };
     }
 
+    public Vector3 ToVector3() => new(X, Y, Z);
+
     /// <inheritdoc />
     public override string ToString() {
         return $"<{X}, {Y}, {Z}>";

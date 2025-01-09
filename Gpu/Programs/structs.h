@@ -14,6 +14,7 @@ typedef struct
 {
     float3 position;
     float radius;
+    uint material;
 } Sphere;
 
 typedef struct
@@ -21,7 +22,7 @@ typedef struct
     float3 v1;
     float3 v2;
     float3 v3;
-    float3 normal;
+    uint material;
 } Triangle;
 
 typedef struct 
@@ -32,3 +33,15 @@ typedef struct
     float t;
     uint material;
 } Intersection;
+
+enum MaterialType {
+    mat_diffuse = 1u,
+    mat_reflective = 2u,
+};
+
+typedef struct
+{
+    float3 color;
+    float albedo;
+    enum MaterialType type;
+} Material;

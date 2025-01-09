@@ -1,4 +1,6 @@
-﻿namespace Gpu.Pipeline;
+﻿using Gpu.OpenCL;
+
+namespace Gpu.Pipeline;
 
 public class GeneratePhase : Phase
 { 

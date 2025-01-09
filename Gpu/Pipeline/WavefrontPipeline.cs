@@ -36,18 +36,16 @@ public class WavefrontPipeline
 
         // Create buffer with random seeds
         Random random = new(20283497); // TODO: supply custom seed
-        uint[] randomStates = new uint[camera.ImageSize.Width * camera.ImageSize.Height];
-        for (int i = 0; i < randomStates.Length; ++i)
-            randomStates[i] = (uint) random.Next();
+        uint[] randomStates = Enumerable.Range(0, numOfRays).Select(_ => (uint) random.Next()).ToArray();
         RandomStatesBuffer = new ReadWriteBuffer<uint>(Manager, randomStates);
 
-        // Add structs that will be bound with every program
+        // Add structs and functions that will be bound with every program
         Manager.AddUtilsProgram("/../../../../Gpu/Programs/structs.h", "structs.h");
         Manager.AddUtilsProgram("/../../../../Gpu/Programs/random.cl", "random.cl");
         Manager.AddUtilsProgram("/../../../../Gpu/Programs/utils.cl", "utils.cl");
 
         // Add buffers to the manager
-        Manager.AddBuffers(SceneBuffers.SceneInfo, SceneBuffers.Spheres, SceneBuffers.Triangles, RandomStatesBuffer);
+        Manager.AddBuffers(SceneBuffers.SceneInfo, SceneBuffers.Spheres, SceneBuffers.Triangles, SceneBuffers.Materials, RandomStatesBuffer);
 
         var colors = new int[numOfRays];
         for (int i = 0; i < colors.Length; i++)
@@ -74,6 +72,7 @@ public class WavefrontPipeline
             Manager,
             "/../../../../Gpu/Programs/shade.cl",
             "shade",
+            SceneBuffers.Materials,
             RandomStatesBuffer,
             ExtendPhase.IntersectionsBuffer,
             GeneratePhase.RayBuffer,

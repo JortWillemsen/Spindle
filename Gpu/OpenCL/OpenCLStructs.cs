@@ -1,16 +1,7 @@
 ﻿using System.Numerics;
 using System.Runtime.InteropServices;
 
-namespace Gpu;
-
-[StructLayout(LayoutKind.Sequential, Size = 64)]
-public struct ClTriangle
-{
-    public ClFloat3 V1; // 16 bits
-    public ClFloat3 V2; // 16 bits
-    public ClFloat3 V3; // 16 bits
-    public ClFloat3 Normal; // 16 bits
-}
+namespace Gpu.OpenCL;
 
 [StructLayout(LayoutKind.Sequential, Size = 16)]
 public struct ClFloat3
@@ -33,12 +24,23 @@ public struct ClFloat3
     }
 }
 
+[StructLayout(LayoutKind.Sequential, Size = 64)]
+public struct ClTriangle
+{
+    public ClFloat3 V1; // 16 bits
+    public ClFloat3 V2; // 16 bits
+    public ClFloat3 V3; // 16 bits
+    public uint Material; // 4 bits // TODO this is new, check if reading works
+    // 12 empty bits
+}
+
 [StructLayout(LayoutKind.Sequential, Size = 32)]
 public struct ClSphere
 {
     public ClFloat3 Position; // 16 bits
     public float Radius; // 4 bits
-    // 12 bits empty
+    public uint Material; // 4 bits TODO this is new, check if reading works
+    // 8 bits empty
 }
 
 [StructLayout(LayoutKind.Sequential, Size = 32)]
@@ -57,7 +59,7 @@ public struct ClRay
 [StructLayout(LayoutKind.Explicit, Size = 64)]
 public struct ClIntersection
 {
-    [FieldOffset(0)] public bool Hit; // 16 bits (OpenCL takes 16 bytes, C# 4, hence offset)
+    [FieldOffset(0)]  public bool Hit; // 16 bits (OpenCL takes 16 bites, C# 4, hence offset)
     [FieldOffset(16)] public ClFloat3 HitPoint; // 16 bits
     [FieldOffset(32)] public ClFloat3 Normal; // 16 bits
     [FieldOffset(48)] public float T; // 4 bits
@@ -86,4 +88,19 @@ public struct ClExtensionRay {
 [StructLayout(LayoutKind.Sequential)] // TODO find size
 public struct ClShadowRay {
     // TODO: Add whatever you need
+}
+
+[StructLayout(LayoutKind.Sequential, Size = 32)]
+public struct ClMaterial // Depending on type, not all fields are used
+{
+    public ClFloat3 Color; // 16 bits
+    public float Albedo; // 4 bits
+    public MaterialType Type; // 4 bits
+    // 12 empty bits
+}
+
+public enum MaterialType : uint // 4 bits
+{
+    Diffuse = 1,
+    Reflective = 2
 }

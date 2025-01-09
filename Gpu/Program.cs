@@ -3,12 +3,35 @@
 //
 
 using Gpu;
+using Gpu.OpenCL;
 using Gpu.Pipeline;
 using Silk.NET.OpenCL;
 using System.Numerics;
 
 // Prepare input data
 const int numberOfRays = 16;
+
+ClMaterial[] materials = new ClMaterial[] {
+    new ClMaterial
+    {
+        Type = MaterialType.Diffuse,
+        Albedo = .78f,
+        Color = new ClFloat3 { X = 20, Y = 30, Z = 40 },
+    },
+    new ClMaterial
+    {
+        Type = MaterialType.Diffuse,
+        Albedo = .69f,
+        Color = new ClFloat3 { X = 25, Y = 35, Z = 45 },
+    },
+    new ClMaterial
+    {
+        Type = MaterialType.Reflective,
+        Albedo = .5f,
+        Color = new ClFloat3 { X = 100, Y = 101, Z = 102 },
+    }
+};
+
 
 uint[] randomStates = new uint[numberOfRays]
 {
@@ -23,7 +46,7 @@ ClIntersection[] intersections = Enumerable.Repeat(
         Normal = ClFloat3.FromVector3(Vector3.Normalize(new Vector3(0, 1, 1))),
         Hit = true,
         T = 69f,
-        Material = 420
+        Material = 1
     },
     numberOfRays).ToArray();
 
@@ -38,17 +61,18 @@ ClRay[] extensionRays = Enumerable.Repeat(
 // Prepare OpenCL
 OpenCLManager manager = new();
 
+ReadOnlyBuffer<ClMaterial> materialsBuffer = new(manager, materials);
 ReadOnlyBuffer<uint> randomStatesBuffer = new(manager, randomStates);
 ReadOnlyBuffer<ClIntersection> intersectionResultsBuffer = new(manager, intersections);
 ReadWriteBuffer<ClRay> extensionRaysBuffer = new(manager, extensionRays);
 ReadWriteBuffer<ClFloat3> pixelColorsBuffer = new(manager, new ClFloat3[numberOfRays]);
 
-manager.AddBuffers(randomStatesBuffer, intersectionResultsBuffer, extensionRaysBuffer, pixelColorsBuffer);
+manager.AddBuffers(materialsBuffer, randomStatesBuffer, intersectionResultsBuffer, extensionRaysBuffer, pixelColorsBuffer);
 manager.AddUtilsProgram("/../../../../Gpu/Programs/structs.h", "structs.h");
 manager.AddUtilsProgram("/../../../../Gpu/Programs/random.cl", "random.cl");
 manager.AddUtilsProgram("/../../../../Gpu/Programs/utils.cl", "utils.cl");
 ShadePhase phase = new(manager, "/../../../../Gpu/Programs/shade.cl", "shade",
-    randomStatesBuffer, intersectionResultsBuffer, extensionRaysBuffer, pixelColorsBuffer);
+    materialsBuffer, randomStatesBuffer, intersectionResultsBuffer, extensionRaysBuffer, pixelColorsBuffer);
 
 var globalSize = new nuint[2]
 {
@@ -66,7 +90,7 @@ if (err != (int)ErrorCodes.Success)
     throw new Exception($"Error {err}: finishing queue");
 }
 
-manager.ReadBufferToHost(extensionRaysBuffer, out ClRay[] result);
+manager.ReadBufferToHost(pixelColorsBuffer, out ClFloat3[] result);
 for (int index = 0; index < result.Length; index++)
 {
     var item = result[index];

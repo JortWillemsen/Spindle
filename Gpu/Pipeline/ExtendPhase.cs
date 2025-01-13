@@ -6,6 +6,7 @@ namespace Gpu.Pipeline;
 public class ExtendPhase : Phase
 {
     // public Buffer IntersectionsBuffer { get; private set; }
+    public Buffer DebugBuffer { get; private set; }
 
     /// <summary>
     /// Calculates intersection of primary / extension rays.
@@ -23,22 +24,26 @@ public class ExtendPhase : Phase
         string path,
         string kernel,
         Buffer sceneInfoBuffer,
-        Buffer rayBuffer,
         Buffer spheresBuffer,
-        Buffer trianglesBuffer)
+        Buffer trianglesBuffer,
+        Buffer rayBuffer)
     {
         // var intersections = new ClIntersection[rayBuffer.GetLength()];
         // IntersectionsBuffer = new ReadWriteBuffer<ClIntersection>(manager, intersections);
 
+        DebugBuffer = new ReadWriteBuffer<ClFloat3>(manager, new ClFloat3[16]);
+
         manager.AddProgram(path, "extend.cl")
             // .AddBuffers(IntersectionsBuffer)
+            .AddBuffers(DebugBuffer)
             .AddKernel(
                 "extend.cl",
                 kernel, 
                 sceneInfoBuffer,
-                rayBuffer,
                 spheresBuffer,
-                trianglesBuffer/*,
+                trianglesBuffer,
+                rayBuffer,
+                DebugBuffer/*,
                 IntersectionsBuffer*/);
 
         KernelId = manager.GetKernelId(kernel);

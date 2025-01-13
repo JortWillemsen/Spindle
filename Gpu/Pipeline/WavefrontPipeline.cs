@@ -64,9 +64,9 @@ public class WavefrontPipeline
             "/../../../../Gpu/Programs/extend.cl",
             "extend",
             SceneBuffers.SceneInfo,
-            GeneratePhase.RayBuffer,
             SceneBuffers.Spheres,
-            SceneBuffers.Triangles);
+            SceneBuffers.Triangles,
+            GeneratePhase.RayBuffer);
 
         ShadePhase = new ShadePhase(
             Manager,

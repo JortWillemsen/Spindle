@@ -28,8 +28,8 @@ public class ShadePhase : Phase
         Buffer extensionRays,
         Buffer pixelColors)
     {
-        var shadowRays = new ClShadowRay[extensionRays.GetLength()];
-        ShadowRaysBuffer  = new ReadWriteBuffer<ClShadowRay>(manager, shadowRays);
+        var shadowRays = new ClRay[extensionRays.GetLength()];
+        ShadowRaysBuffer  = new ReadWriteBuffer<ClRay>(manager, shadowRays);
         DebugBuffer = new ReadWriteBuffer<ClFloat3>(manager, new ClFloat3[16]);
 
         manager.AddProgram(path, "shade.cl")

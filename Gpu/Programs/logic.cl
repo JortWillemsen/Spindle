@@ -1,6 +1,8 @@
 ﻿#include "structs.h"
 
-__kernel void connect(
+// Accumulates radiance contributions and queues new ray generations.
+
+__kernel void logic(
   __global Ray *shadowRays,
   __global SceneInfo *sceneInfo,
   __global Sphere *spheres,
@@ -10,6 +12,4 @@ __kernel void connect(
     int x = get_global_id(0);
     int y = get_global_id(1);
     
-    // Calculates shadow ray intersections.
-    // Returns the first intersection we find, not the nearest.
 }

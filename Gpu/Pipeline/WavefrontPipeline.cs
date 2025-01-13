@@ -15,7 +15,7 @@ public class WavefrontPipeline
     public ClSceneBuffers         SceneBuffers       { get; private set; }
     public ReadWriteBuffer<uint>  RandomStatesBuffer { get; private set; }
     public GeneratePhase          GeneratePhase      { get; private set; }
-    public ConnectPhase           ConnectPhase       { get; private set; }
+    public LogicPhase           LogicPhase       { get; private set; }
     public ShadePhase             ShadePhase         { get; private set; }
     public ExtendPhase            ExtendPhase        { get; private set; }
     public ReadWriteBuffer<int>   ImageBuffer        { get; private set; }
@@ -78,10 +78,10 @@ public class WavefrontPipeline
             GeneratePhase.RayBuffer,
             ImageBuffer);
 
-        ConnectPhase = new ConnectPhase(
+        LogicPhase = new LogicPhase(
             Manager,
-            "/../../../../Gpu/Programs/connect.cl",
-            "connect",
+            "/../../../../Gpu/Programs/logic.cl",
+            "logic",
             ShadePhase.ShadowRaysBuffer,
             SceneBuffers.SceneInfo,
             SceneBuffers.Spheres,
@@ -99,7 +99,7 @@ public class WavefrontPipeline
         {
             ExtendPhase.EnqueueExecute(Manager, GlobalSize, LocalSize);
             ShadePhase.EnqueueExecute(Manager, GlobalSize, LocalSize);
-            ConnectPhase.EnqueueExecute(Manager, GlobalSize, LocalSize);
+            LogicPhase.EnqueueExecute(Manager, GlobalSize, LocalSize);
         }*/
         
         ShadePhase.EnqueueExecute(Manager, GlobalSize, LocalSize);

@@ -1,33 +1,31 @@
 ﻿namespace Gpu.Pipeline;
 
-public class ConnectPhase : Phase
+public class LogicPhase : Phase
 {
     /// <summary>
-    /// Traces shadow rays on the GPU and writes the intersections
+    /// Accumulates radiance contributions and queues new ray generations.
     /// </summary>
     /// <param name="manager">OpenCLManager used for buffer creation</param>
     /// <param name="path">Path to OpenCL program</param>
     /// <param name="kernel">Kernel to execute</param>
     /// <param name="shadowRaysBuffer">Buffer of shadow rays to trace</param>
-    /// <param name="sceneInfobuffer">Buffer that contains scene info</param>
+    /// <param name="sceneInfoBuffer">Buffer that contains scene info</param>
     /// <param name="spheresBuffer">Buffer that contains spheres used for intersection calculations</param>
     /// <param name="trianglesBuffer">Buffer that contains triangles used for intersection calculations</param>
-    /// <param name="intersectionsBuffer">Buffer that contains intersection information</param>
-    public ConnectPhase(
+    public LogicPhase(
         OpenCLManager manager, 
-        String path, 
-        String kernel,
+        string path,
+        string kernel,
         Buffer shadowRaysBuffer,
-        Buffer sceneInfobuffer,
+        Buffer sceneInfoBuffer,
         Buffer spheresBuffer,
-        Buffer trianglesBuffer/*,
-        Buffer intersectionsBuffer*/)
+        Buffer trianglesBuffer)
     {
-        manager.AddProgram(path, "connect.cl")
-            .AddKernel("connect.cl", 
+        manager.AddProgram(path, "logic.cl")
+            .AddKernel("logic.cl",
                 kernel, 
                 shadowRaysBuffer,
-                sceneInfobuffer, 
+                sceneInfoBuffer, 
                 spheresBuffer,
                 trianglesBuffer/*,
                 intersectionsBuffer*/);

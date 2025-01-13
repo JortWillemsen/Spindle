@@ -1,3 +1,3 @@
 ﻿using Gpu;
 
-KernelTests.TestExtendPhase();
+KernelTests.TestLogicPhase();

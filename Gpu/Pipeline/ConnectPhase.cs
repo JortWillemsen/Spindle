@@ -20,8 +20,8 @@ public class ConnectPhase : Phase
         Buffer shadowRaysBuffer,
         Buffer sceneInfobuffer,
         Buffer spheresBuffer,
-        Buffer trianglesBuffer,
-        Buffer intersectionsBuffer)
+        Buffer trianglesBuffer/*,
+        Buffer intersectionsBuffer*/)
     {
         manager.AddProgram(path, "connect.cl")
             .AddKernel("connect.cl", 
@@ -29,8 +29,8 @@ public class ConnectPhase : Phase
                 shadowRaysBuffer,
                 sceneInfobuffer, 
                 spheresBuffer,
-                trianglesBuffer, 
-                intersectionsBuffer);
+                trianglesBuffer/*,
+                intersectionsBuffer*/);
 
         KernelId = manager.GetKernelId(kernel);
     }

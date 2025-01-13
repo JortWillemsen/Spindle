@@ -43,11 +43,14 @@ public struct ClSphere
     // 8 bits empty
 }
 
-[StructLayout(LayoutKind.Sequential, Size = 32)]
+[StructLayout(LayoutKind.Sequential, Size = 48)]
 public struct ClRay
 {
     public ClFloat3 Direction; // 16 bits
     public ClFloat3 Origin; // 16 bits
+    public float T; // 4 bits
+    public uint Object_id; // 4 bits
+    // 8 empty bits TODO could be used to store more info? Or perhaps compact memory somehow?
 
     /// <inheritdoc />
     public override string ToString()
@@ -56,22 +59,22 @@ public struct ClRay
     }
 }
 
-[StructLayout(LayoutKind.Explicit, Size = 64)]
-public struct ClIntersection
-{
-    [FieldOffset(0)]  public bool Hit; // 16 bits (OpenCL takes 16 bites, C# 4, hence offset)
-    [FieldOffset(16)] public ClFloat3 HitPoint; // 16 bits
-    [FieldOffset(32)] public ClFloat3 Normal; // 16 bits
-    [FieldOffset(48)] public float T; // 4 bits
-    [FieldOffset(52)] public uint Material; // 4 bits
-    // 8 bits empty
-
-    /// <inheritdoc />
-    public override string ToString()
-    {
-        return $"IntersectionResult: (HitPoint: {HitPoint}, Normal: {Normal}, T: {T}, Material: {Material})";
-    }
-}
+// [StructLayout(LayoutKind.Explicit, Size = 64)]
+// public struct ClIntersection
+// {
+//     [FieldOffset(0)]  public bool Hit; // 16 bits (OpenCL takes 16 bites, C# 4, hence offset)
+//     [FieldOffset(16)] public ClFloat3 HitPoint; // 16 bits
+//     [FieldOffset(32)] public ClFloat3 Normal; // 16 bits
+//     [FieldOffset(48)] public float T; // 4 bits
+//     [FieldOffset(52)] public uint Material; // 4 bits
+//     // 8 bits empty
+//
+//     /// <inheritdoc />
+//     public override string ToString()
+//     {
+//         return $"IntersectionResult: (HitPoint: {HitPoint}, Normal: {Normal}, T: {T}, Material: {Material})";
+//     }
+// }
 
 [StructLayout(LayoutKind.Sequential, Size = 8)]
 public struct ClSceneInfo

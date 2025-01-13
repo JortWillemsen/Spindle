@@ -8,7 +8,6 @@
 __kernel void shade( // TODO: currently just renders diffuse materials
     __global const Material *materials, // TODO: we could declare this as a __constant buffer, potentially optimizing caching
     __global uint *randomStates,
-    __global Intersection *intersections,
     __global Ray *extensionRays,
     __global Ray *shadowRays,
     __global float3 *pixelColors,
@@ -18,24 +17,27 @@ __kernel void shade( // TODO: currently just renders diffuse materials
     uint y = get_global_id(1);
     uint i = x + y * get_global_size(0);
 
-    Intersection intersection = intersections[i];
-    Material mat = materials[intersection.material]; // Is always diffuse in this kernel
-    if (mat.type != mat_diffuse) return; // TODO this is temporary
+    debug[i] = sizeof(Ray);
+    return;
 
-    // ==> Calculate extension ray
+    Ray intersection = extensionRays[i];
+    // Material mat = materials[primitives[intersection.object_id].material]; // Is always diffuse in this kernel
+    // if (mat.type != mat_diffuse) return; // TODO this is temporary
 
-    float3 bounceDirection = CosineSampleHemisphere(intersection.normal, &randomStates[i]);
-    extensionRays[i].origin = intersection.hitPoint;
-    extensionRays[i].direction = bounceDirection;
+    // // ==> Calculate extension ray
 
-    // ==> Calculate shadow ray
+    // float3 bounceDirection = CosineSampleHemisphere(intersection.normal, &randomStates[i]);
+    // extensionRays[i].origin = intersection.hitPoint;
+    // extensionRays[i].direction = bounceDirection;
 
-    // TODO we have never implemented this before
+    // // ==> Calculate shadow ray
 
-    // ==> Calculate sampled color
+    // // TODO we have never implemented this before
 
-    pixelColors[i] += mat.albedo * mat.color; // Every sample the new color is weighed in // TODO must be moved to other phase
-    // TODO assumes that if the ray hits nothing (skybox), the following is applied (ambient lighting):
-    // float a = .5f * (dirNormalized.Y + 1f);
-    // pixel = (1f - a) * new Vector3(1f, 1f, 1f) + a * new Vector3(.5f, .7f, 1f );
+    // // ==> Calculate sampled color
+
+    // pixelColors[i] += mat.albedo * mat.color; // Every sample the new color is weighed in // TODO must be moved to other phase
+    // // TODO assumes that if the ray hits nothing (skybox), the following is applied (ambient lighting):
+    // // float a = .5f * (dirNormalized.Y + 1f);
+    // // pixel = (1f - a) * new Vector3(1f, 1f, 1f) + a * new Vector3(.5f, .7f, 1f );
 }

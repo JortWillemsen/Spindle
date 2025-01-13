@@ -74,7 +74,7 @@ public class WavefrontPipeline
             "shade",
             SceneBuffers.Materials,
             RandomStatesBuffer,
-            ExtendPhase.IntersectionsBuffer,
+            // ExtendPhase.IntersectionsBuffer,
             GeneratePhase.RayBuffer,
             ImageBuffer);
 
@@ -85,8 +85,8 @@ public class WavefrontPipeline
             ShadePhase.ShadowRaysBuffer,
             SceneBuffers.SceneInfo,
             SceneBuffers.Spheres,
-            SceneBuffers.Triangles,
-            ExtendPhase.IntersectionsBuffer);
+            SceneBuffers.Triangles/*,
+            ExtendPhase.IntersectionsBuffer*/);
     }
 
     public int[] Execute()

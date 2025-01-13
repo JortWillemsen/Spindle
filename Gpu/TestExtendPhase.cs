@@ -16,30 +16,36 @@ public static partial class KernelTests
         // Prepare input data
         const int numberOfRays = 16;
 
-        ClSceneInfo[] sceneInfo = { new() { NumSpheres = 1, NumTriangles = 1} };
+        ClSceneInfo[] sceneInfo = { new() { NumSpheres = 3, NumTriangles = 1} };
 
-        ClSphere[] spheres = Enumerable.Repeat(new ClSphere()
+        // ClSphere[] spheres = Enumerable.Repeat(new ClSphere()
+        // {
+        //     Material = 3,
+        //     Position = new ClFloat3 { X = 0, Y = 0, Z = 6 },
+        //     Radius = 2
+        // }, numberOfRays).ToArray();
+        ClSphere[] spheres =
         {
-            Material = 3,
-            Position = new ClFloat3 { X = 13, Y = 12, Z = 14 },
-            Radius = 5
-        }, numberOfRays).ToArray();
+            new() { Material = 3, Position = new ClFloat3 { X = 0, Y = 0, Z = 11 }, Radius = 2 },
+            new() { Material = 2, Position = new ClFloat3 { X = 0, Y = 0, Z = 6 }, Radius = 2 },
+            new() { Material = 1, Position = new ClFloat3 { X = 0, Y = 0, Z = -200 }, Radius = 100 },
+        };
 
         ClTriangle[] triangles = Enumerable.Repeat(new ClTriangle()
         {
             Material = 4,
-            V1 = new ClFloat3 { X = 21, Y = 21, Z = 21 },
-            V2 = new ClFloat3 { X = 22, Y = 22, Z = 22 },
-            V3 = new ClFloat3 { X = 23, Y = 23, Z = 23 },
+            V1 = new ClFloat3 { X = 0,  Y = 1, Z = 1 },
+            V2 = new ClFloat3 { X = -1, Y = 0, Z = 0 },
+            V3 = new ClFloat3 { X = 1,  Y = 0, Z = 0 },
         }, numberOfRays).ToArray();
 
         ClRay[] extensionRays = Enumerable.Repeat(
             new ClRay
             {
-                Direction = new ClFloat3 { X = 10, Y = 20, Z = 30 },
-                Origin = new ClFloat3 { X = -5, Y = -5, Z = -5 },
-                T = 420.69f,
-                Object_id = 1
+                Direction = new ClFloat3 { X = 0, Y = 0, Z = 1 },
+                Origin = new ClFloat3 { X = 0, Y = 0, Z = 0.5f },
+                // T = 390,
+                // Object_id = 1
             },
             numberOfRays).ToArray();
 
@@ -75,6 +81,7 @@ public static partial class KernelTests
             throw new Exception($"Error {err}: finishing queue");
         }
 
+        // manager.ReadBufferToHost(phase.DebugBuffer, out ClFloat3[] result);
         manager.ReadBufferToHost(extensionRaysBuffer, out ClRay[] result);
         for (int index = 0; index < result.Length; index++)
         {

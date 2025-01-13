@@ -1,5 +1,4 @@
-﻿using Engine.Scenes;
-using Gpu.OpenCL;
+﻿using Gpu.OpenCL;
 
 namespace Gpu.Pipeline;
 
@@ -10,7 +9,7 @@ public class ExtendPhase : Phase
 
     /// <summary>
     /// Calculates intersection of primary / extension rays.
-    /// Writes to an intersection buffer that contains all intersection information for the shade phase
+    /// Updates ray buffer with intersection info
     /// </summary>
     /// <param name="manager">OpenCLManager used for buffer creation</param>
     /// <param name="path">Path to OpenCL program</param>

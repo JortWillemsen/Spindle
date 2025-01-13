@@ -8,8 +8,8 @@ typedef struct
 
 typedef struct
 {
-    int numSpheres;
-    int numTriangles;
+    int num_spheres;
+    int num_triangles;
 } SceneInfo;
 
 typedef struct

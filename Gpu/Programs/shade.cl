@@ -34,7 +34,7 @@ __kernel void shade( // TODO: currently just renders diffuse materials
 
     // ==> Calculate sampled color
 
-    pixelColors[i] += mat.albedo * mat.color; // Every sample the new color is weighed in
+    pixelColors[i] += mat.albedo * mat.color; // Every sample the new color is weighed in // TODO must be moved to other phase
     // TODO assumes that if the ray hits nothing (skybox), the following is applied (ambient lighting):
     // float a = .5f * (dirNormalized.Y + 1f);
     // pixel = (1f - a) * new Vector3(1f, 1f, 1f) + a * new Vector3(.5f, .7f, 1f );

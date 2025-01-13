@@ -8,7 +8,7 @@ public class ExtendPhase : Phase
     public Buffer IntersectionsBuffer { get; private set; }
 
     /// <summary>
-    /// Calculates intersection of primary / extension rays
+    /// Calculates intersection of primary / extension rays.
     /// Writes to an intersection buffer that contains all intersection information for the shade phase
     /// </summary>
     /// <param name="manager">OpenCLManager used for buffer creation</param>
@@ -20,27 +20,26 @@ public class ExtendPhase : Phase
     /// <param name="trianglesBuffer">Buffer that contains triangles used for intersection calculations</param>
     public ExtendPhase(
         OpenCLManager manager, 
-        String path, 
-        String kernel,
-        Buffer rayBuffer,
+        string path,
+        string kernel,
         Buffer sceneInfoBuffer,
+        Buffer rayBuffer,
         Buffer spheresBuffer,
         Buffer trianglesBuffer)
     {
         var intersections = new ClIntersection[rayBuffer.GetLength()];
-        var intersectionsBuffer = new ReadWriteBuffer<ClIntersection>(manager, intersections);
-        IntersectionsBuffer = intersectionsBuffer;
-        
+        IntersectionsBuffer = new ReadWriteBuffer<ClIntersection>(manager, intersections);
+
         manager.AddProgram(path, "extend.cl")
-            .AddBuffers(intersectionsBuffer)
+            .AddBuffers(IntersectionsBuffer)
             .AddKernel(
                 "extend.cl",
                 kernel, 
-                rayBuffer, 
                 sceneInfoBuffer,
+                rayBuffer,
                 spheresBuffer,
                 trianglesBuffer, 
-                intersectionsBuffer);
+                IntersectionsBuffer);
 
         KernelId = manager.GetKernelId(kernel);
     }

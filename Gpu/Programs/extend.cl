@@ -1,10 +1,10 @@
 ﻿#include "structs.h"
 
 __kernel void extend(
+  __global const SceneInfo *sceneInfo,
   __global Ray *rays,
-  __global SceneInfo *sceneInfo,
-  __global Sphere *spheres,
-  __global Triangle * triangles,
+  __global const Sphere *spheres,
+  __global const Triangle * triangles,
   __global Intersection *intersections)
 {
     int x = get_global_id(0);

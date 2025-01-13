@@ -2,7 +2,7 @@ typedef struct
 {
     float3 direction;
     float3 origin;
-} Ray;
+} Ray; // TODO: combine with Intersection?
 
 typedef struct
 {
@@ -27,9 +27,9 @@ typedef struct
 
 typedef struct 
 {
-    bool hit;
-    float3 hitPoint;
-    float3 normal;
+    bool hit; // TODO: obsolete, if t != 0 it is a hit
+    float3 hitPoint; // TODO: can be determined by t
+    float3 normal; // TODO: when desired, can be calcualted by object anyway
     float t;
     uint material;
 } Intersection;

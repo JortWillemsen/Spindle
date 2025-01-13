@@ -63,8 +63,8 @@ public class WavefrontPipeline
             Manager,
             "/../../../../Gpu/Programs/extend.cl",
             "extend",
-            GeneratePhase.RayBuffer,
             SceneBuffers.SceneInfo,
+            GeneratePhase.RayBuffer,
             SceneBuffers.Spheres,
             SceneBuffers.Triangles);
 

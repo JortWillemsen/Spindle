@@ -36,7 +36,7 @@ public class CommandQueue
 
         if (err != (int) ErrorCodes.Success)
         {
-            throw new Exception("Whoops");
+            throw new Exception($"Error {err}: Kernel could not be queued");
         }
         
         Console.WriteLine("Kernel queued.");

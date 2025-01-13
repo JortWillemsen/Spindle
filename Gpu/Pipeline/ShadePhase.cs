@@ -1,8 +1,12 @@
-﻿namespace Gpu.Pipeline;
+﻿using Gpu.OpenCL;
+
+namespace Gpu.Pipeline;
 
 public class ShadePhase : Phase
 {
     public Buffer ShadowRaysBuffer { get; private set; }
+
+    public Buffer DebugBuffer { get; private set; }
 
     /// <summary>
     /// Calculates extension rays and shadow rays to trace in phases 2 and 4.
@@ -11,33 +15,36 @@ public class ShadePhase : Phase
     /// <param name="manager">OpenCLManager used for buffer creation</param>
     /// <param name="path">Path to OpenCL program</param>
     /// <param name="kernel">Kernel to execute</param>
-    /// <param name="intersectionResults">Takes buffer of intersection results</param>
-    /// <param name="rayBuffer">Takes ray buffer that is used in phase 2 for intersection calculation</param>
-    /// <param name="colorsBuffer">Buffer that contains the color values for each pixel</param>
-
+    /// <param name="materials">A constant buffer containing the materials in the scene</param>
+    /// <param name="randomStates">The current seeds or states for the random number generator</param>
+    /// <param name="intersections">Takes buffer of intersection results</param>
+    /// <param name="extensionRays">Takes ray buffer that is used in phase 2 for intersection calculation</param>
+    /// <param name="pixelColors">Buffer that contains the color values for each pixel</param>
     public ShadePhase(
         OpenCLManager manager,
-        String path, String kernel,
-        Buffer intersectionResults,
-        Buffer rayBuffer,
-        Buffer colorsBuffer)
+        string path, string kernel,
+        Buffer materials,
+        Buffer randomStates,
+        Buffer intersections,
+        Buffer extensionRays,
+        Buffer pixelColors)
     {
-        var shadowRays = new ClShadowRay[intersectionResults.GetLength()];
-
-        var extensionRaysBuffer = rayBuffer;
-        var shadowRaysBuffer = new ReadWriteBuffer<ClShadowRay>(manager, shadowRays);
-        ShadowRaysBuffer = shadowRaysBuffer;
-
+        var shadowRays = new ClShadowRay[intersections.GetLength()];
+        ShadowRaysBuffer  = new ReadWriteBuffer<ClShadowRay>(manager, shadowRays);
+        DebugBuffer = new ReadWriteBuffer<ClFloat3>(manager, new ClFloat3[16]);
 
         manager.AddProgram(path, "shade.cl")
-            .AddBuffers(shadowRaysBuffer)
+            .AddBuffers(ShadowRaysBuffer, DebugBuffer)
             .AddKernel(
                 "shade.cl", 
-                kernel, 
-                intersectionResults, 
-                extensionRaysBuffer, 
-                shadowRaysBuffer, 
-                colorsBuffer);
+                kernel,
+                materials,
+                randomStates,
+                intersections,
+                extensionRays,
+                ShadowRaysBuffer,
+                pixelColors,
+                DebugBuffer);
 
         KernelId = manager.GetKernelId(kernel);
     }

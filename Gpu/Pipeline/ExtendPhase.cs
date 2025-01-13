@@ -1,4 +1,5 @@
 ﻿using Engine.Scenes;
+using Gpu.OpenCL;
 
 namespace Gpu.Pipeline;
 
@@ -26,8 +27,8 @@ public class ExtendPhase : Phase
         Buffer spheresBuffer,
         Buffer trianglesBuffer)
     {
-        var intersections = new ClIntersectionResult[rayBuffer.GetLength()];
-        var intersectionsBuffer = new ReadWriteBuffer<ClIntersectionResult>(manager, intersections);
+        var intersections = new ClIntersection[rayBuffer.GetLength()];
+        var intersectionsBuffer = new ReadWriteBuffer<ClIntersection>(manager, intersections);
         IntersectionsBuffer = intersectionsBuffer;
         
         manager.AddProgram(path, "extend.cl")

@@ -2,12 +2,14 @@ typedef struct
 {
     float3 direction;
     float3 origin;
+    float t;
+    uint object_id;
 } Ray;
 
 typedef struct
 {
-    int numSpheres;
-    int numTriangles;
+    int num_spheres;
+    int num_triangles;
 } SceneInfo;
 
 typedef struct
@@ -25,14 +27,14 @@ typedef struct
     uint material;
 } Triangle;
 
-typedef struct 
-{
-    bool hit;
-    float3 hitPoint;
-    float3 normal;
-    float t;
-    uint material;
-} Intersection;
+// typedef struct
+// {
+//     bool hit; // TODO: obsolete, if material != 0 it is a hit
+//     float3 hitPoint; // TODO: can be determined by t
+//     float3 normal; // TODO: when desired, can be calcualted by object anyway
+//     float t;
+//     uint material;
+// } Intersection;
 
 enum MaterialType {
     mat_diffuse = 1u,

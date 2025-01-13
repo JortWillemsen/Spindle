@@ -63,10 +63,10 @@ public class WavefrontPipeline
             Manager,
             "/../../../../Gpu/Programs/extend.cl",
             "extend",
-            GeneratePhase.RayBuffer,
             SceneBuffers.SceneInfo,
             SceneBuffers.Spheres,
-            SceneBuffers.Triangles);
+            SceneBuffers.Triangles,
+            GeneratePhase.RayBuffer);
 
         ShadePhase = new ShadePhase(
             Manager,
@@ -74,7 +74,7 @@ public class WavefrontPipeline
             "shade",
             SceneBuffers.Materials,
             RandomStatesBuffer,
-            ExtendPhase.IntersectionsBuffer,
+            // ExtendPhase.IntersectionsBuffer,
             GeneratePhase.RayBuffer,
             ImageBuffer);
 
@@ -85,8 +85,8 @@ public class WavefrontPipeline
             ShadePhase.ShadowRaysBuffer,
             SceneBuffers.SceneInfo,
             SceneBuffers.Spheres,
-            SceneBuffers.Triangles,
-            ExtendPhase.IntersectionsBuffer);
+            SceneBuffers.Triangles/*,
+            ExtendPhase.IntersectionsBuffer*/);
     }
 
     public int[] Execute()

@@ -25,12 +25,11 @@ public class ShadePhase : Phase
         string path, string kernel,
         Buffer materials,
         Buffer randomStates,
-        Buffer intersections,
         Buffer extensionRays,
         Buffer pixelColors)
     {
-        var shadowRays = new ClShadowRay[intersections.GetLength()];
-        ShadowRaysBuffer  = new ReadWriteBuffer<ClShadowRay>(manager, shadowRays);
+        var shadowRays = new ClRay[extensionRays.GetLength()];
+        ShadowRaysBuffer  = new ReadWriteBuffer<ClRay>(manager, shadowRays);
         DebugBuffer = new ReadWriteBuffer<ClFloat3>(manager, new ClFloat3[16]);
 
         manager.AddProgram(path, "shade.cl")
@@ -40,7 +39,6 @@ public class ShadePhase : Phase
                 kernel,
                 materials,
                 randomStates,
-                intersections,
                 extensionRays,
                 ShadowRaysBuffer,
                 pixelColors,

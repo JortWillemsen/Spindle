@@ -1,15 +1,15 @@
-﻿using Engine.Scenes;
-using Gpu.OpenCL;
+﻿using Gpu.OpenCL;
 
 namespace Gpu.Pipeline;
 
 public class ExtendPhase : Phase
 {
-    public Buffer IntersectionsBuffer { get; private set; }
+    // public Buffer IntersectionsBuffer { get; private set; }
+    public Buffer DebugBuffer { get; private set; }
 
     /// <summary>
-    /// Calculates intersection of primary / extension rays
-    /// Writes to an intersection buffer that contains all intersection information for the shade phase
+    /// Calculates intersection of primary / extension rays.
+    /// Updates ray buffer with intersection info
     /// </summary>
     /// <param name="manager">OpenCLManager used for buffer creation</param>
     /// <param name="path">Path to OpenCL program</param>
@@ -20,27 +20,30 @@ public class ExtendPhase : Phase
     /// <param name="trianglesBuffer">Buffer that contains triangles used for intersection calculations</param>
     public ExtendPhase(
         OpenCLManager manager, 
-        String path, 
-        String kernel,
-        Buffer rayBuffer,
+        string path,
+        string kernel,
         Buffer sceneInfoBuffer,
         Buffer spheresBuffer,
-        Buffer trianglesBuffer)
+        Buffer trianglesBuffer,
+        Buffer rayBuffer)
     {
-        var intersections = new ClIntersection[rayBuffer.GetLength()];
-        var intersectionsBuffer = new ReadWriteBuffer<ClIntersection>(manager, intersections);
-        IntersectionsBuffer = intersectionsBuffer;
-        
+        // var intersections = new ClIntersection[rayBuffer.GetLength()];
+        // IntersectionsBuffer = new ReadWriteBuffer<ClIntersection>(manager, intersections);
+
+        DebugBuffer = new ReadWriteBuffer<ClFloat3>(manager, new ClFloat3[16]);
+
         manager.AddProgram(path, "extend.cl")
-            .AddBuffers(intersectionsBuffer)
+            // .AddBuffers(IntersectionsBuffer)
+            .AddBuffers(DebugBuffer)
             .AddKernel(
                 "extend.cl",
                 kernel, 
-                rayBuffer, 
                 sceneInfoBuffer,
                 spheresBuffer,
-                trianglesBuffer, 
-                intersectionsBuffer);
+                trianglesBuffer,
+                rayBuffer,
+                DebugBuffer/*,
+                IntersectionsBuffer*/);
 
         KernelId = manager.GetKernelId(kernel);
     }

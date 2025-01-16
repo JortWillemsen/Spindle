@@ -35,8 +35,8 @@ float IntersectSphere(Ray ray, Sphere sphere)
 }
 
 __kernel void extend(
-  __global const SceneInfo *sceneInfo,
-  __global Sphere *spheres, // TODO: add const
+  __global const SceneInfo *scene_info,
+  __global const Sphere *spheres,
   __global const Triangle * triangles,
   __global Ray *rays,
   __global float3 *debug)
@@ -47,7 +47,7 @@ __kernel void extend(
     uint intersected_object = 0; // TODO: how to differentiate between triangle and sphere index?
 
     // For every sphere, test intersection
-    uint num_spheres = sceneInfo[0].num_spheres;
+    uint num_spheres = scene_info->num_spheres;
     for (int x = 0; x < num_spheres; x++)
     {
         float new_t = IntersectSphere(rays[i], spheres[x]);
@@ -57,8 +57,6 @@ __kernel void extend(
             intersected_object = x;
         }
     }
-
-    debug[i] = t;
 
     rays[i].t = t;
     rays[i].object_id = intersected_object;

@@ -7,6 +7,7 @@ namespace Gpu.Pipeline;
 public class GeneratePhase : Phase
 { 
     public Buffer RayBuffer { get; private set; }
+    public Buffer DebugBuffer { get; private set; }
 
     /// <summary>
     /// Generates primary rays on the GPU.
@@ -21,22 +22,16 @@ public class GeneratePhase : Phase
         OpenCLManager manager,
         string path,
         string kernel,
-        Camera camera,
         Buffer sceneInfoBuffer,
         int numOfRays)
     {
-        // ClRay[] rays = new ClRay[numOfRays];
-        var rays = BufferConverter.GenerateRayBuffers(manager, camera);
-        // ClRay[] rays = Enumerable.Repeat( new ClRay
-        // {
-        //     Origin = new ClFloat3 { X = 0, Y = 0, Z = -9 },
-        //     Direction = ClFloat3.FromVector3(Vector3.Normalize(new Vector3(0, 1, 1)))
-        // }, numOfRays).ToArray();
-        RayBuffer = new ReadWriteBuffer<ClRay>(manager, rays);
+        RayBuffer = new ReadWriteBuffer<ClRay>(manager, new ClRay[numOfRays]);
+
+        DebugBuffer = new ReadWriteBuffer<ClFloat3>(manager, new ClFloat3[numOfRays]);
 
         manager.AddProgram(path, "generate.cl")
-            .AddBuffers(RayBuffer)
-            .AddKernel("generate.cl",kernel, sceneInfoBuffer, RayBuffer);
+            .AddBuffers(RayBuffer, DebugBuffer)
+            .AddKernel("generate.cl", kernel, sceneInfoBuffer, RayBuffer, DebugBuffer);
 
         KernelId = manager.GetKernelId(kernel);
     }

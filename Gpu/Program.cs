@@ -2,4 +2,5 @@
 
 // KernelTests.TestLogicPhase();
 // KernelTests.TestShadePhase();
-KernelTests.TestExtendPhase();
+// KernelTests.TestExtendPhase();
+KernelTests.TestGeneratePhase();

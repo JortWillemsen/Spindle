@@ -23,7 +23,7 @@ __kernel void logic(
     // TODO: currently has different purpose: display color from last intersection
 
     Ray extension_ray = extensionRays[i];
-    if (extension_ray.t < 0)
+    if (extension_ray.t <= 0)
     {
         image[i] = 0; // No intersection, black for now
         return;

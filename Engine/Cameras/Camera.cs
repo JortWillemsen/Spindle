@@ -47,7 +47,7 @@ public abstract class Camera
         return new Ray(
             antiAliasingOffset + Position,
             antiAliasingOffset + GetDirectionTowardsPixel(
-                (float)x / ImageSize.Width, (float)y / ImageSize.Height)); // TODO: bruh we never normalised this
+                (float)x / ImageSize.Width, (float)y / ImageSize.Height)); // TODO: bruh we never normalised this. Also: we should do width -1 and size -1 (or 100% case is never reached)
     }
 
 

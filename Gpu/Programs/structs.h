@@ -8,6 +8,10 @@ typedef struct
 
 typedef struct
 {
+    float3 camera_position;
+    float3 frustum_top_left;
+    float3 frustum_horizontal;
+    float3 frustum_vertical;
     int num_spheres;
     int num_triangles;
 } SceneInfo;

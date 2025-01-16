@@ -30,7 +30,7 @@ public class WavefrontPipeline
     {
         Manager = new OpenCLManager();
         Camera = camera;
-        SceneBuffers = BufferConverter.ConvertSceneToBuffers(Manager, scene);
+        SceneBuffers = BufferConverter.ConvertSceneToBuffers(Manager, scene, camera);
 
         GlobalSize = new nuint[2] { (nuint)camera.ImageSize.Width, (nuint)camera.ImageSize.Height };
         LocalSize = new nuint[2] { 1, 1 };
@@ -54,7 +54,7 @@ public class WavefrontPipeline
         // Prepare output buffer
         var colors = new int[numOfRays];
         for (int i = 0; i < colors.Length; i++)
-            colors[i] = i ;
+            colors[i] = i ; // TODO: remove this at some point
 
         ImageBuffer = new ReadWriteBuffer<int>(Manager, colors); // TODO: musn't this be added as a buffer as well (Manager.AddBuffer)?
 
@@ -65,7 +65,6 @@ public class WavefrontPipeline
             Manager,
             "/../../../../Gpu/Programs/generate.cl",
             "generate",
-            Camera,
             SceneBuffers.SceneInfo,
             numOfRays);
 
@@ -103,7 +102,7 @@ public class WavefrontPipeline
     public int[] Execute()
     {
         // Generate initial rays
-        // GeneratePhase.EnqueueExecute(Manager, GlobalSize, LocalSize);
+        GeneratePhase.EnqueueExecute(Manager, GlobalSize, LocalSize);
 
         // Keep looping all phases until we run out of samples
         /*for (int sample = 0; sample < Camera.Samples; sample++)
@@ -125,8 +124,9 @@ public class WavefrontPipeline
             throw new Exception($"Error {err}: finishing queue");
         }
         
-        Manager.ReadBufferToHost(ExtendPhase.DebugBuffer, out ClFloat3[] extendDebug);
-        Manager.ReadBufferToHost(LogicPhase.DebugBuffer, out ClFloat3[] logicDebug);
+        // Manager.ReadBufferToHost(GeneratePhase.DebugBuffer, out ClFloat3[] generateDebug);
+        // Manager.ReadBufferToHost(ExtendPhase.DebugBuffer, out ClFloat3[] extendDebug);
+        // Manager.ReadBufferToHost(LogicPhase.DebugBuffer, out ClFloat3[] logicDebug);
         Manager.ReadBufferToHost(ImageBuffer, out int[] colors); // TODO: turn into uint
 
         return colors;

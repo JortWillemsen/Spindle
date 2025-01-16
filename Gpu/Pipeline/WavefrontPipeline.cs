@@ -1,5 +1,8 @@
 ﻿using Engine.Cameras;
 using Engine.Scenes;
+using Gpu.Cameras;
+using Gpu.OpenCL;
+using Silk.NET.Maths;
 using Silk.NET.OpenCL;
 using System.Drawing;
 
@@ -8,17 +11,18 @@ namespace Gpu.Pipeline;
 public class WavefrontPipeline
 {
     public OpenCLManager Manager { get; private set; }
-    public OpenCLCamera Camera { get; private set; }
+    public OpenCLCamera  Camera  { get; private set; }
 
     public nuint[]                GlobalSize         { get; set; }
     public nuint[]                LocalSize          { get; set; }
     public ClSceneBuffers         SceneBuffers       { get; private set; }
     public ReadWriteBuffer<uint>  RandomStatesBuffer { get; private set; }
     public GeneratePhase          GeneratePhase      { get; private set; }
-    public LogicPhase           LogicPhase       { get; private set; }
+    public LogicPhase             LogicPhase         { get; private set; }
     public ShadePhase             ShadePhase         { get; private set; }
     public ExtendPhase            ExtendPhase        { get; private set; }
     public ReadWriteBuffer<int>   ImageBuffer        { get; private set; }
+    public Buffer   DebugBuffer   { get; private set; }
 
     public WavefrontPipeline(
         Scene scene, 
@@ -47,16 +51,22 @@ public class WavefrontPipeline
         // Add buffers to the manager
         Manager.AddBuffers(SceneBuffers.SceneInfo, SceneBuffers.Spheres, SceneBuffers.Triangles, SceneBuffers.Materials, RandomStatesBuffer);
 
+        // Prepare output buffer
         var colors = new int[numOfRays];
         for (int i = 0; i < colors.Length; i++)
             colors[i] = i ;
 
         ImageBuffer = new ReadWriteBuffer<int>(Manager, colors); // TODO: musn't this be added as a buffer as well (Manager.AddBuffer)?
-        
+
+        // Define pipeline dataflow (connect pipes)
+        DebugBuffer = new ReadWriteBuffer<ClFloat3>(Manager, new ClFloat3[numOfRays]);
+
         GeneratePhase = new GeneratePhase(
-            Manager, 
-            "/../../../../Gpu/Programs/generate.cl", 
-            "generate", 
+            Manager,
+            "/../../../../Gpu/Programs/generate.cl",
+            "generate",
+            Camera,
+            SceneBuffers.SceneInfo,
             numOfRays);
 
         ExtendPhase = new ExtendPhase(
@@ -74,7 +84,6 @@ public class WavefrontPipeline
             "shade",
             SceneBuffers.Materials,
             RandomStatesBuffer,
-            // ExtendPhase.IntersectionsBuffer,
             GeneratePhase.RayBuffer,
             ImageBuffer);
 
@@ -83,10 +92,12 @@ public class WavefrontPipeline
             "/../../../../Gpu/Programs/logic.cl",
             "logic",
             ShadePhase.ShadowRaysBuffer,
+            GeneratePhase.RayBuffer,
+            SceneBuffers.Materials,
             SceneBuffers.SceneInfo,
             SceneBuffers.Spheres,
-            SceneBuffers.Triangles/*,
-            ExtendPhase.IntersectionsBuffer*/);
+            SceneBuffers.Triangles,
+            ImageBuffer);
     }
 
     public int[] Execute()
@@ -102,8 +113,10 @@ public class WavefrontPipeline
             LogicPhase.EnqueueExecute(Manager, GlobalSize, LocalSize);
         }*/
         
-        ShadePhase.EnqueueExecute(Manager, GlobalSize, LocalSize);
-        
+        ExtendPhase.EnqueueExecute(Manager, GlobalSize, LocalSize);
+        // ShadePhase.EnqueueExecute(Manager, GlobalSize, LocalSize);
+        LogicPhase.EnqueueExecute(Manager, GlobalSize, LocalSize);
+
         // wait for all queued commands to finish
         var err = Manager.Cl.Finish(Manager.Queue.Id);
         
@@ -112,8 +125,11 @@ public class WavefrontPipeline
             throw new Exception($"Error {err}: finishing queue");
         }
         
-        Manager.ReadBufferToHost(ImageBuffer, out int[] colors);
-        
+        Manager.ReadBufferToHost(ExtendPhase.DebugBuffer, out ClFloat3[] extendDebug);
+        Manager.ReadBufferToHost(LogicPhase.DebugBuffer, out ClFloat3[] logicDebug);
+        Manager.ReadBufferToHost(ImageBuffer, out int[] colors); // TODO: turn into uint
+
         return colors;
+        // return new[] { 2 };
     }
 }

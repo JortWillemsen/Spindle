@@ -89,17 +89,17 @@ public class BufferConverter
     /// <param name="manager"></param>
     /// <param name="camera"></param>
     /// <returns></returns>
-    private static ClRay[] GenerateRayBuffers(OpenCLManager manager, OpenCLCamera camera)
+    public static ClRay[] GenerateRayBuffers(OpenCLManager manager, Camera camera)
     {
         // var numOfSamples = camera.ImageSize.Width * camera.ImageSize.Height * camera.NumberOfSamples;
         // Create vector3 buffer that can contain all neccessary random pixel offsets for all samples
         var rays = new List<ClRay>();
         
-        for (int i = 0; i < camera.ImageSize.Width; i++)
+        for (int i = 0; i < camera.ImageSize.Height; i++)
         {
-            for (int j = 0; j < camera.ImageSize.Height; j++)
+            for (int j = 0; j < camera.ImageSize.Width; j++)
             {
-                var ray = camera.GetRayTowardsPixel(i, j);
+                var ray = camera.GetRayTowardsPixel(j, i);
                 var clRay = new ClRay
                 {
                     Direction = ClFloat3.FromVector3(ray.Direction), 

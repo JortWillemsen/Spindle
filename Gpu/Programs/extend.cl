@@ -8,6 +8,7 @@ float IntersectSphere(Ray ray, Sphere sphere)
 {
     float3 oc = sphere.position - ray.origin;
 
+    // TODO: simplify a
     float a = 1; // powr(length(ray.direction), 2); (direction should always be normalized)
     float h = dot(ray.direction, oc);
     float c = powr(length(oc), 2) - sphere.radius * sphere.radius;
@@ -18,10 +19,8 @@ float IntersectSphere(Ray ray, Sphere sphere)
 
     float rootedDiscriminant = sqrt(discriminant);
     float t1 = (h - rootedDiscriminant) / a;
-    float t2 = (h + rootedDiscriminant) / a;
+    float t2 = (h + rootedDiscriminant) / a; // TODO: inline this value
     // Note: t1 < t2
-
-    // return t2;
 
     if (t1 < 0)
     {
@@ -37,7 +36,7 @@ float IntersectSphere(Ray ray, Sphere sphere)
 
 __kernel void extend(
   __global const SceneInfo *sceneInfo,
-  __global const Sphere *spheres,
+  __global Sphere *spheres, // TODO: add const
   __global const Triangle * triangles,
   __global Ray *rays,
   __global float3 *debug)
@@ -51,13 +50,15 @@ __kernel void extend(
     uint num_spheres = sceneInfo[0].num_spheres;
     for (int x = 0; x < num_spheres; x++)
     {
-        float new_t = IntersectSphere(rays[x], spheres[x]);
+        float new_t = IntersectSphere(rays[i], spheres[x]);
         if (new_t > 0 && (t < 0 || new_t < t)) // TODO: epsilon?
         {
             t = new_t;
             intersected_object = x;
         }
     }
+
+    debug[i] = t;
 
     rays[i].t = t;
     rays[i].object_id = intersected_object;

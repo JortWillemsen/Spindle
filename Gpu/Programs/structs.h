@@ -3,7 +3,7 @@ typedef struct
     float3 direction;
     float3 origin;
     float t;
-    uint object_id;
+    uint object_id; // TODO: misschien pointer ipv index?
 } Ray;
 
 typedef struct

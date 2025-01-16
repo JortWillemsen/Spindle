@@ -1,6 +1,8 @@
 ﻿#include <structs.h>
 
-__kernel void generate(__global Ray *rays)
+__kernel void generate(
+    __global SceneInfo *sceneInfo,
+    __global Ray *rays)
 {
     int x = get_global_id(0);
     int y = get_global_id(1);

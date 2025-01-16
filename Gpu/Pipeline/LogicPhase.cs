@@ -1,7 +1,11 @@
-﻿namespace Gpu.Pipeline;
+﻿using Gpu.OpenCL;
+
+namespace Gpu.Pipeline;
 
 public class LogicPhase : Phase
 {
+    public Buffer DebugBuffer { get; private set; }
+
     /// <summary>
     /// Accumulates radiance contributions and queues new ray generations.
     /// </summary>
@@ -9,6 +13,7 @@ public class LogicPhase : Phase
     /// <param name="path">Path to OpenCL program</param>
     /// <param name="kernel">Kernel to execute</param>
     /// <param name="shadowRaysBuffer">Buffer of shadow rays to trace</param>
+    /// <param name="extensionRaysBuffer">The buffer containing the previous intersection tests</param>
     /// <param name="sceneInfoBuffer">Buffer that contains scene info</param>
     /// <param name="spheresBuffer">Buffer that contains spheres used for intersection calculations</param>
     /// <param name="trianglesBuffer">Buffer that contains triangles used for intersection calculations</param>
@@ -17,18 +22,26 @@ public class LogicPhase : Phase
         string path,
         string kernel,
         Buffer shadowRaysBuffer,
+        Buffer extensionRaysBuffer,
+        Buffer materialsBuffer,
         Buffer sceneInfoBuffer,
         Buffer spheresBuffer,
-        Buffer trianglesBuffer)
+        Buffer trianglesBuffer,
+        Buffer imageBuffer) // TODO: create globally?
     {
+        DebugBuffer = new ReadWriteBuffer<ClFloat3>(manager, new ClFloat3[extensionRaysBuffer.GetLength()]);
+
         manager.AddProgram(path, "logic.cl")
             .AddKernel("logic.cl",
                 kernel, 
                 shadowRaysBuffer,
+                extensionRaysBuffer,
+                materialsBuffer,
                 sceneInfoBuffer, 
                 spheresBuffer,
-                trianglesBuffer/*,
-                intersectionsBuffer*/);
+                trianglesBuffer,
+                imageBuffer,
+                DebugBuffer);
 
         KernelId = manager.GetKernelId(kernel);
     }

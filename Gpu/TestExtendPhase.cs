@@ -16,8 +16,6 @@ public static partial class KernelTests
         // Prepare input data
         const int numberOfRays = 16;
 
-        ClSceneInfo[] sceneInfo = { new() { NumSpheres = 3, NumTriangles = 1} };
-
         // ClSphere[] spheres = Enumerable.Repeat(new ClSphere()
         // {
         //     Material = 3,
@@ -39,11 +37,13 @@ public static partial class KernelTests
             V3 = new ClFloat3 { X = 1,  Y = 0, Z = 0 },
         }, numberOfRays).ToArray();
 
+        ClSceneInfo[] sceneInfo = { new() { NumSpheres = spheres.Length, NumTriangles = triangles.Length } };
+
         ClRay[] extensionRays = Enumerable.Repeat(
             new ClRay
             {
                 Direction = new ClFloat3 { X = 0, Y = 0, Z = 1 },
-                Origin = new ClFloat3 { X = 0, Y = 0, Z = 0.5f },
+                Origin = new ClFloat3 { X = 0, Y = 0, Z = -3f },
                 // T = 390,
                 // Object_id = 1
             },

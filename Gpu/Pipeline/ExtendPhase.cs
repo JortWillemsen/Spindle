@@ -30,7 +30,7 @@ public class ExtendPhase : Phase
         // var intersections = new ClIntersection[rayBuffer.GetLength()];
         // IntersectionsBuffer = new ReadWriteBuffer<ClIntersection>(manager, intersections);
 
-        DebugBuffer = new ReadWriteBuffer<ClFloat3>(manager, new ClFloat3[16]);
+        DebugBuffer = new ReadWriteBuffer<ClFloat3>(manager, new ClFloat3[rayBuffer.GetLength()]);
 
         manager.AddProgram(path, "extend.cl")
             // .AddBuffers(IntersectionsBuffer)

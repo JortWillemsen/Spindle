@@ -2,11 +2,9 @@
 // This is code to test a single GPU kernel
 //
 
-using Gpu;
 using Gpu.OpenCL;
 using Gpu.Pipeline;
 using Silk.NET.OpenCL;
-using System.Numerics;
 
 namespace Gpu;
 

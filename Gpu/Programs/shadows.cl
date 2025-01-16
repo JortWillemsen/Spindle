@@ -1,6 +1,6 @@
 ﻿#include "structs.h"
 
-__kernel void connect(
+__kernel void shadows(
   __global Ray *shadowRays,
   __global SceneInfo *sceneInfo,
   __global Sphere *spheres,

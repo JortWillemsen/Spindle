@@ -3,11 +3,15 @@ typedef struct
     float3 direction;
     float3 origin;
     float t;
-    uint object_id;
+    uint object_id; // TODO: misschien pointer ipv index?
 } Ray;
 
 typedef struct
 {
+    float3 camera_position;
+    float3 frustum_top_left;
+    float3 frustum_horizontal;
+    float3 frustum_vertical;
     int num_spheres;
     int num_triangles;
 } SceneInfo;

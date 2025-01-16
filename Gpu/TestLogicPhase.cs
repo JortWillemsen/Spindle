@@ -11,17 +11,32 @@ namespace Gpu;
 
 public static partial class KernelTests
 {
-    public static void TestExtendPhase()
+    public static void TestLogicPhase()
     {
         // Prepare input data
         const int numberOfRays = 16;
 
-        // ClSphere[] spheres = Enumerable.Repeat(new ClSphere()
-        // {
-        //     Material = 3,
-        //     Position = new ClFloat3 { X = 0, Y = 0, Z = 6 },
-        //     Radius = 2
-        // }, numberOfRays).ToArray();
+        ClMaterial[] materials = {
+            new()
+            {
+                Type = MaterialType.Diffuse,
+                Albedo = .78f,
+                Color = new ClFloat3 { X = 20, Y = 30, Z = 40 },
+            },
+            new()
+            {
+                Type = MaterialType.Diffuse,
+                Albedo = .69f,
+                Color = new ClFloat3 { X = 25, Y = 35, Z = 45 },
+            },
+            new()
+            {
+                Type = MaterialType.Reflective,
+                Albedo = 1f,
+                Color = new ClFloat3 { X = 100, Y = 101, Z = 102 },
+            }
+        };
+
         ClSphere[] spheres =
         {
             new() { Material = 3, Position = new ClFloat3 { X = 0, Y = 0, Z = 11 }, Radius = 2 },
@@ -43,9 +58,9 @@ public static partial class KernelTests
             new ClRay
             {
                 Direction = new ClFloat3 { X = 0, Y = 0, Z = 1 },
-                Origin = new ClFloat3 { X = 0, Y = 0, Z = -3f },
-                // T = 390,
-                // Object_id = 1
+                Origin = new ClFloat3 { X = 0, Y = 0, Z = 0.5f },
+                T = 390,
+                Object_id = 1
             },
             numberOfRays).ToArray();
 
@@ -53,17 +68,20 @@ public static partial class KernelTests
         // Prepare OpenCL
         OpenCLManager manager = new();
 
+        ReadOnlyBuffer<ClRay> shadowRays = new(manager, extensionRays);
+        ReadWriteBuffer<ClRay> extensionRaysBuffer = new(manager, extensionRays);
+        ReadOnlyBuffer<ClMaterial> materialsBuffer = new(manager, materials);
         ReadOnlyBuffer<ClSceneInfo> sceneInfoBuffer = new(manager, sceneInfo);
         ReadOnlyBuffer<ClSphere> sphereBuffer = new(manager, spheres);
         ReadOnlyBuffer<ClTriangle> triangleBuffer = new(manager, triangles);
-        ReadWriteBuffer<ClRay> extensionRaysBuffer = new(manager, extensionRays);
+        ReadWriteBuffer<uint> imageBuffer = new(manager, new uint[numberOfRays]); // TODO: musn't this be added as a buffer as well (Manager.AddBuffer)?
 
-        manager.AddBuffers(sceneInfoBuffer, sphereBuffer, triangleBuffer, extensionRaysBuffer);
+        manager.AddBuffers(shadowRays, extensionRaysBuffer, materialsBuffer, sceneInfoBuffer, sphereBuffer, triangleBuffer, imageBuffer);
         manager.AddUtilsProgram("/../../../../Gpu/Programs/structs.h", "structs.h");
         manager.AddUtilsProgram("/../../../../Gpu/Programs/random.cl", "random.cl");
         manager.AddUtilsProgram("/../../../../Gpu/Programs/utils.cl", "utils.cl");
-        ExtendPhase phase = new(manager, "/../../../../Gpu/Programs/extend.cl", "extend",
-            sceneInfoBuffer, sphereBuffer, triangleBuffer, extensionRaysBuffer);
+        LogicPhase phase = new(manager, "/../../../../Gpu/Programs/logic.cl", "logic",
+            shadowRays, extensionRaysBuffer, materialsBuffer, sceneInfoBuffer, sphereBuffer, triangleBuffer, imageBuffer);
 
         var globalSize = new nuint[2]
         {
@@ -82,7 +100,7 @@ public static partial class KernelTests
         }
 
         // manager.ReadBufferToHost(phase.DebugBuffer, out ClFloat3[] result);
-        manager.ReadBufferToHost(extensionRaysBuffer, out ClRay[] result);
+        manager.ReadBufferToHost(imageBuffer, out uint[] result);
         for (int index = 0; index < result.Length; index++)
         {
             var item = result[index];

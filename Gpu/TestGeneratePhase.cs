@@ -44,13 +44,15 @@ public static partial class KernelTests
         OpenCLManager manager = new();
 
         ReadOnlyBuffer<ClSceneInfo> sceneInfoBuffer = new(manager, sceneInfo);
+        ReadWriteBuffer<ClQueueStates> queueStates = new(manager, new[] { new ClQueueStates() }); // Set all lengths to 0
+        ReadWriteBuffer<uint> extendRayQueue = new(manager, new uint[4_000_000 / sizeof(uint)]);
 
         manager.AddBuffers(sceneInfoBuffer);
         manager.AddUtilsProgram("/../../../../Gpu/Programs/structs.h", "structs.h");
         manager.AddUtilsProgram("/../../../../Gpu/Programs/random.cl", "random.cl");
         manager.AddUtilsProgram("/../../../../Gpu/Programs/utils.cl", "utils.cl");
         GeneratePhase phase = new(manager, "/../../../../Gpu/Programs/generate.cl", "generate",
-            sceneInfoBuffer, numberOfRays);
+            queueStates, extendRayQueue, sceneInfoBuffer, numberOfRays);
 
         var globalSize = new nuint[2]
         {

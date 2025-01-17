@@ -4,6 +4,8 @@
 
 __kernel void generate(
     __global const SceneInfo *scene_info,
+    __global QueueStates *queue_states,
+    __global uint *extend_ray_queue,
     __global Ray *rays,
     __global float3 *debug)
 {
@@ -25,4 +27,13 @@ __kernel void generate(
     uint i = x + y * width;
     rays[i].origin = scene_info->camera_position;
     rays[i].direction = normalize(cam_to_pixel);
+
+    // Enqueue extension of this primary ray
+    // Notice how we do not need atomic increments here! TODO
+    // TODO assumes there always is space in the queue
+    uint queue_length = queue_states->extend_ray_length;
+    extend_ray_queue[queue_length + i] = i; // i is the index of a ray here TODO in final pipeline this might not be the case
+    uint processed_items = queue_length / 32u * 32u; // TODO: enfore in compile time that this is same as in WavefrontPipeline?
+    queue_states->extend_ray_length = queue_length + processed_items;
+    debug[i] = queue_states->extend_ray_length; // TODO test
 }

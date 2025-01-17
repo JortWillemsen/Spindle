@@ -51,3 +51,8 @@ typedef struct
     float albedo;
     enum MaterialType type;
 } Material;
+
+typedef struct
+{
+    uint extend_ray_length;
+} QueueStates;

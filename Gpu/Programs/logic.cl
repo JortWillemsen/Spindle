@@ -37,8 +37,7 @@ __kernel void logic(
     // Intersection! Determine color
     Sphere sphere = spheres[extension_ray.object_id];
     Material mat = materials[sphere.material];
-
-
-
     image[i] = convert_color(mat.color * mat.albedo);
+
+    // TODO: atomical increments of queue length can be done in a coaliscing way, see paper
 }

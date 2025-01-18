@@ -19,7 +19,7 @@ __kernel void logic(
   __global float3 *debug)
 {
     // const float3 ambient_color = (float3)(0.5, 0.7, 1); TODO: isn't every object slightly lit with ambient light?
-    uint i = get_global_id(0) + get_global_id(1) * get_global_size(0);
+    uint i = get_global_id(0) + get_global_id(1) * get_global_size(0); // TODO: what about get_global_linear_id()?
 
     // TODO: currently has different purpose: display color from last intersection
 

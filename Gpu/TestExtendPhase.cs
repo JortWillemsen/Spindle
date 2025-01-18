@@ -56,14 +56,16 @@ public static partial class KernelTests
         ReadOnlyBuffer<ClSceneInfo> sceneInfoBuffer = new(manager, sceneInfo);
         ReadOnlyBuffer<ClSphere> sphereBuffer = new(manager, spheres);
         ReadOnlyBuffer<ClTriangle> triangleBuffer = new(manager, triangles);
+        ReadWriteBuffer<ClQueueStates> queueStates = new(manager, new[] { new ClQueueStates() }); // Set all lengths to 0
+        ReadWriteBuffer<uint> extendRayQueue = new(manager, new uint[4_000_000 / sizeof(uint)]);
         ReadWriteBuffer<ClRay> extensionRaysBuffer = new(manager, extensionRays);
 
-        manager.AddBuffers(sceneInfoBuffer, sphereBuffer, triangleBuffer, extensionRaysBuffer);
+        manager.AddBuffers(sceneInfoBuffer, sphereBuffer, triangleBuffer, queueStates, extendRayQueue, extensionRaysBuffer);
         manager.AddUtilsProgram("/../../../../Gpu/Programs/structs.h", "structs.h");
         manager.AddUtilsProgram("/../../../../Gpu/Programs/random.cl", "random.cl");
         manager.AddUtilsProgram("/../../../../Gpu/Programs/utils.cl", "utils.cl");
         ExtendPhase phase = new(manager, "/../../../../Gpu/Programs/extend.cl", "extend",
-            sceneInfoBuffer, sphereBuffer, triangleBuffer, extensionRaysBuffer);
+            sceneInfoBuffer, sphereBuffer, triangleBuffer, queueStates, extendRayQueue, extensionRaysBuffer);
 
         var globalSize = new nuint[2]
         {

@@ -29,11 +29,8 @@ __kernel void generate(
     rays[i].direction = normalize(cam_to_pixel);
 
     // Enqueue extension of this primary ray
-    // Notice how we do not need atomic increments here! TODO
     // TODO assumes there always is space in the queue
-    uint queue_length = queue_states->extend_ray_length;
-    extend_ray_queue[queue_length + i] = i; // i is the index of a ray here TODO in final pipeline this might not be the case
-    uint processed_items = queue_length / 32u * 32u; // TODO: enfore in compile time that this is same as in WavefrontPipeline?
-    queue_states->extend_ray_length = queue_length + processed_items;
-    debug[i] = queue_states->extend_ray_length; // TODO test
+    uint queue_length = atomic_inc(&queue_states->extend_ray_length); // TODO uses atomic, but we know that queue_length afterwards is increased with global_size(0). I tried to remove the atomic call, prehaps give it another go?
+    extend_ray_queue[queue_length] = i; // i is the index of a ray here TODO in final pipeline this might not be the case
+    // TODO: decrease size of generate queue (and transpose it)
 }

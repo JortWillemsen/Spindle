@@ -54,5 +54,5 @@ typedef struct
 
 typedef struct
 {
-    uint extend_ray_length;
+    volatile uint extend_ray_length;
 } QueueStates;

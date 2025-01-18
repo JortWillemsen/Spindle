@@ -35,7 +35,7 @@ public class WavefrontPipeline
         SceneBuffers = BufferConverter.ConvertSceneToBuffers(Manager, scene, camera);
 
         GlobalSize = new nuint[2] { (nuint)camera.ImageSize.Width, (nuint)camera.ImageSize.Height };
-        LocalSize = new nuint[2] { 32, 32 }; // TODO: update
+        LocalSize = new nuint[2] { 32, 32 }; // TODO: let OpenCL descide by passing NULL, NULL (Or just NULL?)
 
         // Find number of rays, used for calculating buffer sizes
         var numOfRays = camera.ImageSize.Width * camera.ImageSize.Height;
@@ -93,6 +93,8 @@ public class WavefrontPipeline
             SceneBuffers.SceneInfo,
             SceneBuffers.Spheres,
             SceneBuffers.Triangles,
+            QueueStates,
+            ExtendRayQueue,
             GeneratePhase.RayBuffer);
 
         ShadePhase = new ShadePhase(
@@ -119,19 +121,31 @@ public class WavefrontPipeline
 
     public int[] Execute()
     {
-        // Generate initial rays
+        // Generate
         GeneratePhase.EnqueueExecute(Manager, GlobalSize, LocalSize);
 
+        Manager.ReadBufferToHost(GeneratePhase.RayBuffer, out ClRay[] pathStates1);
+        Manager.ReadBufferToHost(QueueStates, out ClQueueStates[] queueStatesAfterwards1);
+        Manager.ReadBufferToHost(ExtendRayQueue, out uint[] extendRayQueue1);
+        Manager.ReadBufferToHost(GeneratePhase.DebugBuffer, out ClFloat3[] generateDebug1);
+        Manager.ReadBufferToHost(ExtendPhase.DebugBuffer, out ClFloat3[] extendDebug1);
+        Manager.ReadBufferToHost(LogicPhase.DebugBuffer, out ClFloat3[] logicDebug1);
 
+        // Extend
         // Based on states of queues, set kernel size (let no thread be idle)
         Manager.ReadBufferToHost(QueueStates, out ClQueueStates[] queueStates);
-        // TODO
-        const uint warpSize = 32u;
-        uint raysToBeExtended = queueStates[0].ExtendRayLength / warpSize * warpSize; // Find the biggest multiple of warpSize
+        const uint warpSize = 32u; // TODO: how can we always let this match the workgroup size if we let OpenCL descide it? (See comment where local_size is defined)
+        uint raysToBeExtended = Math.Max(queueStates[0].ExtendRayLength / warpSize, 1) * warpSize; // Find the biggest multiple of warpSize
+        ExtendPhase.EnqueueExecute(Manager, new nuint[] { raysToBeExtended }, new nuint[] { warpSize }, dimensions: 1);
 
-        // ExtendPhase.EnqueueExecute(Manager, new nuint[] { raysToBeExtended }, new nuint[] { warpSize }, dimensions: 1);
-        ExtendPhase.EnqueueExecute(Manager, GlobalSize, LocalSize);
-        // ShadePhase.EnqueueExecute(Manager, GlobalSize, LocalSize);
+        Manager.ReadBufferToHost(GeneratePhase.RayBuffer, out ClRay[] pathStates2);
+        Manager.ReadBufferToHost(QueueStates, out ClQueueStates[] queueStatesAfterwards2);
+        Manager.ReadBufferToHost(ExtendRayQueue, out uint[] extendRayQueue2);
+        Manager.ReadBufferToHost(GeneratePhase.DebugBuffer, out ClFloat3[] generateDebug2);
+        Manager.ReadBufferToHost(ExtendPhase.DebugBuffer, out ClFloat3[] extendDebug2);
+        Manager.ReadBufferToHost(LogicPhase.DebugBuffer, out ClFloat3[] logicDebug2);
+
+        // Display
         LogicPhase.EnqueueExecute(Manager, GlobalSize, LocalSize);
 
         // wait for all queued commands to finish
@@ -143,6 +157,8 @@ public class WavefrontPipeline
         }
 
 
+        Manager.ReadBufferToHost(GeneratePhase.RayBuffer, out ClRay[] pathStates);
+        Manager.ReadBufferToHost(QueueStates, out ClQueueStates[] queueStatesAfterwards);
         Manager.ReadBufferToHost(ExtendRayQueue, out uint[] extendRayQueue);
         Manager.ReadBufferToHost(GeneratePhase.DebugBuffer, out ClFloat3[] generateDebug);
         Manager.ReadBufferToHost(ExtendPhase.DebugBuffer, out ClFloat3[] extendDebug);

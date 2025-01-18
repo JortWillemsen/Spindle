@@ -21,6 +21,8 @@ public class LogicPhase : Phase
         OpenCLManager manager, 
         string path,
         string kernel,
+        Buffer queueStates,
+        Buffer newRayQueue,
         Buffer shadowRaysBuffer,
         Buffer extensionRaysBuffer,
         Buffer materialsBuffer,
@@ -33,7 +35,9 @@ public class LogicPhase : Phase
 
         manager.AddProgram(path, "logic.cl")
             .AddKernel("logic.cl",
-                kernel, 
+                kernel,
+                queueStates,
+                newRayQueue,
                 shadowRaysBuffer,
                 extensionRaysBuffer,
                 materialsBuffer,

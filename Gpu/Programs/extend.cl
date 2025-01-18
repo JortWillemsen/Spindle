@@ -43,8 +43,8 @@ __kernel void extend(
   __global Ray *rays,
   __global float3 *debug)
 {
-    uint i = get_global_id(0) + get_global_id(1) * get_global_size(0); // extend_ray_queue index // TODO if this is run in 1 dimension, simplify
-    uint j = extend_ray_queue[i]; // ray index
+    uint i = get_global_linear_id(); // extend_ray_queue index
+    uint ray_index = extend_ray_queue[i];
 
     // TODO: check if ray needs to be extended
 
@@ -55,7 +55,7 @@ __kernel void extend(
     uint num_spheres = scene_info->num_spheres;
     for (int x = 0; x < num_spheres; x++)
     {
-        float new_t = IntersectSphere(rays[j], spheres[x]);
+        float new_t = IntersectSphere(rays[ray_index], spheres[x]);
         if (new_t > 0 && (t < 0 || new_t < t)) // TODO: epsilon?
         {
             t = new_t;
@@ -63,10 +63,8 @@ __kernel void extend(
         }
     }
 
-    debug[i] = j;
-
-    rays[j].t = t;
-    rays[j].object_id = intersected_object;
+    rays[ray_index].t = t;
+    rays[ray_index].object_id = intersected_object;
 
     // Update queue length
     atomic_dec(&queue_states->extend_ray_length);

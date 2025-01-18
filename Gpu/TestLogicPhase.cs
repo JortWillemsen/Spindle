@@ -68,6 +68,8 @@ public static partial class KernelTests
         // Prepare OpenCL
         OpenCLManager manager = new();
 
+        ReadWriteBuffer<ClQueueStates> queueStates = new(manager, new[] { new ClQueueStates() }); // Set all lengths to 0
+        ReadWriteBuffer<uint> newRayQueue = new(manager, new uint[4_000_000 / sizeof(uint)]);
         ReadOnlyBuffer<ClRay> shadowRays = new(manager, extensionRays);
         ReadWriteBuffer<ClRay> extensionRaysBuffer = new(manager, extensionRays);
         ReadOnlyBuffer<ClMaterial> materialsBuffer = new(manager, materials);
@@ -81,7 +83,7 @@ public static partial class KernelTests
         manager.AddUtilsProgram("/../../../../Gpu/Programs/random.cl", "random.cl");
         manager.AddUtilsProgram("/../../../../Gpu/Programs/utils.cl", "utils.cl");
         LogicPhase phase = new(manager, "/../../../../Gpu/Programs/logic.cl", "logic",
-            shadowRays, extensionRaysBuffer, materialsBuffer, sceneInfoBuffer, sphereBuffer, triangleBuffer, imageBuffer);
+            queueStates, newRayQueue, shadowRays, extensionRaysBuffer, materialsBuffer, sceneInfoBuffer, sphereBuffer, triangleBuffer, imageBuffer);
 
         var globalSize = new nuint[2]
         {
@@ -99,8 +101,8 @@ public static partial class KernelTests
             throw new Exception($"Error {err}: finishing queue");
         }
 
-        // manager.ReadBufferToHost(phase.DebugBuffer, out ClFloat3[] result);
-        manager.ReadBufferToHost(imageBuffer, out uint[] result);
+        // manager.EnqueueReadBufferToHost(phase.DebugBuffer, out ClFloat3[] result);
+        manager.EnqueueReadBufferToHost(imageBuffer, out uint[] result);
         for (int index = 0; index < result.Length; index++)
         {
             var item = result[index];

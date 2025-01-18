@@ -120,8 +120,9 @@ public enum MaterialType : uint // 4 bytes
     Reflective = 2
 }
 
-[StructLayout(LayoutKind.Sequential, Size = 4)]
+[StructLayout(LayoutKind.Sequential, Size = 8)]
 public struct ClQueueStates
 {
+    public uint NewRayLength; // 4 bytes
     public uint ExtendRayLength; // 4 bytes
 }

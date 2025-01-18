@@ -12,8 +12,8 @@ using Gpu.Cameras;
 using Renderer.Display;
 
 const float aspectRatio = 16f / 9f;
-const int windowWidth = 32 * 2;
-const int windowHeight = 32 * 2;
+const int windowWidth = 32 * 30;
+const int windowHeight = 32 * 40;
 const int maxDepth = 20;
 const int samples = 5;
 const float fov = 65f;

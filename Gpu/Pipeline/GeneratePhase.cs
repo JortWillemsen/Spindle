@@ -20,9 +20,10 @@ public class GeneratePhase : Phase
         OpenCLManager manager,
         string path,
         string kernel,
-        Buffer queueStates,
-        Buffer extendRayQueue,
         Buffer sceneInfoBuffer,
+        Buffer queueStates,
+        Buffer newRayQueue,
+        Buffer extendRayQueue,
         int numOfRays)
     {
         RayBuffer = new ReadWriteBuffer<ClRay>(manager, new ClRay[numOfRays]);
@@ -31,7 +32,7 @@ public class GeneratePhase : Phase
 
         manager.AddProgram(path, "generate.cl")
             .AddBuffers(RayBuffer, DebugBuffer)
-            .AddKernel("generate.cl", kernel, sceneInfoBuffer, queueStates, extendRayQueue, RayBuffer, DebugBuffer);
+            .AddKernel("generate.cl", kernel, sceneInfoBuffer, queueStates, newRayQueue, extendRayQueue, RayBuffer, DebugBuffer);
 
         KernelId = manager.GetKernelId(kernel);
     }

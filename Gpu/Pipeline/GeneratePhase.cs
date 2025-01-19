@@ -1,6 +1,4 @@
-﻿using Engine.Cameras;
-using Gpu.OpenCL;
-using System.Numerics;
+﻿using Gpu.OpenCL;
 
 namespace Gpu.Pipeline;
 
@@ -23,6 +21,9 @@ public class GeneratePhase : Phase
         string path,
         string kernel,
         Buffer sceneInfoBuffer,
+        Buffer queueStates,
+        Buffer newRayQueue,
+        Buffer extendRayQueue,
         int numOfRays)
     {
         RayBuffer = new ReadWriteBuffer<ClRay>(manager, new ClRay[numOfRays]);
@@ -31,7 +32,7 @@ public class GeneratePhase : Phase
 
         manager.AddProgram(path, "generate.cl")
             .AddBuffers(RayBuffer, DebugBuffer)
-            .AddKernel("generate.cl", kernel, sceneInfoBuffer, RayBuffer, DebugBuffer);
+            .AddKernel("generate.cl", kernel, sceneInfoBuffer, queueStates, newRayQueue, extendRayQueue, RayBuffer, DebugBuffer);
 
         KernelId = manager.GetKernelId(kernel);
     }

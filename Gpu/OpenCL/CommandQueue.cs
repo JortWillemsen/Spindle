@@ -19,14 +19,15 @@ public class CommandQueue
 
     public unsafe void EnqueueKernel(
         OpenCLManager manager, 
-        nint kernelId, 
+        nint kernelId,
         nuint[] globalSize,
-        nuint[] localSize)
+        nuint[] localSize,
+        uint dimensions = 2)
     {
         var err = manager.Cl.EnqueueNdrangeKernel(
             Id, 
             kernelId, 
-            2,
+            dimensions,
             (nuint*) null, 
             globalSize, 
             localSize,

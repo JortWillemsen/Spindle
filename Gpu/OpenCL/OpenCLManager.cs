@@ -84,7 +84,7 @@ public class OpenCLManager
                 Console.WriteLine("==========================================================");
 
                 Cl.ReleaseProgram(program.Id);
-                throw new Exception("Error COMPILING program");
+                throw new Exception($"Error COMPILING program {name}");
             }
 
             var final = Cl.LinkProgram(
@@ -145,7 +145,7 @@ public class OpenCLManager
         return this;
     }
 
-    public unsafe void ReadBufferToHost<T>(Buffer buffer, out T[] output) where T : unmanaged
+    public unsafe void EnqueueReadBufferToHost<T>(Buffer buffer, out T[] output) where T : unmanaged
     {
         output = new T[buffer.GetLength()];
         

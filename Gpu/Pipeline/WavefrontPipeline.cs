@@ -98,7 +98,7 @@ public class WavefrontPipeline
             SceneBuffers.Triangles,
             QueueStates,
             ExtendRayQueue,
-            GeneratePhase.RayBuffer);
+            GeneratePhase.PathStates);
 
         ShadePhase = new ShadePhase(
             Manager,
@@ -106,8 +106,7 @@ public class WavefrontPipeline
             "shade",
             SceneBuffers.Materials,
             RandomStatesBuffer,
-            GeneratePhase.RayBuffer,
-            ImageBuffer);
+            GeneratePhase.PathStates);
 
         LogicPhase = new LogicPhase(
             Manager,
@@ -115,8 +114,7 @@ public class WavefrontPipeline
             "logic",
             QueueStates,
             NewRayQueue,
-            ShadePhase.ShadowRaysBuffer,
-            GeneratePhase.RayBuffer,
+            GeneratePhase.PathStates,
             SceneBuffers.Materials,
             SceneBuffers.SceneInfo,
             SceneBuffers.Spheres,
@@ -142,7 +140,7 @@ public class WavefrontPipeline
         };
         GeneratePhase.EnqueueExecute(Manager, new nuint[] { raysToBeGenerated }, new nuint[] { warpSize }, dimensions: 1);
 
-        // Manager.EnqueueReadBufferToHost(GeneratePhase.RayBuffer, out ClRay[] pathStates1);
+        // Manager.EnqueueReadBufferToHost(GeneratePhase.PathStates, out ClPathState[] pathStates1);
         // Manager.EnqueueReadBufferToHost(QueueStates, out ClQueueStates[] queueStatesAfterwards1);
         // Manager.EnqueueReadBufferToHost(ExtendRayQueue, out uint[] extendRayQueue1);
         // Manager.EnqueueReadBufferToHost(GeneratePhase.DebugBuffer, out ClFloat3[] generateDebug1);
@@ -155,7 +153,7 @@ public class WavefrontPipeline
         uint raysToBeExtended = Math.Max(queueStatesExtendRay[0].ExtendRayLength / warpSize, 1) * warpSize; // Find the biggest multiple of warpSize
         ExtendPhase.EnqueueExecute(Manager, new nuint[] { raysToBeExtended }, new nuint[] { warpSize }, dimensions: 1);
 
-        // Manager.EnqueueReadBufferToHost(GeneratePhase.RayBuffer, out ClRay[] pathStates2);
+        // Manager.EnqueueReadBufferToHost(GeneratePhase.PathStates, out ClPathState[] pathStates2);
         // Manager.EnqueueReadBufferToHost(QueueStates, out ClQueueStates[] queueStatesAfterwards2);
         // Manager.EnqueueReadBufferToHost(ExtendRayQueue, out uint[] extendRayQueue2);
         // Manager.EnqueueReadBufferToHost(GeneratePhase.DebugBuffer, out ClFloat3[] generateDebug2);
@@ -175,7 +173,7 @@ public class WavefrontPipeline
         }
 
 
-        // Manager.EnqueueReadBufferToHost(GeneratePhase.RayBuffer, out ClRay[] pathStates);
+        // Manager.EnqueueReadBufferToHost(GeneratePhase.PathStates, out ClPathState[] pathStates);
         // Manager.EnqueueReadBufferToHost(QueueStates, out ClQueueStates[] queueStatesAfterwards);
         // Manager.EnqueueReadBufferToHost(ExtendRayQueue, out uint[] extendRayQueue);
         // Manager.EnqueueReadBufferToHost(GeneratePhase.DebugBuffer, out ClFloat3[] generateDebug);

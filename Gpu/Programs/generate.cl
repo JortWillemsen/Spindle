@@ -7,7 +7,7 @@ __kernel void generate(
     __global QueueStates *queue_states,
     __global uint *new_ray_queue,
     __global uint *extend_ray_queue,
-    __global Ray *rays, // TODO: sometimes we call this path_states, sometimes rays, lets pick one once we are finished
+    __global PathState *rays,
     __global float3 *debug)
 {
     uint i = get_global_linear_id(); // new_ray_queue index

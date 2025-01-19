@@ -4,7 +4,7 @@ namespace Gpu.Pipeline;
 
 public class GeneratePhase : Phase
 { 
-    public Buffer RayBuffer { get; private set; }
+    public Buffer PathStates { get; private set; }
     public Buffer DebugBuffer { get; private set; }
 
     /// <summary>
@@ -26,13 +26,13 @@ public class GeneratePhase : Phase
         Buffer extendRayQueue,
         int numOfRays)
     {
-        RayBuffer = new ReadWriteBuffer<ClRay>(manager, new ClRay[numOfRays]);
+        PathStates = new ReadWriteBuffer<ClPathState>(manager, new ClPathState[numOfRays]);
 
         DebugBuffer = new ReadWriteBuffer<ClFloat3>(manager, new ClFloat3[numOfRays]);
 
         manager.AddProgram(path, "generate.cl")
-            .AddBuffers(RayBuffer, DebugBuffer)
-            .AddKernel("generate.cl", kernel, sceneInfoBuffer, queueStates, newRayQueue, extendRayQueue, RayBuffer, DebugBuffer);
+            .AddBuffers(PathStates, DebugBuffer)
+            .AddKernel("generate.cl", kernel, sceneInfoBuffer, queueStates, newRayQueue, extendRayQueue, PathStates, DebugBuffer);
 
         KernelId = manager.GetKernelId(kernel);
     }

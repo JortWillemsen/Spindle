@@ -46,17 +46,18 @@ public struct ClSphere
         $"ClSphere: (Pos: {Position}, Radius: {Radius}, Material: {Material}>";
 }
 
-[StructLayout(LayoutKind.Sequential, Size = 48)]
-public struct ClRay
+[StructLayout(LayoutKind.Sequential, Size = 64)]
+public struct ClPathState
 {
     public ClFloat3 Direction; // 16 bytes
     public ClFloat3 Origin; // 16 bytes
     public float T; // 4 bytes
     public uint Object_id; // 4 bytes
-    // 8 empty bytes TODO could be used to store more info? Or perhaps compact memory somehow?
+    public ClFloat3 AccumulatedLuminance; // 16 bytes
+    // 8 bytes free
 
     public override string ToString() =>
-        $"ClRay: (Origin {Origin}, Dir {Direction}, T: {T}, Object_id: {Object_id})";
+        $"ClPathState: (Origin {Origin}, Dir {Direction}, T: {T}, Object_id: {Object_id})";
 }
 
 // [StructLayout(LayoutKind.Explicit, Size = 64)]

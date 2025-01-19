@@ -3,8 +3,9 @@ typedef struct
     float3 direction;
     float3 origin;
     float t;
-    uint object_id; // TODO: misschien pointer ipv index?
-} Ray;
+    uint object_id;
+    float3 accumulated_luminance;
+} PathState;
 
 typedef struct
 {

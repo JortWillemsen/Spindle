@@ -11,8 +11,7 @@ uint convert_color(float3 rgb_floats)
 __kernel void logic(
   __global QueueStates *queue_states,
   __global uint *new_ray_queue,
-  __global Ray *shadowRays,
-  __global Ray *path_states,
+  __global PathState *path_states,
   __global Material *materials,
   __global SceneInfo *sceneInfo,
   __global Sphere *spheres,
@@ -25,8 +24,9 @@ __kernel void logic(
 
     // TODO: currently has different purpose: display color from last intersection
 
-    Ray path_state = path_states[i];
+    PathState path_state = path_states[i];
     if (path_state.t == 0) // State currently is empty - no ray has ever been shot for this pixel
+    // TODO: We could also just not execute this stage as first, but this solution gives more flexibility
     {
         // Enqueue a new ray to be generated for this pixel
         uint queue_index = atomic_inc(&queue_states->new_ray_length);

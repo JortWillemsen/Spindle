@@ -54,8 +54,8 @@ public static partial class KernelTests
         //     },
         //     numberOfRays).ToArray();
 
-        ClRay[] extensionRays = Enumerable.Repeat(
-            new ClRay
+        ClPathState[] pathStates = Enumerable.Repeat(
+            new ClPathState
             {
                 Direction = new ClFloat3 { X = 10, Y = 20, Z = 30 },
                 Origin = new ClFloat3 { X = -5, Y = -5, Z = -5 },
@@ -70,15 +70,14 @@ public static partial class KernelTests
         ReadOnlyBuffer<ClMaterial> materialsBuffer = new(manager, materials);
         ReadOnlyBuffer<uint> randomStatesBuffer = new(manager, randomStates);
         // ReadOnlyBuffer<ClIntersection> intersectionResultsBuffer = new(manager, intersections);
-        ReadWriteBuffer<ClRay> extensionRaysBuffer = new(manager, extensionRays);
-        ReadWriteBuffer<ClFloat3> pixelColorsBuffer = new(manager, new ClFloat3[numberOfRays]);
+        ReadWriteBuffer<ClPathState> pathStatesBuffer = new(manager, pathStates);
 
-        manager.AddBuffers(materialsBuffer, randomStatesBuffer, /*intersectionResultsBuffer,*/ extensionRaysBuffer, pixelColorsBuffer);
+        manager.AddBuffers(materialsBuffer, randomStatesBuffer, pathStatesBuffer);
         manager.AddUtilsProgram("/../../../../Gpu/Programs/structs.h", "structs.h");
         manager.AddUtilsProgram("/../../../../Gpu/Programs/random.cl", "random.cl");
         manager.AddUtilsProgram("/../../../../Gpu/Programs/utils.cl", "utils.cl");
         ShadePhase phase = new(manager, "/../../../../Gpu/Programs/shade.cl", "shade",
-            materialsBuffer, randomStatesBuffer, /*intersectionResultsBuffer,*/ extensionRaysBuffer, pixelColorsBuffer);
+            materialsBuffer, randomStatesBuffer, pathStatesBuffer);
 
         var globalSize = new nuint[2]
         {

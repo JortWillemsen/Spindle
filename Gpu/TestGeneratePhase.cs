@@ -72,7 +72,7 @@ public static partial class KernelTests
         }
 
         // manager.EnqueueReadBufferToHost(phase.DebugBuffer, out ClFloat3[] result);
-        manager.EnqueueReadBufferToHost(phase.RayBuffer, out ClRay[] result);
+        manager.EnqueueReadBufferToHost(phase.PathStates, out ClPathState[] result);
         for (int index = 0; index < result.Length; index++)
         {
             var item = result[index];

@@ -4,7 +4,7 @@
 #include "structs.h"
 
 // Returns closest intersection, preferably in positive direction (front)
-float IntersectSphere(Ray ray, Sphere sphere)
+float IntersectSphere(PathState ray, Sphere sphere)
 {
     float3 oc = sphere.position - ray.origin;
 
@@ -40,7 +40,7 @@ __kernel void extend(
   __global const Triangle * triangles,
   __global QueueStates *queue_states,
   __global uint *extend_ray_queue,
-  __global Ray *rays,
+  __global PathState *rays,
   __global float3 *debug)
 {
     uint i = get_global_linear_id(); // extend_ray_queue index

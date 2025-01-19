@@ -1,5 +1,5 @@
 ﻿// This kernel calculates the extension ray and shadow ray, following
-// an incoming ray on a simple diffuse material. Also updates pixel color.
+// an incoming ray on a simple diffuse material. Also calculated contributing illumance.
 
 #include "structs.h"
 #include "random.cl"
@@ -8,27 +8,25 @@
 __kernel void shade( // TODO: currently just renders diffuse materials
     __global const Material *materials, // TODO: we could declare this as a __constant buffer, potentially optimizing caching
     __global uint *randomStates,
-    __global Ray *extensionRays,
-    __global Ray *shadowRays,
-    __global float3 *pixelColors,
+    __global PathState *pathStates,
     __global float3 *debug)
 {
     uint x = get_global_id(0);
     uint y = get_global_id(1);
     uint i = x + y * get_global_size(0);
 
-    debug[i] = sizeof(Ray);
+    debug[i] = sizeof(PathState);
     return;
 
-    Ray intersection = extensionRays[i];
+    PathState intersection = pathStates[i];
     // Material mat = materials[primitives[intersection.object_id].material]; // Is always diffuse in this kernel
     // if (mat.type != mat_diffuse) return; // TODO this is temporary
 
     // // ==> Calculate extension ray
 
     // float3 bounceDirection = CosineSampleHemisphere(intersection.normal, &randomStates[i]);
-    // extensionRays[i].origin = intersection.hitPoint;
-    // extensionRays[i].direction = bounceDirection;
+    // pathStates[i].origin = intersection.hitPoint;
+    // pathStates[i].direction = bounceDirection;
 
     // // ==> Calculate shadow ray
 

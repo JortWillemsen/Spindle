@@ -60,8 +60,6 @@ __kernel void logic(
 
     if (any(path_states[i].latest_luminance_sample != (float3)(-1, -1, -1)))
     {
-         // TODO Remove?
-        // path_states[i].accumulated_luminance = dot(path_states[i].accumulated_luminance, path_states[i].latest_luminance_sample);
         path_states[i].accumulated_luminance *= path_states[i].latest_luminance_sample;
     }
 
@@ -96,7 +94,4 @@ __kernel void logic(
 
     // Set arguments for the shade phase
     path_states[i].material_id = sphere.material;
-
-
-    // TODO: if a ray is finished, send new rays...
 }

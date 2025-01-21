@@ -24,6 +24,8 @@ public class WavefrontPipeline
     public ReadWriteBuffer<int>           ImageBuffer        { get; private set; }
     public ReadWriteBuffer<uint>          NewRayQueue        { get; private set; }
     public ReadWriteBuffer<uint>          ExtendRayQueue     { get; private set; }
+    public ReadWriteBuffer<uint>          ShadeQueue         { get; private set; }
+    public ReadWriteBuffer<uint>          ShadowRayQueue     { get; private set; }
     public ReadWriteBuffer<ClQueueStates> QueueStates        { get; private set; }
     public Buffer                         DebugBuffer        { get; private set; }
 
@@ -62,6 +64,8 @@ public class WavefrontPipeline
         QueueStates = new ReadWriteBuffer<ClQueueStates>(Manager, new[] { new ClQueueStates() });
         NewRayQueue = new ReadWriteBuffer<uint>(Manager, new uint[4_000_000 / sizeof(uint)]);
         ExtendRayQueue = new ReadWriteBuffer<uint>(Manager, new uint[4_000_000 / sizeof(uint)]);
+        ShadeQueue = new ReadWriteBuffer<uint>(Manager, new uint[4_000_000 / sizeof(uint)]);
+        ShadowRayQueue = new ReadWriteBuffer<uint>(Manager, new uint[4_000_000 / sizeof(uint)]);
 
         DebugBuffer = new ReadWriteBuffer<ClFloat3>(Manager, new ClFloat3[numOfRays]);
 
@@ -75,7 +79,10 @@ public class WavefrontPipeline
             ImageBuffer,
             DebugBuffer,
             QueueStates,
-            ExtendRayQueue);
+            NewRayQueue,
+            ExtendRayQueue,
+            ShadeQueue,
+            ShadowRayQueue);
 
         // Define pipeline dataflow (connect pipes)
 
@@ -105,8 +112,13 @@ public class WavefrontPipeline
             "/../../../../Gpu/Programs/shade.cl",
             "shade",
             SceneBuffers.Materials,
+            QueueStates,
+            ShadeQueue,
+            NewRayQueue,
+            ShadowRayQueue,
             RandomStatesBuffer,
-            GeneratePhase.PathStates);
+            GeneratePhase.PathStates,
+            SceneBuffers.Spheres);
 
         LogicPhase = new LogicPhase(
             Manager,
@@ -132,12 +144,12 @@ public class WavefrontPipeline
         // Generate phase
         Manager.EnqueueReadBufferToHost(QueueStates, out ClQueueStates[] queueStatesNewRay);
         // Based on states of queues, set kernel size (let no thread be idle)
-        uint raysToBeGenerated = Math.Max(queueStatesNewRay[0].NewRayLength / warpSize, 1) * warpSize; // Find the biggest multiple of warpSize
         if (queueStatesNewRay[0].NewRayLength <= 0)
         {
             Manager.EnqueueReadBufferToHost(ImageBuffer, out int[] finalImage); // TODO: turn into uint
             return finalImage;
         };
+        uint raysToBeGenerated = Math.Max(queueStatesNewRay[0].NewRayLength / warpSize, 1) * warpSize; // Find the biggest multiple of warpSize
         GeneratePhase.EnqueueExecute(Manager, new nuint[] { raysToBeGenerated }, new nuint[] { warpSize }, dimensions: 1);
 
         // Manager.EnqueueReadBufferToHost(GeneratePhase.PathStates, out ClPathState[] pathStates1);
@@ -146,6 +158,7 @@ public class WavefrontPipeline
         // Manager.EnqueueReadBufferToHost(GeneratePhase.DebugBuffer, out ClFloat3[] generateDebug1);
         // Manager.EnqueueReadBufferToHost(ExtendPhase.DebugBuffer, out ClFloat3[] extendDebug1);
         // Manager.EnqueueReadBufferToHost(LogicPhase.DebugBuffer, out ClFloat3[] logicDebug1);
+        // Manager.EnqueueReadBufferToHost(ShadePhase.DebugBuffer, out ClFloat3[] logicDebug);
 
         // Extend phase
         Manager.EnqueueReadBufferToHost(QueueStates, out ClQueueStates[] queueStatesExtendRay);
@@ -159,6 +172,7 @@ public class WavefrontPipeline
         // Manager.EnqueueReadBufferToHost(GeneratePhase.DebugBuffer, out ClFloat3[] generateDebug2);
         // Manager.EnqueueReadBufferToHost(ExtendPhase.DebugBuffer, out ClFloat3[] extendDebug2);
         // Manager.EnqueueReadBufferToHost(LogicPhase.DebugBuffer, out ClFloat3[] logicDebug2);
+        // Manager.EnqueueReadBufferToHost(ShadePhase.DebugBuffer, out ClFloat3[] logicDebug);
 
 
         // Display result
@@ -179,6 +193,7 @@ public class WavefrontPipeline
         // Manager.EnqueueReadBufferToHost(GeneratePhase.DebugBuffer, out ClFloat3[] generateDebug);
         // Manager.EnqueueReadBufferToHost(ExtendPhase.DebugBuffer, out ClFloat3[] extendDebug);
         // Manager.EnqueueReadBufferToHost(LogicPhase.DebugBuffer, out ClFloat3[] logicDebug);
+        Manager.EnqueueReadBufferToHost(ShadePhase.DebugBuffer, out ClFloat3[] logicDebug);
         Manager.EnqueueReadBufferToHost(ImageBuffer, out int[] colors); // TODO: turn into uint
 
         return colors;

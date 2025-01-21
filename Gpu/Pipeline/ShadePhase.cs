@@ -4,7 +4,6 @@ namespace Gpu.Pipeline;
 
 public class ShadePhase : Phase
 {
-
     public Buffer DebugBuffer { get; private set; }
 
     /// <summary>
@@ -22,8 +21,13 @@ public class ShadePhase : Phase
         string path,
         string kernel,
         Buffer materials,
+        Buffer queueStates,
+        Buffer shadeQueue,
+        Buffer newRayQueue,
+        Buffer shadowRayQueue,
         Buffer randomStates,
-        Buffer pathStates)
+        Buffer pathStates,
+        Buffer spheres)
     {
         DebugBuffer = new ReadWriteBuffer<ClFloat3>(manager, new ClFloat3[pathStates.GetLength()]);
 
@@ -33,8 +37,13 @@ public class ShadePhase : Phase
                 "shade.cl", 
                 kernel,
                 materials,
+                queueStates,
+                shadeQueue,
+                newRayQueue,
+                shadowRayQueue,
                 randomStates,
                 pathStates,
+                spheres,
                 DebugBuffer);
 
         KernelId = manager.GetKernelId(kernel);

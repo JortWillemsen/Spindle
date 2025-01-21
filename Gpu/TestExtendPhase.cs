@@ -45,7 +45,7 @@ public static partial class KernelTests
                 Direction = new ClFloat3 { X = 0, Y = 0, Z = 1 },
                 Origin = new ClFloat3 { X = 0, Y = 0, Z = -3f },
                 // T = 390,
-                // Object_id = 1
+                // ObjectId = 1
             },
             numberOfRays).ToArray();
 

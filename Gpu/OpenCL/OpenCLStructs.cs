@@ -11,10 +11,7 @@ public struct ClFloat3
     public float Z; // 4 bytes
     // 4 bytes empty
 
-    public static ClFloat3 FromVector3(Vector3 v)
-    {
-        return new ClFloat3 { X = v.X, Y = v.Y, Z = v.Z };
-    }
+    public static ClFloat3 FromVector3(Vector3 v) => new() { X = v.X, Y = v.Y, Z = v.Z };
 
     public Vector3 ToVector3() => new(X, Y, Z);
 
@@ -46,36 +43,23 @@ public struct ClSphere
         $"ClSphere: (Pos: {Position}, Radius: {Radius}, Material: {Material}>";
 }
 
-[StructLayout(LayoutKind.Sequential, Size = 64)]
+[StructLayout(LayoutKind.Sequential, Size = 96)]
 public struct ClPathState
 {
     public ClFloat3 Direction; // 16 bytes
     public ClFloat3 Origin; // 16 bytes
     public float T; // 4 bytes
-    public uint Object_id; // 4 bytes
+    public uint ObjectId; // 4 bytes
     public ClFloat3 AccumulatedLuminance; // 16 bytes
-    // 8 bytes free
+    public ClFloat3 LatestLuminanceSample; // 16 bytes
+    public uint MaterialId; // 4 bytes (is luxury data, but we have bytes unused anyway)
+    // 20 bytes unused TODO
 
     public override string ToString() =>
-        $"ClPathState: (Origin {Origin}, Dir {Direction}, T: {T}, Object_id: {Object_id})";
+        $"ClPathState: (Origin {Origin}, Dir {Direction}, T: {T}, ObjectId: {ObjectId}, " +
+        $"AccumulatedLuminance: {AccumulatedLuminance}, LatestLuminanceSample: {LatestLuminanceSample}, " +
+        $"MaterialId: {MaterialId})";
 }
-
-// [StructLayout(LayoutKind.Explicit, Size = 64)]
-// public struct ClIntersection
-// {
-//     [FieldOffset(0)]  public bool Hit; // 16 bits (OpenCL takes 16 bites, C# 4, hence offset)
-//     [FieldOffset(16)] public ClFloat3 HitPoint; // 16 bits
-//     [FieldOffset(32)] public ClFloat3 Normal; // 16 bits
-//     [FieldOffset(48)] public float T; // 4 bits
-//     [FieldOffset(52)] public uint Material; // 4 bits
-//     // 8 bits empty
-//
-//     /// <inheritdoc />
-//     public override string ToString()
-//     {
-//         return $"IntersectionResult: (HitPoint: {HitPoint}, Normal: {Normal}, T: {T}, Material: {Material})";
-//     }
-// }
 
 [StructLayout(LayoutKind.Sequential, Size = 80)]
 public struct ClSceneInfo
@@ -121,9 +105,11 @@ public enum MaterialType : uint // 4 bytes
     Reflective = 2
 }
 
-[StructLayout(LayoutKind.Sequential, Size = 8)]
+[StructLayout(LayoutKind.Sequential, Size = 16)]
 public struct ClQueueStates
 {
     public uint NewRayLength; // 4 bytes
     public uint ExtendRayLength; // 4 bytes
+    public uint ShadeLength; // 4 bytes
+    public uint ShadowRayLength; // 4 bytes
 }

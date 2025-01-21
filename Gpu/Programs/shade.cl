@@ -5,37 +5,65 @@
 #include "random.cl"
 #include "utils.cl"
 
+float3 hitpoint_from(PathState p)
+{
+    return p.origin + p.direction * p.t;
+}
+
+float3 normal(Sphere s, float3 point)
+{
+    return (point - s.position) / s.radius;
+}
+
 __kernel void shade( // TODO: currently just renders diffuse materials
     __global const Material *materials, // TODO: we could declare this as a __constant buffer, potentially optimizing caching
-    __global uint *randomStates,
-    __global PathState *pathStates,
+    __global QueueStates *queue_states,
+    __global uint *shade_queue,
+    __global uint *new_ray_queue,
+    __global uint *shadow_ray_queue,
+    __global uint *random_states,
+    __global PathState *path_states,
+    __global Sphere *spheres,
     __global float3 *debug)
 {
-    uint x = get_global_id(0);
-    uint y = get_global_id(1);
-    uint i = x + y * get_global_size(0);
+    // ==> Read context
 
-    debug[i] = sizeof(PathState);
-    return;
+    uint i = get_global_linear_id();
+    uint path_state_index = shade_queue[i];
+    PathState path_state = path_states[path_state_index];
 
-    PathState intersection = pathStates[i];
-    // Material mat = materials[primitives[intersection.object_id].material]; // Is always diffuse in this kernel
-    // if (mat.type != mat_diffuse) return; // TODO this is temporary
+    // TODO: do not forget to set material_id as well in logic phase
+    Sphere sphere = spheres[path_state.object_id];
+    Material mat = materials[path_state.material_id]; // Is always diffuse in this kernel, but properties differ
+    while (mat.type != mat_diffuse) { }; // TODO this is temporary
 
-    // // ==> Calculate extension ray
+    // ==> Determine possible luminance contribution
 
-    // float3 bounceDirection = CosineSampleHemisphere(intersection.normal, &randomStates[i]);
-    // pathStates[i].origin = intersection.hitPoint;
-    // pathStates[i].direction = bounceDirection;
+    path_states[path_state_index].latest_luminance_sample = mat.albedo * mat.color;
 
-    // // ==> Calculate shadow ray
+    // ==> Calculate bouncing ray and enqueue for extending
 
-    // // TODO we have never implemented this before
+    float3 hitpoint = hitpoint_from(path_state);
+    float3 normal_at_hitpoint = normal(sphere, hitpoint); // TODO: works with just spheres for now
+    float3 bounceDirection = CosineSampleHemisphere(normal_at_hitpoint, &random_states[path_state_index]);
 
-    // // ==> Calculate sampled color
+    // Overwrite current ray with next ray to be extended
+    path_states[path_state_index].origin = hitpoint;
+    path_states[path_state_index].direction = bounceDirection;
 
-    // pixelColors[i] += mat.albedo * mat.color; // Every sample the new color is weighed in // TODO must be moved to other phase
-    // // TODO assumes that if the ray hits nothing (skybox), the following is applied (ambient lighting):
-    // // float a = .5f * (dirNormalized.Y + 1f);
-    // // pixel = (1f - a) * new Vector3(1f, 1f, 1f) + a * new Vector3(.5f, .7f, 1f );
+    // Enqueue this path state for extension
+    uint extend_ray_queue_length = atomic_inc(&queue_states->extend_ray_length); // TODO: assumes there always is space left on the queue
+    new_ray_queue[extend_ray_queue_length] = path_state_index;
+
+    // ==> Enqueue shadow ray
+
+    uint shadow_ray_queue_length = atomic_inc(&queue_states->shadow_ray_length); // TODO: assumes there always is space left on the queue
+    shadow_ray_queue[shadow_ray_queue_length] = path_state_index;
+
+    // ==> Dequeue processed jobs for this kernel
+    atomic_dec(&queue_states->shade_length);
+
+    // Move unprocessed part of queue back to begin of buffer (always less than 1 local_size amount of items)
+    uint local_id = get_local_id(0);
+    shade_queue[local_id] =  shade_queue[get_global_size(0) + local_id];
 }

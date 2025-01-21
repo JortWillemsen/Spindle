@@ -5,6 +5,8 @@ typedef struct
     float t;
     uint object_id;
     float3 accumulated_luminance;
+    float3 latest_luminance_sample;
+    uint material_id;
 } PathState;
 
 typedef struct
@@ -57,4 +59,6 @@ typedef struct
 {
     volatile uint new_ray_length;
     volatile uint extend_ray_length;
+    volatile uint shade_length;
+    volatile uint shadow_ray_length;
 } QueueStates;

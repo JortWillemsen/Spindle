@@ -15,7 +15,7 @@ float3 normal(Sphere s, float3 point)
     return (point - s.position) / s.radius;
 }
 
-__kernel void shade( // TODO: currently just renders diffuse materials
+__kernel void shade_diffuse(
     __global const Material *materials, // TODO: we could declare this as a __constant buffer, potentially optimizing caching
     __global QueueStates *queue_states,
     __global uint *shade_queue,
@@ -27,7 +27,6 @@ __kernel void shade( // TODO: currently just renders diffuse materials
     __global float3 *debug)
 {
     // ==> Read context
-
 
     uint i = get_global_linear_id();
     uint path_state_index = shade_queue[i];

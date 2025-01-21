@@ -31,10 +31,10 @@ public class ShadePhase : Phase
     {
         DebugBuffer = new ReadWriteBuffer<ClFloat3>(manager, new ClFloat3[pathStates.GetLength()]);
 
-        manager.AddProgram(path, "shade.cl")
+        manager.AddProgram(path, "shade_diffuse.cl")
             .AddBuffers(DebugBuffer)
             .AddKernel(
-                "shade.cl", 
+                "shade_diffuse.cl",
                 kernel,
                 materials,
                 queueStates,

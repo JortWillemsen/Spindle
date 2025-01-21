@@ -80,7 +80,7 @@ public static partial class KernelTests
         manager.AddUtilsProgram("/../../../../Gpu/Programs/structs.h", "structs.h");
         manager.AddUtilsProgram("/../../../../Gpu/Programs/random.cl", "random.cl");
         manager.AddUtilsProgram("/../../../../Gpu/Programs/utils.cl", "utils.cl");
-        ShadePhase phase = new(manager, "/../../../../Gpu/Programs/shade.cl", "shade",
+        ShadePhase phase = new(manager, "/../../../../Gpu/Programs/shade_diffuse.cl", "shade_diffuse",
             materialsBuffer, queueStates, shadeQueue, extendRayQueue, shadowRayQueue, randomStatesBuffer, pathStatesBuffer, sphereBuffer);
 
         var globalSize = new nuint[2]

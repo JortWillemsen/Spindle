@@ -105,8 +105,8 @@ public class WavefrontPipeline
 
         ShadePhase = new ShadePhase(
             Manager,
-            "/../../../../Gpu/Programs/shade.cl",
-            "shade",
+            "/../../../../Gpu/Programs/shade_diffuse.cl",
+            "shade_diffuse",
             SceneBuffers.Materials,
             QueueStates,
             ShadeQueue,

@@ -21,7 +21,6 @@ __kernel void logic(
   __global float3 *debug)
 {
     uint i = get_global_linear_id();
-    if (path_states[i].t == -66) return; // Execute order 66
 
     // =====> If this state has never been initialized, initialize it now by creating a new primary ray
 
@@ -29,7 +28,7 @@ __kernel void logic(
 
     // TODO use a new variable for this. We have bytes unused anyway
     // TODO: We could also just not execute this stage as first, but this solution gives more flexibility
-    if (path_states[i].t == 0) // State currently is empty - no ray has ever been shot for this pixel
+    if (path_states[i].t == 0 || path_states[i].t == -66) // No ray has been shot, or ray has been terminated
     {
         // Enqueue a new ray to be generated for this pixel
         uint queue_index = atomic_inc(&queue_states->new_ray_length);
@@ -61,17 +60,26 @@ __kernel void logic(
 
     if (any(path_states[i].latest_luminance_sample != (float3)(-1, -1, -1)))
     {
-        // path_states[i].accumulated_luminance = dot(path_states[i].accumulated_luminance, path_states[i].latest_luminance_sample);
         path_states[i].accumulated_luminance *= path_states[i].latest_luminance_sample;
     }
 
     // TODO: implement russian roulette or max depth
     if (path_states[i].t < 0) // No intersection, terminate
     {
+        // Determine ambient lighting (and skybox)
         float a = .5 * path_states[i].direction.y + 1.0;
         float3 ambient_color = (1 - a) * (float3)(1,1,1) + a * (float3)(0.5, 0.7, 1);
 
-        image[i] = convert_color(path_states[i].accumulated_luminance * ambient_color);
+        // Taking the current determined sample, adjust the average
+        float sample_count = path_states[i].sample_count;
+        float3 new_sample = path_states[i].accumulated_luminance * ambient_color;
+        // path_states[i].averaged_samples *= (sample_count / (sample_count + 1)) + new_sample / (sample_count + 1);
+        path_states[i].averaged_samples = (path_states[i].averaged_samples * sample_count + new_sample) / (sample_count + 1);
+        debug[i] = sample_count / (sample_count + 1);
+
+        // Take the new average and progress to next sample
+        image[i] = convert_color(path_states[i].averaged_samples);
+        path_states[i].sample_count += 1;
         path_states[i].t = -66; // Execute order 66
         return;
     }
@@ -86,7 +94,4 @@ __kernel void logic(
 
     // Set arguments for the shade phase
     path_states[i].material_id = sphere.material;
-
-
-    // TODO: if a ray is finished, send new rays...
 }

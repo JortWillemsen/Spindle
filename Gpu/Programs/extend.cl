@@ -55,7 +55,7 @@ __kernel void extend(
     for (int x = 0; x < num_spheres; x++)
     {
         float new_t = IntersectSphere(rays[ray_index], spheres[x]); // TODO: for now we only support spheres
-        if (new_t > 0 && (t < 0 || new_t < t)) // TODO: epsilon?
+        if (new_t > 0 && (t < 0 || new_t < t))
         {
             t = new_t;
             intersected_object = x;

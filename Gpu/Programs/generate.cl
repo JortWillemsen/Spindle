@@ -32,6 +32,7 @@ __kernel void generate(
     rays[ray_index].direction = normalize(cam_to_pixel);
     rays[ray_index].accumulated_luminance = 1;
     rays[ray_index].latest_luminance_sample = -1; // Marker for that we have never checked it yet
+    // rays[ray_index].averaged_samples = 1; TODO
 
     // Enqueue extension of this primary ray in extend_ray_queue
     // TODO assumes there always is space in the queue

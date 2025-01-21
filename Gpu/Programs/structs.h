@@ -4,9 +4,11 @@ typedef struct
     float3 origin;
     float3 accumulated_luminance;
     float3 latest_luminance_sample;
+    float3 averaged_samples;
     float t;
     uint material_id;
     uint object_id;
+    float sample_count;
 } PathState;
 
 typedef struct

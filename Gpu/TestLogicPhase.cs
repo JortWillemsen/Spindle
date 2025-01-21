@@ -54,13 +54,13 @@ public static partial class KernelTests
 
         ClSceneInfo[] sceneInfo = { new() { NumSpheres = spheres.Length, NumTriangles = triangles.Length } };
 
-        ClRay[] extensionRays = Enumerable.Repeat(
-            new ClRay
+        ClPathState[] pathStates = Enumerable.Repeat(
+            new ClPathState
             {
                 Direction = new ClFloat3 { X = 0, Y = 0, Z = 1 },
                 Origin = new ClFloat3 { X = 0, Y = 0, Z = 0.5f },
                 T = 390,
-                Object_id = 1
+                ObjectId = 1
             },
             numberOfRays).ToArray();
 
@@ -69,21 +69,21 @@ public static partial class KernelTests
         OpenCLManager manager = new();
 
         ReadWriteBuffer<ClQueueStates> queueStates = new(manager, new[] { new ClQueueStates() }); // Set all lengths to 0
+        ReadWriteBuffer<uint> shadeQueue = new(manager, new uint[4_000_000 / sizeof(uint)]);
         ReadWriteBuffer<uint> newRayQueue = new(manager, new uint[4_000_000 / sizeof(uint)]);
-        ReadOnlyBuffer<ClRay> shadowRays = new(manager, extensionRays);
-        ReadWriteBuffer<ClRay> extensionRaysBuffer = new(manager, extensionRays);
+        ReadWriteBuffer<ClPathState> pathStatesBuffer = new(manager, pathStates);
         ReadOnlyBuffer<ClMaterial> materialsBuffer = new(manager, materials);
         ReadOnlyBuffer<ClSceneInfo> sceneInfoBuffer = new(manager, sceneInfo);
         ReadOnlyBuffer<ClSphere> sphereBuffer = new(manager, spheres);
         ReadOnlyBuffer<ClTriangle> triangleBuffer = new(manager, triangles);
         ReadWriteBuffer<uint> imageBuffer = new(manager, new uint[numberOfRays]); // TODO: musn't this be added as a buffer as well (Manager.AddBuffer)?
 
-        manager.AddBuffers(shadowRays, extensionRaysBuffer, materialsBuffer, sceneInfoBuffer, sphereBuffer, triangleBuffer, imageBuffer);
+        manager.AddBuffers(pathStatesBuffer, materialsBuffer, sceneInfoBuffer, sphereBuffer, triangleBuffer, imageBuffer);
         manager.AddUtilsProgram("/../../../../Gpu/Programs/structs.h", "structs.h");
         manager.AddUtilsProgram("/../../../../Gpu/Programs/random.cl", "random.cl");
         manager.AddUtilsProgram("/../../../../Gpu/Programs/utils.cl", "utils.cl");
         LogicPhase phase = new(manager, "/../../../../Gpu/Programs/logic.cl", "logic",
-            queueStates, newRayQueue, shadowRays, extensionRaysBuffer, materialsBuffer, sceneInfoBuffer, sphereBuffer, triangleBuffer, imageBuffer);
+            queueStates, shadeQueue, newRayQueue, pathStatesBuffer, materialsBuffer, sceneInfoBuffer, sphereBuffer, triangleBuffer, imageBuffer);
 
         var globalSize = new nuint[2]
         {
@@ -101,8 +101,8 @@ public static partial class KernelTests
             throw new Exception($"Error {err}: finishing queue");
         }
 
-        // manager.EnqueueReadBufferToHost(phase.DebugBuffer, out ClFloat3[] result);
-        manager.EnqueueReadBufferToHost(imageBuffer, out uint[] result);
+        manager.ReadBufferToHost(phase.DebugBuffer, out ClFloat3[] result);
+        // manager.ReadBufferToHost(imageBuffer, out uint[] result);
         for (int index = 0; index < result.Length; index++)
         {
             var item = result[index];

@@ -44,7 +44,7 @@ public static partial class KernelTests
         OpenCLManager manager = new();
 
         ReadOnlyBuffer<ClSceneInfo> sceneInfoBuffer = new(manager, sceneInfo);
-        ReadWriteBuffer<ClQueueStates> queueStates = new(manager, new[] { new ClQueueStates() }); // Set all lengths to 0
+        ReadWriteBuffer<ClQueueStates> queueStates = new(manager, new[] { new ClQueueStates() { NewRayLength = numberOfRays} }); // Set all lengths to 0
         ReadWriteBuffer<uint> newRayQueue = new(manager, Enumerable.Range(0, numberOfRays).Select(i => (uint)i).ToArray());
         ReadWriteBuffer<uint> extendRayQueue = new(manager, new uint[4_000_000 / sizeof(uint)]);
 
@@ -71,8 +71,8 @@ public static partial class KernelTests
             throw new Exception($"Error {err}: finishing queue");
         }
 
-        // manager.EnqueueReadBufferToHost(phase.DebugBuffer, out ClFloat3[] result);
-        manager.EnqueueReadBufferToHost(phase.RayBuffer, out ClRay[] result);
+        // manager.ReadBufferToHost(phase.DebugBuffer, out ClFloat3[] result);
+        manager.ReadBufferToHost(phase.PathStates, out ClPathState[] result);
         for (int index = 0; index < result.Length; index++)
         {
             var item = result[index];

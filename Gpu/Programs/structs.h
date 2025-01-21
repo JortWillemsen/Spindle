@@ -2,9 +2,12 @@ typedef struct
 {
     float3 direction;
     float3 origin;
+    float3 accumulated_luminance;
+    float3 latest_luminance_sample;
     float t;
-    uint object_id; // TODO: misschien pointer ipv index?
-} Ray;
+    uint material_id;
+    uint object_id;
+} PathState;
 
 typedef struct
 {
@@ -56,4 +59,6 @@ typedef struct
 {
     volatile uint new_ray_length;
     volatile uint extend_ray_length;
+    volatile uint shade_length;
+    volatile uint shadow_ray_length;
 } QueueStates;

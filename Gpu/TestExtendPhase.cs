@@ -39,13 +39,13 @@ public static partial class KernelTests
 
         ClSceneInfo[] sceneInfo = { new() { NumSpheres = spheres.Length, NumTriangles = triangles.Length } };
 
-        ClRay[] extensionRays = Enumerable.Repeat(
-            new ClRay
+        ClPathState[] rays = Enumerable.Repeat(
+            new ClPathState
             {
                 Direction = new ClFloat3 { X = 0, Y = 0, Z = 1 },
                 Origin = new ClFloat3 { X = 0, Y = 0, Z = -3f },
                 // T = 390,
-                // Object_id = 1
+                // ObjectId = 1
             },
             numberOfRays).ToArray();
 
@@ -58,14 +58,14 @@ public static partial class KernelTests
         ReadOnlyBuffer<ClTriangle> triangleBuffer = new(manager, triangles);
         ReadWriteBuffer<ClQueueStates> queueStates = new(manager, new[] { new ClQueueStates() }); // Set all lengths to 0
         ReadWriteBuffer<uint> extendRayQueue = new(manager, new uint[4_000_000 / sizeof(uint)]);
-        ReadWriteBuffer<ClRay> extensionRaysBuffer = new(manager, extensionRays);
+        ReadWriteBuffer<ClPathState> raysBuffer = new(manager, rays);
 
-        manager.AddBuffers(sceneInfoBuffer, sphereBuffer, triangleBuffer, queueStates, extendRayQueue, extensionRaysBuffer);
+        manager.AddBuffers(sceneInfoBuffer, sphereBuffer, triangleBuffer, queueStates, extendRayQueue, raysBuffer);
         manager.AddUtilsProgram("/../../../../Gpu/Programs/structs.h", "structs.h");
         manager.AddUtilsProgram("/../../../../Gpu/Programs/random.cl", "random.cl");
         manager.AddUtilsProgram("/../../../../Gpu/Programs/utils.cl", "utils.cl");
         ExtendPhase phase = new(manager, "/../../../../Gpu/Programs/extend.cl", "extend",
-            sceneInfoBuffer, sphereBuffer, triangleBuffer, queueStates, extendRayQueue, extensionRaysBuffer);
+            sceneInfoBuffer, sphereBuffer, triangleBuffer, queueStates, extendRayQueue, raysBuffer);
 
         var globalSize = new nuint[2]
         {
@@ -83,8 +83,8 @@ public static partial class KernelTests
             throw new Exception($"Error {err}: finishing queue");
         }
 
-        // manager.EnqueueReadBufferToHost(phase.DebugBuffer, out ClFloat3[] result);
-        manager.EnqueueReadBufferToHost(extensionRaysBuffer, out ClRay[] result);
+        // manager.ReadBufferToHost(phase.DebugBuffer, out ClFloat3[] result);
+        manager.ReadBufferToHost(raysBuffer, out ClPathState[] result);
         for (int index = 0; index < result.Length; index++)
         {
             var item = result[index];

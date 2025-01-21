@@ -48,7 +48,7 @@ var matBlack = new Diffuse(0f, new Vector3(0,0,0));
 var matKitchenWhite = new Diffuse(.8f, new Vector3(0.8f, .8f, .8f));
 
 var groundOrb = new Sphere(new Vector3(0, -100.5f, 1f), matGround, 100f);
-var orbCentre = new Sphere(new Vector3(0f, 0, 0), matBrightYellow, 1.5f);
+var orbCentre = new Sphere(new Vector3(0f, 0, 0), matKitchenWhite, 1.5f);
 var orbRight = new Sphere(new Vector3(0f,  2f, 0f), matRed, 0.5f);
 var orbUp = new Sphere(new Vector3(1.6f,  6f, 1.2f), matBrightYellow, 2f);
 var orbMirror = new Sphere(new Vector3(3f,  1f, 1.2f), matReflect, 2.5f);

@@ -43,22 +43,23 @@ public struct ClSphere
         $"ClSphere: (Pos: {Position}, Radius: {Radius}, Material: {Material}>";
 }
 
-[StructLayout(LayoutKind.Sequential, Size = 80)]
+[StructLayout(LayoutKind.Sequential, Size = 96)]
 public struct ClPathState
 {
     public ClFloat3 Direction; // 16 bytes
     public ClFloat3 Origin; // 16 bytes
     public ClFloat3 AccumulatedLuminance; // 16 bytes
     public ClFloat3 LatestLuminanceSample; // 16 bytes
+    public ClFloat3 AveragedSamples; // 16 bytes
     public float T; // 4 bytes
     public uint MaterialId; // 4 bytes (is luxury data, but we have bytes unused anyway)
     public uint ObjectId; // 4 bytes
-    // 4 bytes unused
+    public float SampleCount; // 4 bytes
 
     public override string ToString() =>
         $"ClPathState: (Origin {Origin}, Dir {Direction}, T: {T}, ObjectId: {ObjectId}, " +
         $"AccumulatedLuminance: {AccumulatedLuminance}, LatestLuminanceSample: {LatestLuminanceSample}, " +
-        $"MaterialId: {MaterialId})";
+        $"MaterialId: {MaterialId}, SampleCount: {SampleCount})";
 }
 
 [StructLayout(LayoutKind.Sequential, Size = 80)]

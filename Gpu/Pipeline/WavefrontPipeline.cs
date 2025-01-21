@@ -54,11 +54,7 @@ public class WavefrontPipeline
         Manager.AddUtilsProgram("/../../../../Gpu/Programs/utils.cl", "utils.cl");
 
         // Prepare output buffer
-        var colors = new int[numOfRays];
-        for (int i = 0; i < colors.Length; i++)
-            colors[i] = 0xFF00FF ; // TODO: remove this at some point
-
-        ImageBuffer = new ReadWriteBuffer<int>(Manager, colors); // TODO: musn't this be added as a buffer as well (Manager.AddBuffer)?
+        ImageBuffer = new ReadWriteBuffer<int>(Manager, new int[numOfRays]); // TODO: musn't this be added as a buffer as well (Manager.AddBuffer)?
 
         // Queue of 4 MB can hold 1_000_000 path state indices
         QueueStates = new ReadWriteBuffer<ClQueueStates>(Manager, new[] { new ClQueueStates() });
@@ -264,7 +260,7 @@ public class WavefrontPipeline
         // Display current state
         Manager.ReadBufferToHost(ImageBuffer, out int[] colors); // TODO: turn into uint
 
-        //Thread.Sleep(200);
+        // Thread.Sleep(1000);
 
         return colors; // TODO: return pointer or write directly into OpenGL memory
     }

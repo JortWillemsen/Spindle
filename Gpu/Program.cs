@@ -1,6 +1,6 @@
 ﻿using Gpu;
 
-// KernelTests.TestLogicPhase();
-KernelTests.TestShadePhase();
+KernelTests.TestLogicPhase();
+// KernelTests.TestShadePhase();
 // KernelTests.TestExtendPhase();
 // KernelTests.TestGeneratePhase();

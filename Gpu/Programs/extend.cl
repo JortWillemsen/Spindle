@@ -6,7 +6,8 @@
 // Returns closest intersection, preferably in positive direction (front)
 float IntersectSphere(PathState ray, Sphere sphere)
 {
-    float3 oc = sphere.position - ray.origin;
+    float3 oc = sphere.position - (ray.origin + ray.direction * 0.01f); // Prevent shadow acne
+    // Hours wasted on shadow acne: 4
 
     // TODO: simplify a
     float a = 1; // powr(length(ray.direction), 2); (direction should always be normalized)
@@ -37,7 +38,7 @@ float IntersectSphere(PathState ray, Sphere sphere)
 __kernel void extend(
   __global const SceneInfo *scene_info,
   __global const Sphere *spheres,
-  __global const Triangle * triangles,
+  __global const Triangle *triangles,
   __global QueueStates *queue_states,
   __global uint *extend_ray_queue,
   __global PathState *rays,
@@ -46,8 +47,6 @@ __kernel void extend(
     uint i = get_global_linear_id(); // extend_ray_queue index
     uint ray_index = extend_ray_queue[i];
 
-    // TODO: check if ray needs to be extended
-
     float t = -1;
     uint intersected_object = 0; // TODO: how to differentiate between triangle and sphere index?
 
@@ -55,7 +54,7 @@ __kernel void extend(
     uint num_spheres = scene_info->num_spheres;
     for (int x = 0; x < num_spheres; x++)
     {
-        float new_t = IntersectSphere(rays[ray_index], spheres[x]);
+        float new_t = IntersectSphere(rays[ray_index], spheres[x]); // TODO: for now we only support spheres
         if (new_t > 0 && (t < 0 || new_t < t)) // TODO: epsilon?
         {
             t = new_t;

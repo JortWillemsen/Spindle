@@ -2,11 +2,11 @@ typedef struct
 {
     float3 direction;
     float3 origin;
-    float t;
-    uint object_id;
     float3 accumulated_luminance;
     float3 latest_luminance_sample;
+    float t;
     uint material_id;
+    uint object_id;
 } PathState;
 
 typedef struct

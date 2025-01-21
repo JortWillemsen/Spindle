@@ -145,7 +145,7 @@ public class OpenCLManager
         return this;
     }
 
-    public unsafe void EnqueueReadBufferToHost<T>(Buffer buffer, out T[] output) where T : unmanaged
+    public unsafe void ReadBufferToHost<T>(Buffer buffer, out T[] output) where T : unmanaged
     {
         output = new T[buffer.GetLength()];
         

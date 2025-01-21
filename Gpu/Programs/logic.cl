@@ -11,6 +11,7 @@ uint convert_color(float3 rgb_floats)
 __kernel void logic(
   __global QueueStates *queue_states,
   __global uint *new_ray_queue,
+  __global uint *shade_queue,
   __global PathState *path_states,
   __global Material *materials,
   __global SceneInfo *sceneInfo,
@@ -19,14 +20,16 @@ __kernel void logic(
   __global uint *image,
   __global float3 *debug)
 {
-    // const float3 ambient_color = (float3)(0.5, 0.7, 1); TODO: isn't every object slightly lit with ambient light?
     uint i = get_global_linear_id();
+    if (path_states[i].t == -66) return; // Execute order 66
 
-    // TODO: currently has different purpose: display color from last intersection
+    // =====> If this state has never been initialized, initialize it now by creating a new primary ray
 
-    PathState path_state = path_states[i];
-    if (path_state.t == 0) // State currently is empty - no ray has ever been shot for this pixel
+    //  TODO: do not process rays still waiting in the queue of other kernels
+
+    // TODO use a new variable for this. We have bytes unused anyway
     // TODO: We could also just not execute this stage as first, but this solution gives more flexibility
+    if (path_states[i].t == 0) // State currently is empty - no ray has ever been shot for this pixel
     {
         // Enqueue a new ray to be generated for this pixel
         uint queue_index = atomic_inc(&queue_states->new_ray_length);
@@ -44,19 +47,46 @@ __kernel void logic(
         // TODO: atomical increments of queue length can be done in a coaliscing way, see paper
     }
 
-    // Ray has been extended, test for intersection and draw
+    // =====> Process material evaluation
+    // Note that even if this is the first iteration and no evaluation has been performed in a previous set,
+    // we still get the correct result
 
-    if (path_state.t < 0) // No intersection
+    // Using NEE, we accumulate the indirect light from the previous bounce.
+    // If it was occluded, then accumulated_luminance has been set to 0 in the shadow ray kernel.
+    // TODO actually do shadow rays
+    // TODO: what about distance attenuation?
+
+
+    // =====> Process extension ray intersection
+
+    if (any(path_states[i].latest_luminance_sample != (float3)(-1, -1, -1)))
     {
-        // Draw a fancy sky box
-        float a = .5 * path_state.direction.y + 1.0;
+        // path_states[i].accumulated_luminance = dot(path_states[i].accumulated_luminance, path_states[i].latest_luminance_sample);
+        path_states[i].accumulated_luminance *= path_states[i].latest_luminance_sample;
+    }
+
+    // TODO: implement russian roulette or max depth
+    if (path_states[i].t < 0) // No intersection, terminate
+    {
+        float a = .5 * path_states[i].direction.y + 1.0;
         float3 ambient_color = (1 - a) * (float3)(1,1,1) + a * (float3)(0.5, 0.7, 1);
-        image[i] = convert_color(ambient_color);
+
+        image[i] = convert_color(path_states[i].accumulated_luminance * ambient_color);
+        path_states[i].t = -66; // Execute order 66
         return;
     }
 
-    // Intersection! Determine color
-    Sphere sphere = spheres[path_state.object_id];
+
+    // If there is an intersection, queue the evaluation of its contribution towards indirect light:
+    // TODO: for now we only support spheres because polymorphism is kinda hard with OpenCL C
+    Sphere sphere = spheres[path_states[i].object_id];
     Material mat = materials[sphere.material];
-    image[i] = convert_color(mat.color * mat.albedo);
+    uint shade_queue_index = atomic_inc(&queue_states->shade_length); // TODO: assumes there always is space
+    shade_queue[shade_queue_index] = i; // Point to this path state
+
+    // Set arguments for the shade phase
+    path_states[i].material_id = sphere.material;
+
+
+    // TODO: if a ray is finished, send new rays...
 }

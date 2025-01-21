@@ -56,7 +56,7 @@ public class WavefrontPipeline
         // Prepare output buffer
         var colors = new int[numOfRays];
         for (int i = 0; i < colors.Length; i++)
-            colors[i] = i ; // TODO: remove this at some point
+            colors[i] = 0xFF00FF ; // TODO: remove this at some point
 
         ImageBuffer = new ReadWriteBuffer<int>(Manager, colors); // TODO: musn't this be added as a buffer as well (Manager.AddBuffer)?
 
@@ -114,7 +114,7 @@ public class WavefrontPipeline
             SceneBuffers.Materials,
             QueueStates,
             ShadeQueue,
-            NewRayQueue,
+            ExtendRayQueue,
             ShadowRayQueue,
             RandomStatesBuffer,
             GeneratePhase.PathStates,
@@ -126,6 +126,7 @@ public class WavefrontPipeline
             "logic",
             QueueStates,
             NewRayQueue,
+            ShadeQueue,
             GeneratePhase.PathStates,
             SceneBuffers.Materials,
             SceneBuffers.SceneInfo,
@@ -136,50 +137,109 @@ public class WavefrontPipeline
 
     public int[] Execute()
     {
+        // TODO: we could let the logic kernel call other kernels for less IO
+        // Performs one iteration of the Wavefront implementation
+
         const uint warpSize = 32u; // TODO: how can we always let this match the workgroup size if we let OpenCL descide it? (See comment where local_size is defined)
 
         // Logic phase
         LogicPhase.EnqueueExecute(Manager, GlobalSize, LocalSize);
 
-        // Generate phase
-        Manager.EnqueueReadBufferToHost(QueueStates, out ClQueueStates[] queueStatesNewRay);
-        // Based on states of queues, set kernel size (let no thread be idle)
-        if (queueStatesNewRay[0].NewRayLength <= 0)
-        {
-            Manager.EnqueueReadBufferToHost(ImageBuffer, out int[] finalImage); // TODO: turn into uint
-            return finalImage;
-        };
-        uint raysToBeGenerated = Math.Max(queueStatesNewRay[0].NewRayLength / warpSize, 1) * warpSize; // Find the biggest multiple of warpSize
-        GeneratePhase.EnqueueExecute(Manager, new nuint[] { raysToBeGenerated }, new nuint[] { warpSize }, dimensions: 1);
+        // Manager.ReadBufferToHost(GeneratePhase.PathStates, out ClPathState[] pathStates0);
+        // Manager.ReadBufferToHost(ExtendRayQueue, out uint[] extendRayQueue0);
+        // Manager.ReadBufferToHost(NewRayQueue, out uint[] newRayQueue0);
+        // Manager.ReadBufferToHost(ShadeQueue, out uint[] shadeQueue0);
+        // Manager.ReadBufferToHost(ShadowRayQueue, out uint[] shadowRayQueue0);
+        // Manager.ReadBufferToHost(GeneratePhase.DebugBuffer, out ClFloat3[] generateDebug0);
+        // Manager.ReadBufferToHost(ExtendPhase.DebugBuffer, out ClFloat3[] extendDebug0);
+        // Manager.ReadBufferToHost(LogicPhase.DebugBuffer, out ClFloat3[] logicDebug0);
+        // Manager.ReadBufferToHost(ShadePhase.DebugBuffer, out ClFloat3[] shadeDebug0);
 
-        // Manager.EnqueueReadBufferToHost(GeneratePhase.PathStates, out ClPathState[] pathStates1);
-        // Manager.EnqueueReadBufferToHost(QueueStates, out ClQueueStates[] queueStatesAfterwards1);
-        // Manager.EnqueueReadBufferToHost(ExtendRayQueue, out uint[] extendRayQueue1);
-        // Manager.EnqueueReadBufferToHost(GeneratePhase.DebugBuffer, out ClFloat3[] generateDebug1);
-        // Manager.EnqueueReadBufferToHost(ExtendPhase.DebugBuffer, out ClFloat3[] extendDebug1);
-        // Manager.EnqueueReadBufferToHost(LogicPhase.DebugBuffer, out ClFloat3[] logicDebug1);
-        // Manager.EnqueueReadBufferToHost(ShadePhase.DebugBuffer, out ClFloat3[] logicDebug);
+        // Generate phase
+        Manager.ReadBufferToHost(QueueStates, out ClQueueStates[] queueStatesNewRay);
+        // Based on states of queues, set kernel size (let no thread be idle)
+        uint queuedNewRayCount = queueStatesNewRay[0].NewRayLength;
+        if (queuedNewRayCount > 0)
+        {
+            uint workItems;
+            uint localSize;
+            if (queuedNewRayCount < warpSize)
+            {
+                workItems = queuedNewRayCount;
+                localSize = queuedNewRayCount;
+            }
+            else // Find the biggest multiple of warpSize
+            {
+                workItems = queuedNewRayCount / warpSize * warpSize;
+                localSize = warpSize;
+            }
+            GeneratePhase.EnqueueExecute(Manager, new nuint[] { workItems }, new nuint[] { localSize }, dimensions: 1);
+        };
+
+        // Manager.ReadBufferToHost(GeneratePhase.PathStates, out ClPathState[] pathStates1);
+        // Manager.ReadBufferToHost(ExtendRayQueue, out uint[] extendRayQueue1);
+        // Manager.ReadBufferToHost(NewRayQueue, out uint[] newRayQueue1);
+        // Manager.ReadBufferToHost(ShadeQueue, out uint[] shadeQueue1);
+        // Manager.ReadBufferToHost(ShadowRayQueue, out uint[] shadowRayQueue1);
+        // Manager.ReadBufferToHost(GeneratePhase.DebugBuffer, out ClFloat3[] generateDebug1);
+        // Manager.ReadBufferToHost(ExtendPhase.DebugBuffer, out ClFloat3[] extendDebug1);
+        // Manager.ReadBufferToHost(LogicPhase.DebugBuffer, out ClFloat3[] logicDebug1);
+        // Manager.ReadBufferToHost(ShadePhase.DebugBuffer, out ClFloat3[] shadeDebug1);
+        
+        // Shade phase
+        Manager.ReadBufferToHost(QueueStates, out ClQueueStates[] queueStatesShade);
+        // Based on states of queues, set kernel size (let no thread be idle)
+        uint queuedShadeCount = queueStatesShade[0].ShadeLength;
+        if (queuedShadeCount > 0)
+        {
+            uint workItems;
+            uint localSize;
+            if (queuedShadeCount < warpSize)
+            {
+                workItems = queuedShadeCount;
+                localSize = queuedShadeCount;
+            }
+            else // Find the biggest multiple of warpSize
+            {
+                workItems = queuedShadeCount / warpSize * warpSize;
+                localSize = warpSize;
+            }
+            ShadePhase.EnqueueExecute(Manager, new nuint[] { workItems }, new nuint[] { localSize }, dimensions: 1);
+        }
+
+        // Manager.ReadBufferToHost(GeneratePhase.PathStates, out ClPathState[] pathStates2);
+        // Manager.ReadBufferToHost(ExtendRayQueue, out uint[] extendRayQueue2);
+        // Manager.ReadBufferToHost(NewRayQueue, out uint[] newRayQueue2);
+        // Manager.ReadBufferToHost(ShadeQueue, out uint[] shadeQueue2);
+        // Manager.ReadBufferToHost(ShadowRayQueue, out uint[] shadowRayQueue2);
+        // Manager.ReadBufferToHost(GeneratePhase.DebugBuffer, out ClFloat3[] generateDebug2);
+        // Manager.ReadBufferToHost(ExtendPhase.DebugBuffer, out ClFloat3[] extendDebug2);
+        // Manager.ReadBufferToHost(LogicPhase.DebugBuffer, out ClFloat3[] logicDebug2);
+        // Manager.ReadBufferToHost(ShadePhase.DebugBuffer, out ClFloat3[] shadeDebug2);
 
         // Extend phase
-        Manager.EnqueueReadBufferToHost(QueueStates, out ClQueueStates[] queueStatesExtendRay);
+        Manager.ReadBufferToHost(QueueStates, out ClQueueStates[] queueStatesExtendRay);
         // Based on states of queues, set kernel size (let no thread be idle)
-        uint raysToBeExtended = Math.Max(queueStatesExtendRay[0].ExtendRayLength / warpSize, 1) * warpSize; // Find the biggest multiple of warpSize
-        ExtendPhase.EnqueueExecute(Manager, new nuint[] { raysToBeExtended }, new nuint[] { warpSize }, dimensions: 1);
-
-        // Manager.EnqueueReadBufferToHost(GeneratePhase.PathStates, out ClPathState[] pathStates2);
-        // Manager.EnqueueReadBufferToHost(QueueStates, out ClQueueStates[] queueStatesAfterwards2);
-        // Manager.EnqueueReadBufferToHost(ExtendRayQueue, out uint[] extendRayQueue2);
-        // Manager.EnqueueReadBufferToHost(GeneratePhase.DebugBuffer, out ClFloat3[] generateDebug2);
-        // Manager.EnqueueReadBufferToHost(ExtendPhase.DebugBuffer, out ClFloat3[] extendDebug2);
-        // Manager.EnqueueReadBufferToHost(LogicPhase.DebugBuffer, out ClFloat3[] logicDebug2);
-        // Manager.EnqueueReadBufferToHost(ShadePhase.DebugBuffer, out ClFloat3[] logicDebug);
-
-
-        // Display result
-        LogicPhase.EnqueueExecute(Manager, GlobalSize, LocalSize);
+        uint queuedExtendRayCount = queueStatesExtendRay[0].ExtendRayLength;
+        if (queuedExtendRayCount > 0)
+        {
+            uint workItems;
+            uint localSize;
+            if (queuedExtendRayCount < warpSize)
+            {
+                workItems = queuedExtendRayCount;
+                localSize = queuedExtendRayCount;
+            }
+            else // Find the biggest multiple of warpSize
+            {
+                workItems = queuedExtendRayCount / warpSize * warpSize;
+                localSize = warpSize;
+            }
+            ExtendPhase.EnqueueExecute(Manager, new nuint[] { workItems }, new nuint[] { localSize }, dimensions: 1);
+        }
 
         // wait for all queued commands to finish
-        var err = Manager.Cl.Finish(Manager.Queue.Id);
+        var err = Manager.Cl.Finish(Manager.Queue.Id); // TODO this can be removed for ReadBufferToHost is blocking
 
         if (err != (int)ErrorCodes.Success)
         {
@@ -187,15 +247,25 @@ public class WavefrontPipeline
         }
 
 
-        // Manager.EnqueueReadBufferToHost(GeneratePhase.PathStates, out ClPathState[] pathStates);
-        // Manager.EnqueueReadBufferToHost(QueueStates, out ClQueueStates[] queueStatesAfterwards);
-        // Manager.EnqueueReadBufferToHost(ExtendRayQueue, out uint[] extendRayQueue);
-        // Manager.EnqueueReadBufferToHost(GeneratePhase.DebugBuffer, out ClFloat3[] generateDebug);
-        // Manager.EnqueueReadBufferToHost(ExtendPhase.DebugBuffer, out ClFloat3[] extendDebug);
-        // Manager.EnqueueReadBufferToHost(LogicPhase.DebugBuffer, out ClFloat3[] logicDebug);
-        Manager.EnqueueReadBufferToHost(ShadePhase.DebugBuffer, out ClFloat3[] logicDebug);
-        Manager.EnqueueReadBufferToHost(ImageBuffer, out int[] colors); // TODO: turn into uint
+        // Manager.ReadBufferToHost(SceneBuffers.Materials, out ClMaterial[] materials);
+        // Manager.ReadBufferToHost(SceneBuffers.SceneInfo, out ClSceneInfo[] sceneInfos);
+        // Manager.ReadBufferToHost(SceneBuffers.Spheres, out ClSphere[] spheres);
+        // Manager.ReadBufferToHost(GeneratePhase.PathStates, out ClPathState[] pathStates);
+        // Manager.ReadBufferToHost(QueueStates, out ClQueueStates[] queueStatesAfterwards);
+        // Manager.ReadBufferToHost(ExtendRayQueue, out uint[] extendRayQueue);
+        // Manager.ReadBufferToHost(NewRayQueue, out uint[] newRayQueue);
+        // Manager.ReadBufferToHost(ShadeQueue, out uint[] shadeQueue);
+        // Manager.ReadBufferToHost(ShadowRayQueue, out uint[] shadowRayQueue);
+        // Manager.ReadBufferToHost(GeneratePhase.DebugBuffer, out ClFloat3[] generateDebug);
+        // Manager.ReadBufferToHost(ExtendPhase.DebugBuffer, out ClFloat3[] extendDebug);
+        // Manager.ReadBufferToHost(LogicPhase.DebugBuffer, out ClFloat3[] logicDebug);
+        // Manager.ReadBufferToHost(ShadePhase.DebugBuffer, out ClFloat3[] shadeDebug);
 
-        return colors;
+        // Display current state
+        Manager.ReadBufferToHost(ImageBuffer, out int[] colors); // TODO: turn into uint
+
+        //Thread.Sleep(200);
+
+        return colors; // TODO: return pointer or write directly into OpenGL memory
     }
 }

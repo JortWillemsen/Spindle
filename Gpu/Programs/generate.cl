@@ -30,6 +30,8 @@ __kernel void generate(
     // Note how this overwrites original screen information in buffer
     rays[ray_index].origin = scene_info->camera_position;
     rays[ray_index].direction = normalize(cam_to_pixel);
+    rays[ray_index].accumulated_luminance = 1;
+    rays[ray_index].latest_luminance_sample = -1; // Marker for that we have never checked it yet
 
     // Enqueue extension of this primary ray in extend_ray_queue
     // TODO assumes there always is space in the queue

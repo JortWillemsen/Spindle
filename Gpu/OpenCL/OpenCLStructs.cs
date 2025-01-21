@@ -43,17 +43,17 @@ public struct ClSphere
         $"ClSphere: (Pos: {Position}, Radius: {Radius}, Material: {Material}>";
 }
 
-[StructLayout(LayoutKind.Sequential, Size = 96)]
+[StructLayout(LayoutKind.Sequential, Size = 80)]
 public struct ClPathState
 {
     public ClFloat3 Direction; // 16 bytes
     public ClFloat3 Origin; // 16 bytes
-    public float T; // 4 bytes
-    public uint ObjectId; // 4 bytes
     public ClFloat3 AccumulatedLuminance; // 16 bytes
     public ClFloat3 LatestLuminanceSample; // 16 bytes
+    public float T; // 4 bytes
     public uint MaterialId; // 4 bytes (is luxury data, but we have bytes unused anyway)
-    // 20 bytes unused TODO
+    public uint ObjectId; // 4 bytes
+    // 4 bytes unused
 
     public override string ToString() =>
         $"ClPathState: (Origin {Origin}, Dir {Direction}, T: {T}, ObjectId: {ObjectId}, " +
@@ -77,15 +77,6 @@ public struct ClSceneInfo
         $" FrustumTopLeft: {FrustumTopLeft}, FrustumHorizontal: {FrustumHorizontal}, FrustumVertical: {FrustumVertical})";
 }
 
-// [StructLayout(LayoutKind.Sequential)] // TODO find size
-// public struct ClExtensionRay {
-//  // TODO: Add whatever you need
-// }
-
-// [StructLayout(LayoutKind.Sequential)] // TODO find size
-// public struct ClShadowRay {
-//     // TODO: Add whatever you need
-// }
 
 [StructLayout(LayoutKind.Sequential, Size = 32)]
 public struct ClMaterial // Depending on type, not all fields are used
@@ -112,4 +103,11 @@ public struct ClQueueStates
     public uint ExtendRayLength; // 4 bytes
     public uint ShadeLength; // 4 bytes
     public uint ShadowRayLength; // 4 bytes
+
+    /// <inheritdoc />
+    public override string ToString() =>
+        $"{nameof(NewRayLength)}: {NewRayLength}, " +
+        $"{nameof(ExtendRayLength)}: {ExtendRayLength}, " +
+        $"{nameof(ShadeLength)}: {ShadeLength}, " +
+        $"{nameof(ShadowRayLength)}: {ShadowRayLength}";
 }

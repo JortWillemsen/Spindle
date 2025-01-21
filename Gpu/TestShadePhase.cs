@@ -59,6 +59,8 @@ public static partial class KernelTests
                 T = 4, // Calculated
                 ObjectId = 1,
                 MaterialId = 1,
+                AccumulatedLuminance = new ClFloat3 { X = 10, Y = 20, Z = 30 },
+                LatestLuminanceSample = new ClFloat3 { X = 70, Y = 80, Z = 90 },
             },
             numberOfRays).ToArray();
 
@@ -67,19 +69,19 @@ public static partial class KernelTests
 
         ReadOnlyBuffer<ClMaterial> materialsBuffer = new(manager, materials);
         ReadWriteBuffer<uint> shadeQueue = new(manager, Enumerable.Range(0, numberOfRays + 4).Select(i => (uint)i).ToArray());
-        ReadWriteBuffer<uint> newRayQueue = new(manager, new uint[4_000_000 / sizeof(uint)]);
+        ReadWriteBuffer<uint> extendRayQueue = new(manager, new uint[4_000_000 / sizeof(uint)]);
         ReadWriteBuffer<uint> shadowRayQueue = new(manager, new uint[4_000_000 / sizeof(uint)]);
         ReadWriteBuffer<uint> randomStatesBuffer = new(manager, randomStates);
         ReadWriteBuffer<ClQueueStates> queueStates = new(manager, new[] { new ClQueueStates() { ShadeLength = (uint)shadeQueue.GetLength() } }); // Set all lengths to 0
         ReadWriteBuffer<ClPathState> pathStatesBuffer = new(manager, pathStates);
         ReadOnlyBuffer<ClSphere> sphereBuffer = new(manager, spheres);
 
-        manager.AddBuffers(materialsBuffer, queueStates, shadeQueue, newRayQueue, shadowRayQueue, randomStatesBuffer, pathStatesBuffer, sphereBuffer);
+        manager.AddBuffers(materialsBuffer, queueStates, shadeQueue, extendRayQueue, shadowRayQueue, randomStatesBuffer, pathStatesBuffer, sphereBuffer);
         manager.AddUtilsProgram("/../../../../Gpu/Programs/structs.h", "structs.h");
         manager.AddUtilsProgram("/../../../../Gpu/Programs/random.cl", "random.cl");
         manager.AddUtilsProgram("/../../../../Gpu/Programs/utils.cl", "utils.cl");
         ShadePhase phase = new(manager, "/../../../../Gpu/Programs/shade.cl", "shade",
-            materialsBuffer, queueStates, shadeQueue, newRayQueue, shadowRayQueue, randomStatesBuffer, pathStatesBuffer, sphereBuffer);
+            materialsBuffer, queueStates, shadeQueue, extendRayQueue, shadowRayQueue, randomStatesBuffer, pathStatesBuffer, sphereBuffer);
 
         var globalSize = new nuint[2]
         {
@@ -97,14 +99,15 @@ public static partial class KernelTests
             throw new Exception($"Error {err}: finishing queue");
         }
 
-        manager.EnqueueReadBufferToHost(phase.DebugBuffer, out ClFloat3[] debugState);
-        manager.EnqueueReadBufferToHost(queueStates, out ClQueueStates[] queueStatesState);
-        manager.EnqueueReadBufferToHost(shadeQueue, out uint[] shadeQueueState);
-        manager.EnqueueReadBufferToHost(newRayQueue, out uint[] newRayQueueState);
-        manager.EnqueueReadBufferToHost(shadowRayQueue, out uint[] shadowRayQueueState);
-        manager.EnqueueReadBufferToHost(randomStatesBuffer, out uint[] randomStatesBufferState);
-        manager.EnqueueReadBufferToHost(pathStatesBuffer, out ClPathState[] pathStatesBufferState);
+        manager.ReadBufferToHost(phase.DebugBuffer, out ClFloat3[] debugState);
+        manager.ReadBufferToHost(queueStates, out ClQueueStates[] queueStatesState);
+        manager.ReadBufferToHost(shadeQueue, out uint[] shadeQueueState);
+        manager.ReadBufferToHost(extendRayQueue, out uint[] extendRayQueueState);
+        manager.ReadBufferToHost(shadowRayQueue, out uint[] shadowRayQueueState);
+        manager.ReadBufferToHost(randomStatesBuffer, out uint[] randomStatesBufferState);
+        manager.ReadBufferToHost(pathStatesBuffer, out ClPathState[] pathStatesBufferState);
         var result = pathStatesBufferState;
+        // var result = debugState;
         for (int index = 0; index < result.Length; index++)
         {
             var item = result[index];

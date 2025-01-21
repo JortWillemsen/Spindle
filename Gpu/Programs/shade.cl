@@ -19,7 +19,7 @@ __kernel void shade( // TODO: currently just renders diffuse materials
     __global const Material *materials, // TODO: we could declare this as a __constant buffer, potentially optimizing caching
     __global QueueStates *queue_states,
     __global uint *shade_queue,
-    __global uint *new_ray_queue,
+    __global uint *extend_ray_queue,
     __global uint *shadow_ray_queue,
     __global uint *random_states,
     __global PathState *path_states,
@@ -28,14 +28,13 @@ __kernel void shade( // TODO: currently just renders diffuse materials
 {
     // ==> Read context
 
+
     uint i = get_global_linear_id();
     uint path_state_index = shade_queue[i];
     PathState path_state = path_states[path_state_index];
 
-    // TODO: do not forget to set material_id as well in logic phase
     Sphere sphere = spheres[path_state.object_id];
     Material mat = materials[path_state.material_id]; // Is always diffuse in this kernel, but properties differ
-    while (mat.type != mat_diffuse) { }; // TODO this is temporary
 
     // ==> Determine possible luminance contribution
 
@@ -53,17 +52,18 @@ __kernel void shade( // TODO: currently just renders diffuse materials
 
     // Enqueue this path state for extension
     uint extend_ray_queue_length = atomic_inc(&queue_states->extend_ray_length); // TODO: assumes there always is space left on the queue
-    new_ray_queue[extend_ray_queue_length] = path_state_index;
+    extend_ray_queue[extend_ray_queue_length] = path_state_index;
 
     // ==> Enqueue shadow ray
 
-    uint shadow_ray_queue_length = atomic_inc(&queue_states->shadow_ray_length); // TODO: assumes there always is space left on the queue
-    shadow_ray_queue[shadow_ray_queue_length] = path_state_index;
+    // TODO put back
+    // uint shadow_ray_queue_length = atomic_inc(&queue_states->shadow_ray_length); // TODO: assumes there always is space left on the queue
+    // shadow_ray_queue[shadow_ray_queue_length] = path_state_index;
 
     // ==> Dequeue processed jobs for this kernel
     atomic_dec(&queue_states->shade_length);
 
     // Move unprocessed part of queue back to begin of buffer (always less than 1 local_size amount of items)
     uint local_id = get_local_id(0);
-    shade_queue[local_id] =  shade_queue[get_global_size(0) + local_id];
+    shade_queue[local_id] = shade_queue[get_global_size(0) + local_id];
 }

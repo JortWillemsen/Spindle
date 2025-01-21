@@ -71,8 +71,8 @@ public static partial class KernelTests
             throw new Exception($"Error {err}: finishing queue");
         }
 
-        // manager.EnqueueReadBufferToHost(phase.DebugBuffer, out ClFloat3[] result);
-        manager.EnqueueReadBufferToHost(phase.PathStates, out ClPathState[] result);
+        // manager.ReadBufferToHost(phase.DebugBuffer, out ClFloat3[] result);
+        manager.ReadBufferToHost(phase.PathStates, out ClPathState[] result);
         for (int index = 0; index < result.Length; index++)
         {
             var item = result[index];

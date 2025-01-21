@@ -4,7 +4,7 @@ namespace Gpu.Pipeline;
 
 public class GeneratePhase : Phase
 { 
-    public Buffer PathStates { get; private set; }
+    public Buffer PathStates { get; private set; } // TODO: move to logic phase
     public Buffer DebugBuffer { get; private set; }
 
     /// <summary>

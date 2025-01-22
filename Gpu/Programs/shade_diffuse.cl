@@ -33,7 +33,7 @@ __kernel void shade_diffuse(
     PathState path_state = path_states[path_state_index];
 
     Sphere sphere = spheres[path_state.object_id];
-    Material mat = materials[path_state.material_id]; // Is always diffuse in this kernel, but properties differ
+    Material mat = materials[path_state.material_id]; // Is always reflective in this kernel, but properties differ
 
     // ==> Determine possible luminance contribution
 

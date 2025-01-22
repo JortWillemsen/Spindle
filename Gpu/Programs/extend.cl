@@ -6,21 +6,19 @@
 // Returns closest intersection, preferably in positive direction (front)
 float IntersectSphere(PathState ray, Sphere sphere)
 {
-    float3 oc = sphere.position - (ray.origin + ray.direction * 0.01f); // Prevent shadow acne
+    float3 oc = sphere.position - (ray.origin + ray.direction * 0.0005f); // Prevent shadow acne
     // Hours wasted on shadow acne: 4
 
-    // TODO: simplify a
-    float a = 1; // powr(length(ray.direction), 2); (direction should always be normalized)
     float h = dot(ray.direction, oc);
     float c = powr(length(oc), 2) - sphere.radius * sphere.radius;
 
     // Solve quadratic formula to determine hit
-    float discriminant = h * h - a * c;
+    float discriminant = h * h - c;
     if (discriminant < 0) return -1; // No hit
 
     float rootedDiscriminant = sqrt(discriminant);
-    float t1 = (h - rootedDiscriminant) / a;
-    float t2 = (h + rootedDiscriminant) / a; // TODO: inline this value
+    float t1 = (h - rootedDiscriminant);
+    float t2 = (h + rootedDiscriminant);
     // Note: t1 < t2
 
     if (t1 < 0)

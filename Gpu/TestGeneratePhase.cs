@@ -39,6 +39,12 @@ public static partial class KernelTests
                 NumTriangles = 20
             }
         };
+        
+        uint[] randomStates = new uint[numberOfRays]
+        {
+            69, 420, 10, 20, 9000, 90001, 42069, 804930, 02380923809, 032093, 480239805,
+            8934820, 89023402, 4092094389, 043289040, 03488035
+        };
 
         // Prepare OpenCL
         OpenCLManager manager = new();
@@ -46,14 +52,15 @@ public static partial class KernelTests
         ReadOnlyBuffer<ClSceneInfo> sceneInfoBuffer = new(manager, sceneInfo);
         ReadWriteBuffer<ClQueueStates> queueStates = new(manager, new[] { new ClQueueStates() { NewRayLength = numberOfRays} }); // Set all lengths to 0
         ReadWriteBuffer<uint> newRayQueue = new(manager, Enumerable.Range(0, numberOfRays).Select(i => (uint)i).ToArray());
+        ReadWriteBuffer<uint> randomStatesBuffer = new(manager, randomStates);
         ReadWriteBuffer<uint> extendRayQueue = new(manager, new uint[4_000_000 / sizeof(uint)]);
 
-        manager.AddBuffers(sceneInfoBuffer);
+        manager.AddBuffers(sceneInfoBuffer, randomStatesBuffer);
         manager.AddUtilsProgram("structs.h", "structs.h");
         manager.AddUtilsProgram("random.cl", "random.cl");
         manager.AddUtilsProgram("utils.cl", "utils.cl");
         GeneratePhase phase = new(manager, "generate.cl", "generate",
-            sceneInfoBuffer, queueStates, newRayQueue, extendRayQueue, numberOfRays);
+            sceneInfoBuffer, queueStates, newRayQueue, extendRayQueue, randomStatesBuffer, numberOfRays);
 
         var globalSize = new nuint[2]
         {

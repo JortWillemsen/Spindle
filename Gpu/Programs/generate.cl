@@ -1,6 +1,7 @@
 ﻿// Generates primary rays and writes them to the 'rays' buffer.
 
 #include <structs.h>
+#include <random.cl>
 
 __kernel void generate(
     __global const SceneInfo *scene_info,
@@ -8,6 +9,7 @@ __kernel void generate(
     __global uint *new_ray_queue,
     __global uint *extend_ray_queue,
     __global PathState *rays,
+    __global uint *random_states,
     __global float3 *debug)
 {
     uint i = get_global_linear_id(); // new_ray_queue index
@@ -26,10 +28,18 @@ __kernel void generate(
       + x_percentage * scene_info->frustum_horizontal
       - y_percentage * scene_info->frustum_vertical;
 
+    uint r1 = random_states[ray_index];
+    uint r2 = xorshift32(&random_states[ray_index]);
+    float rX = (RandomFloat(&r1) - .5f) * 0.002f;
+    float rY = (RandomFloat(&r2) - .5f) * 0.002f;
+
+    float3 newPix = (float3) (cam_to_pixel.x + rX, cam_to_pixel.y + rY, cam_to_pixel.z);
+
     // Create new ray
     // Note how this overwrites original screen information in buffer
+
     rays[ray_index].origin = scene_info->camera_position;
-    rays[ray_index].direction = normalize(cam_to_pixel);
+    rays[ray_index].direction = normalize(newPix);
     rays[ray_index].accumulated_luminance = 1;
     rays[ray_index].latest_luminance_sample = -1; // Marker for that we have never checked it yet
     // rays[ray_index].averaged_samples = 1;

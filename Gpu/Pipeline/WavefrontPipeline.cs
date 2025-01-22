@@ -150,7 +150,10 @@ public class WavefrontPipeline
         // Performs one iteration of the Wavefront implementation
         // TODO: we could let the logic kernel call other kernels for less IO
 
-        const uint warpSize = 1u; // TODO: how can we always let this match the workgroup size if we let OpenCL decide it? (See comment where local_size is defined)
+        // NOTE: Setting warpSize to something like 32 ensures that only multiples of 32 are dequeued and processed,
+        // ensuring high occupancy. However, it was difficult to not run the logic kernel over already enqueued pixels.
+        // Thus we set it to 1 for now, so in some scenarios some rays are checked twice.
+        const uint warpSize = 1u; // TODO: let OpenCL decide what's best based on GPU
 
         // Logic phase
         LogicPhase.EnqueueExecute(Manager, GlobalSize, LocalSize);
@@ -279,8 +282,16 @@ public class WavefrontPipeline
             ExtendPhase.EnqueueExecute(Manager, new nuint[] { workItems }, new nuint[] { localSize }, dimensions: 1);
         }
 
-        // wait for all queued commands to finish
-        var err = Manager.Cl.Finish(Manager.Queue.Id);
+        // Manager.ReadBufferToHost(GeneratePhase.PathStates, out ClPathState[] pathStates4);
+        // Manager.ReadBufferToHost(ExtendRayQueue, out uint[] extendRayQueue4);
+        // Manager.ReadBufferToHost(NewRayQueue, out uint[] newRayQueue4);
+        // Manager.ReadBufferToHost(ShadeDiffuseQueue, out uint[] shadeQueue4);
+        // Manager.ReadBufferToHost(ShadowRayQueue, out uint[] shadowRayQueue4);
+        // Manager.ReadBufferToHost(GeneratePhase.DebugBuffer, out ClFloat3[] generateDebug3);
+        // Manager.ReadBufferToHost(ExtendPhase.DebugBuffer, out ClFloat3[] extendDebug3);
+        // Manager.ReadBufferToHost(LogicPhase.DebugBuffer, out ClFloat3[] logicDebug3);
+        // Manager.ReadBufferToHost(ShadeDiffusePhase.DebugBuffer, out ClFloat3[] shadeDebug3);
+
 
         // Shadow phase
         Manager.ReadBufferToHost(QueueStates, out ClQueueStates[] queueStatesShadow);

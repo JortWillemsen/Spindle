@@ -16,7 +16,7 @@ float3 normal(Sphere s, float3 point)
 }
 
 __kernel void shade_reflective(
-    __global const Material *materials,
+    __global const Material *materials, // TODO: we could make this a __constant buffer for possible caching optimizations
     __global QueueStates *queue_states,
     __global uint *shade_reflective_queue,
     __global uint *extend_ray_queue,

@@ -23,6 +23,8 @@ __kernel void logic(
 {
     uint i = get_global_linear_id();
 
+    // TODO: do not process rays still waiting in the queue of other kernels
+
     // =====> If this state has never been initialized, initialize it now by creating a new primary ray
 
     // TODO use a new variable for this. We have bytes unused anyway

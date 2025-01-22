@@ -77,10 +77,10 @@ public static partial class KernelTests
         ReadOnlyBuffer<ClSphere> sphereBuffer = new(manager, spheres);
 
         manager.AddBuffers(materialsBuffer, queueStates, shadeDiffuseQueue, extendRayQueue, shadowRayQueue, randomStatesBuffer, pathStatesBuffer, sphereBuffer);
-        manager.AddUtilsProgram("/../../../../Gpu/Programs/structs.h", "structs.h");
-        manager.AddUtilsProgram("/../../../../Gpu/Programs/random.cl", "random.cl");
-        manager.AddUtilsProgram("/../../../../Gpu/Programs/utils.cl", "utils.cl");
-        ShadeDiffusePhase phase = new(manager, "/../../../../Gpu/Programs/shade_diffuse.cl", "shade_diffuse",
+        manager.AddUtilsProgram("structs.h", "structs.h");
+        manager.AddUtilsProgram("random.cl", "random.cl");
+        manager.AddUtilsProgram("utils.cl", "utils.cl");
+        ShadeDiffusePhase phase = new(manager, "shade_diffuse.cl", "shade_diffuse",
             materialsBuffer, queueStates, shadeDiffuseQueue, extendRayQueue, shadowRayQueue, randomStatesBuffer, pathStatesBuffer, sphereBuffer);
 
         var globalSize = new nuint[2]

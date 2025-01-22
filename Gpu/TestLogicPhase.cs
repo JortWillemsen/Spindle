@@ -81,10 +81,10 @@ public static partial class KernelTests
         ReadWriteBuffer<uint> imageBuffer = new(manager, new uint[numberOfRays]); // TODO: musn't this be added as a buffer as well (Manager.AddBuffer)?
 
         manager.AddBuffers(queueStates, shadeDiffuseQueue, shadeReflectiveQueue, newRayQueue, pathStatesBuffer, materialsBuffer, sceneInfoBuffer, sphereBuffer, triangleBuffer, imageBuffer);
-        manager.AddUtilsProgram("/../../../../Gpu/Programs/structs.h", "structs.h");
-        manager.AddUtilsProgram("/../../../../Gpu/Programs/random.cl", "random.cl");
-        manager.AddUtilsProgram("/../../../../Gpu/Programs/utils.cl", "utils.cl");
-        LogicPhase phase = new(manager, "/../../../../Gpu/Programs/logic.cl", "logic",
+        manager.AddUtilsProgram("structs.h", "structs.h");
+        manager.AddUtilsProgram("random.cl", "random.cl");
+        manager.AddUtilsProgram("utils.cl", "utils.cl");
+        LogicPhase phase = new(manager, "logic.cl", "logic",
             queueStates, shadeDiffuseQueue, shadeReflectiveQueue, newRayQueue, pathStatesBuffer, materialsBuffer, sceneInfoBuffer, sphereBuffer, triangleBuffer, imageBuffer);
 
         var globalSize = new nuint[2]

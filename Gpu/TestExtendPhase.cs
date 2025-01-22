@@ -61,10 +61,10 @@ public static partial class KernelTests
         ReadWriteBuffer<ClPathState> raysBuffer = new(manager, rays);
 
         manager.AddBuffers(sceneInfoBuffer, sphereBuffer, triangleBuffer, queueStates, extendRayQueue, raysBuffer);
-        manager.AddUtilsProgram("/../../../../Gpu/Programs/structs.h", "structs.h");
-        manager.AddUtilsProgram("/../../../../Gpu/Programs/random.cl", "random.cl");
-        manager.AddUtilsProgram("/../../../../Gpu/Programs/utils.cl", "utils.cl");
-        ExtendPhase phase = new(manager, "/../../../../Gpu/Programs/extend.cl", "extend",
+        manager.AddUtilsProgram("structs.h", "structs.h");
+        manager.AddUtilsProgram("random.cl", "random.cl");
+        manager.AddUtilsProgram("utils.cl", "utils.cl");
+        ExtendPhase phase = new(manager, "extend.cl", "extend",
             sceneInfoBuffer, sphereBuffer, triangleBuffer, queueStates, extendRayQueue, raysBuffer);
 
         var globalSize = new nuint[2]

@@ -12,7 +12,7 @@ public abstract class LightSource : IIntersectable
     protected LightSource(Vector3 position, Vector3 color)
     {
         Position = position;
-        Color = color * 30; // TODO
+        Color = color * 30;
     }
 
     /// <inheritdoc />

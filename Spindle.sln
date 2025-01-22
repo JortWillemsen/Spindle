@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Engine", "Engine\Engine.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Renderer", "Renderer\Renderer.csproj", "{FC7626DA-3209-42C7-AEA4-0AB3CFCE6D14}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gpu", "Gpu\Gpu.csproj", "{073E671D-18DF-4070-9C71-A162FDF1AF2F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{FC7626DA-3209-42C7-AEA4-0AB3CFCE6D14}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FC7626DA-3209-42C7-AEA4-0AB3CFCE6D14}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FC7626DA-3209-42C7-AEA4-0AB3CFCE6D14}.Release|Any CPU.Build.0 = Release|Any CPU
+		{073E671D-18DF-4070-9C71-A162FDF1AF2F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{073E671D-18DF-4070-9C71-A162FDF1AF2F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{073E671D-18DF-4070-9C71-A162FDF1AF2F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{073E671D-18DF-4070-9C71-A162FDF1AF2F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -16,7 +16,6 @@ public class PathTracingRenderer : IRenderer
     
     public void TraceRay(Ray ray, int depth, ref Vector3 pixel, ref IntersectionDebugInfo intersectionInfo)
     {
-        // TODO: Create shadow ray?
         if (depth <= 0)
         {
             pixel *= Vector3.Zero;

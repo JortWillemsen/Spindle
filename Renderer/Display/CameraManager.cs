@@ -96,7 +96,7 @@ public class CameraManager
         NumberOfVisibleCameras++;
         UpdateDisplayedCameraSlots();
     }
-
+    
     public void AddBasicCamera(Vector3 position, int depth, float fov=65)
     {
         AddCamera(new SampledCamera(

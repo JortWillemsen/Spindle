@@ -75,7 +75,6 @@ public class BvhNode : IIntersectable
         // Current closest intersection, currently infinite for we have no intersection.
         var closest = distanceInterval.Max;
 
-        // TODO: This feels dirty
         var storedIntersection = Intersection.Undefined;
         
         // Loop over all the geometry in the scene to determine what the ray hits.

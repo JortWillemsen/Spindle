@@ -203,6 +203,12 @@ void main()
         _gl.DetachShader(_shaderProgram, fragmentShader);
         _gl.DeleteShader(vertexShader);
         _gl.DeleteShader(fragmentShader);
+
+
+        _vbo = _gl.GenBuffer();
+        _ebo = _gl.GenBuffer();
+        _textureId = _gl.GenTexture();
+        _gl.ActiveTexture(TextureUnit.Texture0);
     }
 
     private void OnRender(double deltaTime) // TODO: to see immediate results, render every texture in a different frame
@@ -230,7 +236,7 @@ void main()
                 topLeft.X,     bottomRight.Y, 0.0f,  0.0f, 1.0f
                 // -1.0f,      -1.0f,         0.0f,  0.0f, 1.0f
             };
-            _vbo = _gl.GenBuffer(); // todo: voor later: deze vbos hergebruiken?
+
             _gl.BindBuffer(BufferTargetARB.ArrayBuffer, _vbo); // Bind as an Array Buffer (VBO?)
             _gl.BufferData<float>(
                 BufferTargetARB.ArrayBuffer,
@@ -248,12 +254,9 @@ void main()
                 0u, 1u, 3u,
                 1u, 2u, 3u
             };
-            _ebo = _gl.GenBuffer();
+
             _gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, _ebo); // Bind as an EBO?
-
             _gl.BufferData<uint>(BufferTargetARB.ElementArrayBuffer, (nuint) (indices.Length * sizeof(uint)), indices, BufferUsageARB.DynamicDraw);
-
-
 
             // Define VAO structure: starting from 0 we contain Vector3's taking up 3 floats, which we do not want to normalize.
             // We increase the stride with 2 to make 5, so that the texture coordinates can be included as well. Note that these are not included as vertices, since they're not part of the attributes defined here.
@@ -277,13 +280,10 @@ void main()
 
             // CREATE AND FILL TEXTURE
 
-            _textureId = _gl.GenTexture();
-            _gl.ActiveTexture(TextureUnit.Texture0);
             _gl.BindTexture(TextureTarget.Texture2D, _textureId);
-
             // Fill the texture 'slot'
             _gl.TexImage2D<int>(TextureTarget.Texture2D, 0, InternalFormat.Rgba, (uint) texture.Width,
-                (uint) texture.Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, texture.Pixels); // todo: these now inclde transparancy, but we will never use that. Switch to bytes
+                (uint) texture.Height, 0, PixelFormat.Bgra, PixelType.UnsignedByte, texture.Pixels); // todo: these now inclde transparancy, but we will never use that. Switch to bytes
 
             // Define attributes to how the texture should be rendered
             // _gl.TexParameterI(GLEnum.Texture2D, GLEnum.TextureWrapS, (int)TextureWrapMode.Repeat);

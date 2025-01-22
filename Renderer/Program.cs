@@ -11,18 +11,17 @@ using Engine.Strategies.BVH;
 using Gpu.Cameras;
 using Renderer.Display;
 
-const float aspectRatio = 16f / 9f;
 const int windowWidth = 32 * 30;
 const int windowHeight = 32 * 20;
 const int maxDepth = 20;
-const int samples = 5;
 const float fov = 65f;
 
 Console.WriteLine("Starting render");
 
 var cameraManager = new CameraManager(new Size(windowWidth, windowHeight), CameraLayout.Matrix);
 cameraManager.AddCamera(
-    new OpenCLCamera(
+    // new SampledCamera( // CPU with BVH
+    new OpenCLCamera( // GPU
         new Vector3(0, 0, -4),
         Vector3.UnitY, 
         new Vector3(0, 0, 1),
@@ -67,7 +66,7 @@ var teaPotImporter1 = new ObjMeshImporter("Assets/teapot.obj", new Vector3(-7, -
 var teaPotImporter2 = new ObjMeshImporter("Assets/teapot.obj", new Vector3(7, -2, 0), matKitchenWhite);
 var teaPotImporter3 = new ObjMeshImporter("Assets/teapot.obj", new Vector3(0, 8, 20), matKitchenWhite);
 var teaPotImporter4 = new ObjMeshImporter("Assets/teapot.obj", new Vector3(-20, 40, 80), matKitchenWhite);
-var scene = new Scene(objects, lights);
+var scene = new BvhScene(new SplitDirectionStrategy(20), objects, lights, teaPotImporter1);
 
 Console.WriteLine("Done creating acceleration structure");
 

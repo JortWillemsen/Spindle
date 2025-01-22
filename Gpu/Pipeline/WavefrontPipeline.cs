@@ -48,9 +48,9 @@ public class WavefrontPipeline
         RandomStatesBuffer = new ReadWriteBuffer<uint>(Manager, randomStates);
 
         // Add structs and functions that will be bound with every program
-        Manager.AddUtilsProgram("/../../../../Gpu/Programs/structs.h", "structs.h");
-        Manager.AddUtilsProgram("/../../../../Gpu/Programs/random.cl", "random.cl");
-        Manager.AddUtilsProgram("/../../../../Gpu/Programs/utils.cl", "utils.cl");
+        Manager.AddUtilsProgram("structs.h", "structs.h");
+        Manager.AddUtilsProgram("random.cl", "random.cl");
+        Manager.AddUtilsProgram("utils.cl", "utils.cl");
 
         // Prepare output buffer
         ImageBuffer = new ReadWriteBuffer<int>(Manager, new int[numOfRays]); // TODO: musn't this be added as a buffer as well (Manager.AddBuffer)?
@@ -84,7 +84,7 @@ public class WavefrontPipeline
 
         GeneratePhase = new GeneratePhase(
             Manager,
-            "/../../../../Gpu/Programs/generate.cl",
+            "generate.cl",
             "generate",
             SceneBuffers.SceneInfo,
             QueueStates,
@@ -94,7 +94,7 @@ public class WavefrontPipeline
 
         ExtendPhase = new ExtendPhase(
             Manager,
-            "/../../../../Gpu/Programs/extend.cl",
+            "extend.cl",
             "extend",
             SceneBuffers.SceneInfo,
             SceneBuffers.Spheres,
@@ -105,7 +105,7 @@ public class WavefrontPipeline
 
         ShadeDiffusePhase = new ShadeDiffusePhase(
             Manager,
-            "/../../../../Gpu/Programs/shade_diffuse.cl",
+            "shade_diffuse.cl",
             "shade_diffuse",
             SceneBuffers.Materials,
             QueueStates,
@@ -118,7 +118,7 @@ public class WavefrontPipeline
 
         ShadeReflectivePhase = new ShadeReflectivePhase(
             Manager,
-            "/../../../../Gpu/Programs/shade_reflective.cl",
+            "shade_reflective.cl",
             "shade_reflective",
             SceneBuffers.Materials,
             QueueStates,
@@ -131,7 +131,7 @@ public class WavefrontPipeline
 
         LogicPhase = new LogicPhase(
             Manager,
-            "/../../../../Gpu/Programs/logic.cl",
+            "logic.cl",
             "logic",
             QueueStates,
             NewRayQueue,
@@ -150,7 +150,7 @@ public class WavefrontPipeline
         // TODO: we could let the logic kernel call other kernels for less IO
         // Performs one iteration of the Wavefront implementation
 
-        const uint warpSize = 32u; // TODO: how can we always let this match the workgroup size if we let OpenCL descide it? (See comment where local_size is defined)
+        const uint warpSize = 1u; // TODO: how can we always let this match the workgroup size if we let OpenCL descide it? (See comment where local_size is defined)
 
         // Logic phase
         LogicPhase.EnqueueExecute(Manager, GlobalSize, LocalSize);

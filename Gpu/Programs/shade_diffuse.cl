@@ -54,16 +54,10 @@ __kernel void shade_diffuse(
     extend_ray_queue[extend_ray_queue_length] = path_state_index;
 
     // =====> Enqueue shadow ray
-
-<<<<<<< Updated upstream
     uint shadow_ray_queue_length = atomic_inc(&queue_states->shadow_ray_length); // TODO: assumes there always is space left on the queue
     shadow_ray_queue[shadow_ray_queue_length] = path_state_index;
 
     // =====> Dequeue processed jobs for this kernel
-=======
-    // uint shadow_ray_queue_length = atomic_inc(&queue_states->shadow_ray_length); // TODO: assumes there always is space left on the queue
-    // shadow_ray_queue[shadow_ray_queue_length] = path_state_index;
->>>>>>> Stashed changes
 
     atomic_dec(&queue_states->shade_diffuse_length);
 

@@ -86,6 +86,7 @@ public class WavefrontPipeline
         GeneratePhase = new GeneratePhase(
             Manager, "generate.cl", "generate",
             SceneBuffers.SceneInfo,
+            RandomStatesBuffer,
             QueueStates,
             NewRayQueue,
             ExtendRayQueue,

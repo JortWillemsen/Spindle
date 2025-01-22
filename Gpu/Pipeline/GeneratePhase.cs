@@ -21,6 +21,7 @@ public class GeneratePhase : Phase
         string path,
         string kernel,
         Buffer sceneInfoBuffer,
+        Buffer randomStatesBuffer,
         Buffer queueStates,
         Buffer newRayQueue,
         Buffer extendRayQueue,
@@ -32,7 +33,7 @@ public class GeneratePhase : Phase
 
         manager.AddProgram(path, "generate.cl")
             .AddBuffers(PathStates, DebugBuffer)
-            .AddKernel("generate.cl", kernel, sceneInfoBuffer, queueStates, newRayQueue, extendRayQueue, PathStates, DebugBuffer);
+            .AddKernel("generate.cl", kernel, sceneInfoBuffer, queueStates, newRayQueue, extendRayQueue, PathStates, randomStatesBuffer, DebugBuffer);
 
         KernelId = manager.GetKernelId(kernel);
     }

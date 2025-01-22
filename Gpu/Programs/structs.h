@@ -1,3 +1,6 @@
+#ifndef SPINDLE_STRUCTS
+#define SPINDLE_STRUCTS
+
 typedef struct
 {
     float3 direction;
@@ -65,3 +68,5 @@ typedef struct
     volatile uint shade_reflective_length;
     volatile uint shadow_ray_length;
 } QueueStates;
+
+#endif

@@ -2,36 +2,7 @@
 // Updates ray buffer with intersection info.
 
 #include "structs.h"
-
-// Returns closest intersection, preferably in positive direction (front)
-float IntersectSphere(PathState ray, Sphere sphere)
-{
-    float3 oc = sphere.position - (ray.origin + ray.direction * 0.0005f); // Prevent shadow acne
-    // Hours wasted on shadow acne: 4
-
-    float h = dot(ray.direction, oc);
-    float c = powr(length(oc), 2) - sphere.radius * sphere.radius;
-
-    // Solve quadratic formula to determine hit
-    float discriminant = h * h - c;
-    if (discriminant < 0) return -1; // No hit
-
-    float rootedDiscriminant = sqrt(discriminant);
-    float t1 = (h - rootedDiscriminant);
-    float t2 = (h + rootedDiscriminant);
-    // Note: t1 < t2
-
-    if (t1 < 0)
-    {
-        // t2 > t1 and as such:
-        // - if t2 < 0, t2 is closer
-        // - if t2 > 0, t2 is the only positive intersection
-        // We always want to return t2 and not t1
-        // The result is that the camera can be inside of an object (culling range=0)
-        return t2;
-    }
-    return t1; // Will be closer than t2
-}
+#include "utils.cl"
 
 __kernel void extend(
   __global const SceneInfo *scene_info,

@@ -61,6 +61,7 @@ typedef struct
 {
     volatile uint new_ray_length;
     volatile uint extend_ray_length;
-    volatile uint shade_length;
+    volatile uint shade_diffuse_length;
+    volatile uint shade_reflective_length;
     volatile uint shadow_ray_length;
 } QueueStates;

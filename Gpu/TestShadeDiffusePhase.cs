@@ -11,7 +11,7 @@ namespace Gpu;
 
 public static partial class KernelTests
 {
-    public static void TestShadePhase()
+    public static void TestShadeDiffusePhase()
     {
         // Prepare input data
         const int numberOfRays = 16;
@@ -68,20 +68,20 @@ public static partial class KernelTests
         OpenCLManager manager = new();
 
         ReadOnlyBuffer<ClMaterial> materialsBuffer = new(manager, materials);
-        ReadWriteBuffer<uint> shadeQueue = new(manager, Enumerable.Range(0, numberOfRays + 4).Select(i => (uint)i).ToArray());
+        ReadWriteBuffer<uint> shadeDiffuseQueue = new(manager, Enumerable.Range(0, numberOfRays + 4).Select(i => (uint)i).ToArray());
         ReadWriteBuffer<uint> extendRayQueue = new(manager, new uint[4_000_000 / sizeof(uint)]);
         ReadWriteBuffer<uint> shadowRayQueue = new(manager, new uint[4_000_000 / sizeof(uint)]);
         ReadWriteBuffer<uint> randomStatesBuffer = new(manager, randomStates);
-        ReadWriteBuffer<ClQueueStates> queueStates = new(manager, new[] { new ClQueueStates() { ShadeLength = (uint)shadeQueue.GetLength() } }); // Set all lengths to 0
+        ReadWriteBuffer<ClQueueStates> queueStates = new(manager, new[] { new ClQueueStates() { ShadeDiffuseLength = (uint)shadeDiffuseQueue.GetLength() } }); // Set all lengths to 0
         ReadWriteBuffer<ClPathState> pathStatesBuffer = new(manager, pathStates);
         ReadOnlyBuffer<ClSphere> sphereBuffer = new(manager, spheres);
 
-        manager.AddBuffers(materialsBuffer, queueStates, shadeQueue, extendRayQueue, shadowRayQueue, randomStatesBuffer, pathStatesBuffer, sphereBuffer);
-        manager.AddUtilsProgram("/../../../../Gpu/Programs/structs.h", "structs.h");
-        manager.AddUtilsProgram("/../../../../Gpu/Programs/random.cl", "random.cl");
-        manager.AddUtilsProgram("/../../../../Gpu/Programs/utils.cl", "utils.cl");
-        ShadePhase phase = new(manager, "/../../../../Gpu/Programs/shade.cl", "shade",
-            materialsBuffer, queueStates, shadeQueue, extendRayQueue, shadowRayQueue, randomStatesBuffer, pathStatesBuffer, sphereBuffer);
+        manager.AddBuffers(materialsBuffer, queueStates, shadeDiffuseQueue, extendRayQueue, shadowRayQueue, randomStatesBuffer, pathStatesBuffer, sphereBuffer);
+        manager.AddUtilsProgram("structs.h", "structs.h");
+        manager.AddUtilsProgram("random.cl", "random.cl");
+        manager.AddUtilsProgram("utils.cl", "utils.cl");
+        ShadeDiffusePhase phase = new(manager, "shade_diffuse.cl", "shade_diffuse",
+            materialsBuffer, queueStates, shadeDiffuseQueue, extendRayQueue, shadowRayQueue, randomStatesBuffer, pathStatesBuffer, sphereBuffer);
 
         var globalSize = new nuint[2]
         {
@@ -101,7 +101,7 @@ public static partial class KernelTests
 
         manager.ReadBufferToHost(phase.DebugBuffer, out ClFloat3[] debugState);
         manager.ReadBufferToHost(queueStates, out ClQueueStates[] queueStatesState);
-        manager.ReadBufferToHost(shadeQueue, out uint[] shadeQueueState);
+        manager.ReadBufferToHost(shadeDiffuseQueue, out uint[] shadeDiffuseQueueState);
         manager.ReadBufferToHost(extendRayQueue, out uint[] extendRayQueueState);
         manager.ReadBufferToHost(shadowRayQueue, out uint[] shadowRayQueueState);
         manager.ReadBufferToHost(randomStatesBuffer, out uint[] randomStatesBufferState);

@@ -15,7 +15,7 @@ public class ClProgram
     
     public unsafe ClProgram(OpenCLManager manager, string path, string name)
     {
-        var fileName = Directory.GetCurrentDirectory() + path;
+        var fileName = Directory.GetCurrentDirectory() + $"/Programs/{path}";
         Name = name;
         
         if (!File.Exists(fileName))

@@ -26,3 +26,8 @@ float3 CosineSampleHemisphere(float3 normal, uint* randomState)
     // Now apply the transformation so that the original sample is aligned with he normal
     return randomVector.x * tangent1 + randomVector.y * tangent2 + randomVector.z * normal;
 }
+
+float3 reflect(float3 incoming, float3 normal)
+{
+    return incoming - 2.0f * dot(normal, incoming) * normal;
+}

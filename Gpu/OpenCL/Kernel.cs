@@ -1,6 +1,6 @@
 ﻿using Silk.NET.OpenCL;
 
-namespace Gpu;
+namespace Gpu.OpenCL;
 
 public class Kernel
 {
@@ -16,7 +16,7 @@ public class Kernel
         if (Id == IntPtr.Zero)
         {
             manager.Cleanup();
-            throw new Exception("Failed to create kernel");
+            throw new Exception($"Failed to create kernel: {error}");
         }
     }
 

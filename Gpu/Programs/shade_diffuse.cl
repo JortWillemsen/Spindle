@@ -15,10 +15,10 @@ float3 normal(Sphere s, float3 point)
     return (point - s.position) / s.radius;
 }
 
-__kernel void shade( // TODO: currently just renders diffuse materials
+__kernel void shade_diffuse(
     __global const Material *materials, // TODO: we could declare this as a __constant buffer, potentially optimizing caching
     __global QueueStates *queue_states,
-    __global uint *shade_queue,
+    __global uint *shade_diffuse_queue,
     __global uint *extend_ray_queue,
     __global uint *shadow_ray_queue,
     __global uint *random_states,
@@ -28,13 +28,12 @@ __kernel void shade( // TODO: currently just renders diffuse materials
 {
     // ==> Read context
 
-
     uint i = get_global_linear_id();
-    uint path_state_index = shade_queue[i];
+    uint path_state_index = shade_diffuse_queue[i];
     PathState path_state = path_states[path_state_index];
 
     Sphere sphere = spheres[path_state.object_id];
-    Material mat = materials[path_state.material_id]; // Is always diffuse in this kernel, but properties differ
+    Material mat = materials[path_state.material_id]; // Is always reflective in this kernel, but properties differ
 
     // ==> Determine possible luminance contribution
 
@@ -61,9 +60,9 @@ __kernel void shade( // TODO: currently just renders diffuse materials
     // shadow_ray_queue[shadow_ray_queue_length] = path_state_index;
 
     // ==> Dequeue processed jobs for this kernel
-    atomic_dec(&queue_states->shade_length);
+    atomic_dec(&queue_states->shade_diffuse_length);
 
     // Move unprocessed part of queue back to begin of buffer (always less than 1 local_size amount of items)
     uint local_id = get_local_id(0);
-    shade_queue[local_id] = shade_queue[get_global_size(0) + local_id];
+    shade_diffuse_queue[local_id] = shade_diffuse_queue[get_global_size(0) + local_id];
 }

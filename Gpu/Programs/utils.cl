@@ -19,7 +19,7 @@ float3 CosineSampleHemisphere(float3 normal, uint* randomState)
     // Create an orthogonal basis with the normal
     if (fabs(normal.x) > fabs(normal.y)) {
         tangent1 = normalize(cross((float3)(0, 1, 0), normal)); // use a world axis if normal is along x or z
-    } // TODO use fast_normalize everywhere?
+    }
     else {
         tangent1 = normalize(cross((float3)(1, 0, 0), normal));
     }

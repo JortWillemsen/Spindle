@@ -78,7 +78,7 @@ public static partial class KernelTests
         ReadOnlyBuffer<ClSceneInfo> sceneInfoBuffer = new(manager, sceneInfo);
         ReadOnlyBuffer<ClSphere> sphereBuffer = new(manager, spheres);
         ReadOnlyBuffer<ClTriangle> triangleBuffer = new(manager, triangles);
-        ReadWriteBuffer<uint> imageBuffer = new(manager, new uint[numberOfRays]); // TODO: musn't this be added as a buffer as well (Manager.AddBuffer)?
+        ReadWriteBuffer<uint> imageBuffer = new(manager, new uint[numberOfRays]);
 
         manager.AddBuffers(queueStates, shadeDiffuseQueue, shadeReflectiveQueue, newRayQueue, pathStatesBuffer, materialsBuffer, sceneInfoBuffer, sphereBuffer, triangleBuffer, imageBuffer);
         manager.AddUtilsProgram("structs.h", "structs.h");

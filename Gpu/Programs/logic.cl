@@ -25,8 +25,6 @@ __kernel void logic(
 
     // =====> If this state has never been initialized, initialize it now by creating a new primary ray
 
-    //  TODO: do not process rays still waiting in the queue of other kernels
-
     // TODO use a new variable for this. We have bytes unused anyway
     // TODO: We could also just not execute this stage as first, but this solution gives more flexibility
     if (path_states[i].t == 0 || path_states[i].t == -66) // No ray has been shot, or ray has been terminated
@@ -44,13 +42,11 @@ __kernel void logic(
         path_states[i].direction = (float3)(width, height, 0);
 
         return;
-        // TODO: atomical increments of queue length can be done in a coaliscing way, see paper
     }
 
     // =====> Process material evaluation
     // Using NEE, we accumulate the indirect light from the previous bounce.
     // If it was occluded, then accumulated_luminance has been set to 0 in the shadow ray kernel.
-    // TODO: what about distance attenuation?
 
     // TODO outdated? It is (-1, -1, -1) when: direct light occluded or never sampled before
     if (any(path_states[i].latest_luminance_sample != (float3)(-1, -1, -1)))
@@ -84,7 +80,6 @@ __kernel void logic(
     // =====> Queue correct material kernel
     // If there is an intersection, queue the evaluation of its contribution towards indirect light.
 
-    // TODO: for now we only support spheres because polymorphism is kinda hard with OpenCL C
     Sphere sphere = spheres[path_states[i].object_id];
     Material mat = materials[sphere.material];
 

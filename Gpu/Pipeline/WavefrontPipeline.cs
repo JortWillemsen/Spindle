@@ -38,7 +38,7 @@ public class WavefrontPipeline
         SceneBuffers = BufferConverter.ConvertSceneToBuffers(Manager, scene, camera);
 
         GlobalSize = new nuint[2] { (nuint)camera.ImageSize.Width, (nuint)camera.ImageSize.Height };
-        LocalSize = new nuint[2] { 32, 32 }; // TODO: let OpenCL descide by passing NULL, NULL (Or just NULL?)
+        LocalSize = new nuint[2] { 32, 32 }; // TODO: let OpenCL decide by passing NULL, NULL (Or just NULL?)
 
         // Find number of rays, used for calculating buffer sizes
         var numOfRays = camera.ImageSize.Width * camera.ImageSize.Height;
@@ -54,7 +54,7 @@ public class WavefrontPipeline
         Manager.AddUtilsProgram("utils.cl", "utils.cl");
 
         // Prepare output buffer
-        ImageBuffer = new ReadWriteBuffer<int>(Manager, new int[numOfRays]); // TODO: musn't this be added as a buffer as well (Manager.AddBuffer)?
+        ImageBuffer = new ReadWriteBuffer<int>(Manager, new int[numOfRays]);
 
         // Queue of 4 MB can hold 1_000_000 path state indices
         QueueStates = new ReadWriteBuffer<ClQueueStates>(Manager, new[] { new ClQueueStates() });
@@ -150,10 +150,7 @@ public class WavefrontPipeline
         // Performs one iteration of the Wavefront implementation
         // TODO: we could let the logic kernel call other kernels for less IO
 
-        // NOTE: Setting warpSize to something like 32 ensures that only multiples of 32 are dequeued and processed,
-        // ensuring high occupancy. However, it was difficult to not run the logic kernel over already enqueued pixels.
-        // Thus we set it to 1 for now, so in some scenarios some rays are checked twice.
-        const uint warpSize = 1u; // TODO: let OpenCL decide what's best
+        const uint warpSize = 1u; // TODO: how can we always let this match the workgroup size if we let OpenCL decide it? (See comment where local_size is defined)
 
         // Logic phase
         LogicPhase.EnqueueExecute(Manager, GlobalSize, LocalSize);
@@ -282,15 +279,8 @@ public class WavefrontPipeline
             ExtendPhase.EnqueueExecute(Manager, new nuint[] { workItems }, new nuint[] { localSize }, dimensions: 1);
         }
 
-        // Manager.ReadBufferToHost(GeneratePhase.PathStates, out ClPathState[] pathStates4);
-        // Manager.ReadBufferToHost(ExtendRayQueue, out uint[] extendRayQueue4);
-        // Manager.ReadBufferToHost(NewRayQueue, out uint[] newRayQueue4);
-        // Manager.ReadBufferToHost(ShadeDiffuseQueue, out uint[] shadeQueue4);
-        // Manager.ReadBufferToHost(ShadowRayQueue, out uint[] shadowRayQueue4);
-        // Manager.ReadBufferToHost(GeneratePhase.DebugBuffer, out ClFloat3[] generateDebug4);
-        // Manager.ReadBufferToHost(ExtendPhase.DebugBuffer, out ClFloat3[] extendDebug4);
-        // Manager.ReadBufferToHost(LogicPhase.DebugBuffer, out ClFloat3[] logicDebug4);
-        // Manager.ReadBufferToHost(ShadeDiffusePhase.DebugBuffer, out ClFloat3[] shadeDebug4);
+        // wait for all queued commands to finish
+        var err = Manager.Cl.Finish(Manager.Queue.Id);
 
         // Shadow phase
         Manager.ReadBufferToHost(QueueStates, out ClQueueStates[] queueStatesShadow);
@@ -336,7 +326,7 @@ public class WavefrontPipeline
         // Manager.ReadBufferToHost(ShadeDiffusePhase.DebugBuffer, out ClFloat3[] shadeDebug);
 
         // Display current state
-        Manager.ReadBufferToHost(ImageBuffer, out int[] colors); // TODO: turn into uint
+        Manager.ReadBufferToHost(ImageBuffer, out int[] colors);
 
         // Thread.Sleep(1000);
 

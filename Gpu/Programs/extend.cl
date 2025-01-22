@@ -17,13 +17,13 @@ __kernel void extend(
     uint ray_index = extend_ray_queue[i];
 
     float t = -1;
-    uint intersected_object = 0; // TODO: how to differentiate between triangle and sphere index?
+    uint intersected_object = 0;
 
     // For every sphere, test intersection
     uint num_spheres = scene_info->num_spheres;
     for (int x = 0; x < num_spheres; x++)
     {
-        float new_t = IntersectSphere(rays[ray_index], spheres[x]); // TODO: for now we only support spheres
+        float new_t = IntersectSphere(rays[ray_index], spheres[x]);
         if (new_t > 0 && (t < 0 || new_t < t))
         {
             t = new_t;

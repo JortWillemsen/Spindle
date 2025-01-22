@@ -66,7 +66,6 @@ public class AxisAlignedBoundingBox : IBoundingBox
             return;
         }
         
-        // TODO: Remove dirty cast
         var aabbs = boxes.OfType<AxisAlignedBoundingBox>();
         
         X = new Interval(aabbs.Select(b => b.X));
@@ -127,7 +126,6 @@ public class AxisAlignedBoundingBox : IBoundingBox
 
     public IBoundingBox Combine(List<IBoundingBox> boxes)
     {
-        //TODO: Dirty cast, need to figure out a way to abstract this logic.
         return new AxisAlignedBoundingBox(boxes);
     }
 

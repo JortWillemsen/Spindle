@@ -16,7 +16,7 @@ float3 normal(Sphere s, float3 point)
 }
 
 __kernel void shade_reflective(
-    __global const Material *materials, // TODO: we could declare this as a __constant buffer, potentially optimizing caching
+    __global const Material *materials,
     __global QueueStates *queue_states,
     __global uint *shade_reflective_queue,
     __global uint *extend_ray_queue,
@@ -42,7 +42,7 @@ __kernel void shade_reflective(
     // ==> Calculate bouncing ray and enqueue for extending
 
     float3 hitpoint = hitpoint_from(path_state);
-    float3 normal_at_hitpoint = normal(sphere, hitpoint); // TODO: works with just spheres for now
+    float3 normal_at_hitpoint = normal(sphere, hitpoint);
     float3 bounceDirection = reflect(path_state.direction, normal_at_hitpoint);
 
     // Overwrite current ray with next ray to be extended

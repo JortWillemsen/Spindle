@@ -39,15 +39,6 @@ typedef struct
     uint material;
 } Triangle;
 
-// typedef struct
-// {
-//     bool hit; // TODO: obsolete, if material != 0 it is a hit
-//     float3 hitPoint; // TODO: can be determined by t
-//     float3 normal; // TODO: when desired, can be calcualted by object anyway
-//     float t;
-//     uint material;
-// } Intersection;
-
 enum MaterialType {
     mat_diffuse = 1u,
     mat_reflective = 2u,

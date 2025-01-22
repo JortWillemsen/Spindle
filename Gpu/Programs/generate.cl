@@ -32,10 +32,9 @@ __kernel void generate(
     rays[ray_index].direction = normalize(cam_to_pixel);
     rays[ray_index].accumulated_luminance = 1;
     rays[ray_index].latest_luminance_sample = -1; // Marker for that we have never checked it yet
-    // rays[ray_index].averaged_samples = 1; TODO
+    // rays[ray_index].averaged_samples = 1;
 
     // Enqueue extension of this primary ray in extend_ray_queue
-    // TODO assumes there always is space in the queue
     uint queue_length = atomic_inc(&queue_states->extend_ray_length); // TODO uses atomic, but we know that queue_length afterwards is increased with global_size(0). I tried to remove the atomic call, prehaps give it another go?
     extend_ray_queue[queue_length] = ray_index;
 

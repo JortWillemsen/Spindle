@@ -16,7 +16,7 @@ float3 normal(Sphere s, float3 point)
 }
 
 __kernel void shade_diffuse(
-    __global const Material *materials, // TODO: we could declare this as a __constant buffer, potentially optimizing caching
+    __global const Material *materials,
     __global QueueStates *queue_states,
     __global uint *shade_diffuse_queue,
     __global uint *extend_ray_queue,
@@ -42,7 +42,7 @@ __kernel void shade_diffuse(
     // =====> Calculate bouncing ray and enqueue for extending
 
     float3 hitpoint = hitpoint_from(path_state);
-    float3 normal_at_hitpoint = normal(sphere, hitpoint); // TODO: works with just spheres for now
+    float3 normal_at_hitpoint = normal(sphere, hitpoint);
     float3 bounceDirection = CosineSampleHemisphere(normal_at_hitpoint, &random_states[path_state_index]);
 
     // Overwrite current ray with next ray to be extended
@@ -55,10 +55,15 @@ __kernel void shade_diffuse(
 
     // =====> Enqueue shadow ray
 
+<<<<<<< Updated upstream
     uint shadow_ray_queue_length = atomic_inc(&queue_states->shadow_ray_length); // TODO: assumes there always is space left on the queue
     shadow_ray_queue[shadow_ray_queue_length] = path_state_index;
 
     // =====> Dequeue processed jobs for this kernel
+=======
+    // uint shadow_ray_queue_length = atomic_inc(&queue_states->shadow_ray_length); // TODO: assumes there always is space left on the queue
+    // shadow_ray_queue[shadow_ray_queue_length] = path_state_index;
+>>>>>>> Stashed changes
 
     atomic_dec(&queue_states->shade_diffuse_length);
 

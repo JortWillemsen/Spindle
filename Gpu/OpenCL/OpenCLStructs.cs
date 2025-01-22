@@ -24,7 +24,7 @@ public struct ClTriangle
     public ClFloat3 V1; // 16 bytes
     public ClFloat3 V2; // 16 bytes
     public ClFloat3 V3; // 16 bytes
-    public uint Material; // 4 bytes // TODO this is new, check if reading works
+    public uint Material; // 4 bytes
     // 12 empty bytes
 
     public override string ToString() =>
@@ -36,7 +36,7 @@ public struct ClSphere
 {
     public ClFloat3 Position; // 16 bytes
     public float Radius; // 4 bytes
-    public uint Material; // 4 bytes TODO this is new, check if reading works
+    public uint Material; // 4 bytes
     // 8 bytes empty
 
     public override string ToString() =>

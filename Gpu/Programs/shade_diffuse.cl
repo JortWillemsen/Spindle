@@ -26,7 +26,7 @@ __kernel void shade_diffuse(
     __global Sphere *spheres,
     __global float3 *debug)
 {
-    // ==> Read context
+    // =====> Read context
 
     uint i = get_global_linear_id();
     uint path_state_index = shade_diffuse_queue[i];
@@ -35,11 +35,11 @@ __kernel void shade_diffuse(
     Sphere sphere = spheres[path_state.object_id];
     Material mat = materials[path_state.material_id]; // Is always reflective in this kernel, but properties differ
 
-    // ==> Determine possible luminance contribution
+    // =====> Determine possible luminance contribution
 
     path_states[path_state_index].latest_luminance_sample = mat.albedo * mat.color;
 
-    // ==> Calculate bouncing ray and enqueue for extending
+    // =====> Calculate bouncing ray and enqueue for extending
 
     float3 hitpoint = hitpoint_from(path_state);
     float3 normal_at_hitpoint = normal(sphere, hitpoint); // TODO: works with just spheres for now
@@ -53,13 +53,13 @@ __kernel void shade_diffuse(
     uint extend_ray_queue_length = atomic_inc(&queue_states->extend_ray_length); // TODO: assumes there always is space left on the queue
     extend_ray_queue[extend_ray_queue_length] = path_state_index;
 
-    // ==> Enqueue shadow ray
+    // =====> Enqueue shadow ray
 
-    // TODO put back
-    // uint shadow_ray_queue_length = atomic_inc(&queue_states->shadow_ray_length); // TODO: assumes there always is space left on the queue
-    // shadow_ray_queue[shadow_ray_queue_length] = path_state_index;
+    uint shadow_ray_queue_length = atomic_inc(&queue_states->shadow_ray_length); // TODO: assumes there always is space left on the queue
+    shadow_ray_queue[shadow_ray_queue_length] = path_state_index;
 
-    // ==> Dequeue processed jobs for this kernel
+    // =====> Dequeue processed jobs for this kernel
+
     atomic_dec(&queue_states->shade_diffuse_length);
 
     // Move unprocessed part of queue back to begin of buffer (always less than 1 local_size amount of items)

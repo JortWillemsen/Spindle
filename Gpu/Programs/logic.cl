@@ -50,9 +50,9 @@ __kernel void logic(
     // =====> Process material evaluation
     // Using NEE, we accumulate the indirect light from the previous bounce.
     // If it was occluded, then accumulated_luminance has been set to 0 in the shadow ray kernel.
-    // TODO actually do shadow rays
     // TODO: what about distance attenuation?
 
+    // TODO outdated? It is (-1, -1, -1) when: direct light occluded or never sampled before
     if (any(path_states[i].latest_luminance_sample != (float3)(-1, -1, -1)))
     {
         path_states[i].accumulated_luminance *= path_states[i].latest_luminance_sample;
@@ -66,13 +66,13 @@ __kernel void logic(
         // Determine ambient lighting (and skybox)
         float a = .5 * path_states[i].direction.y + 1.0;
         float3 ambient_color = (1 - a) * (float3)(1,1,1) + a * (float3)(0.5, 0.7, 1);
+        ambient_color = 1;
 
         // Taking the current determined sample, adjust the average
         float sample_count = path_states[i].sample_count;
         float3 new_sample = path_states[i].accumulated_luminance * ambient_color;
         // path_states[i].averaged_samples *= (sample_count / (sample_count + 1)) + new_sample / (sample_count + 1);
         path_states[i].averaged_samples = (path_states[i].averaged_samples * sample_count + new_sample) / (sample_count + 1);
-        debug[i] = sample_count / (sample_count + 1);
 
         // Take the new average and progress to next sample
         image[i] = convert_color(path_states[i].averaged_samples);

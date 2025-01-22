@@ -19,6 +19,7 @@ public class WavefrontPipeline
     public ShadeDiffusePhase              ShadeDiffusePhase    { get; private set; }
     public ShadeReflectivePhase           ShadeReflectivePhase { get; private set; }
     public ExtendPhase                    ExtendPhase          { get; private set; }
+    public ShadowPhase                    ShadowPhase          { get; private set; }
     public ReadWriteBuffer<int>           ImageBuffer          { get; private set; }
     public ReadWriteBuffer<uint>          NewRayQueue          { get; private set; }
     public ReadWriteBuffer<uint>          ExtendRayQueue       { get; private set; }
@@ -83,30 +84,15 @@ public class WavefrontPipeline
         // Define pipeline dataflow (connect pipes)
 
         GeneratePhase = new GeneratePhase(
-            Manager,
-            "generate.cl",
-            "generate",
+            Manager, "generate.cl", "generate",
             SceneBuffers.SceneInfo,
             QueueStates,
             NewRayQueue,
             ExtendRayQueue,
             numOfRays);
 
-        ExtendPhase = new ExtendPhase(
-            Manager,
-            "extend.cl",
-            "extend",
-            SceneBuffers.SceneInfo,
-            SceneBuffers.Spheres,
-            SceneBuffers.Triangles,
-            QueueStates,
-            ExtendRayQueue,
-            GeneratePhase.PathStates);
-
         ShadeDiffusePhase = new ShadeDiffusePhase(
-            Manager,
-            "shade_diffuse.cl",
-            "shade_diffuse",
+            Manager, "shade_diffuse.cl", "shade_diffuse",
             SceneBuffers.Materials,
             QueueStates,
             ShadeDiffuseQueue,
@@ -117,9 +103,7 @@ public class WavefrontPipeline
             SceneBuffers.Spheres);
 
         ShadeReflectivePhase = new ShadeReflectivePhase(
-            Manager,
-            "shade_reflective.cl",
-            "shade_reflective",
+            Manager, "shade_reflective.cl", "shade_reflective",
             SceneBuffers.Materials,
             QueueStates,
             ShadeReflectiveQueue,
@@ -129,10 +113,26 @@ public class WavefrontPipeline
             GeneratePhase.PathStates,
             SceneBuffers.Spheres);
 
+        ExtendPhase = new ExtendPhase(
+            Manager, "extend.cl", "extend",
+            SceneBuffers.SceneInfo,
+            SceneBuffers.Spheres,
+            SceneBuffers.Triangles,
+            QueueStates,
+            ExtendRayQueue,
+            GeneratePhase.PathStates);
+
+        ShadowPhase = new ShadowPhase(
+            Manager, "shadow.cl", "shadow",
+            SceneBuffers.SceneInfo,
+            QueueStates,
+            ShadowRayQueue,
+            GeneratePhase.PathStates,
+            SceneBuffers.Spheres,
+            SceneBuffers.Triangles);
+
         LogicPhase = new LogicPhase(
-            Manager,
-            "logic.cl",
-            "logic",
+            Manager, "logic.cl", "logic",
             QueueStates,
             NewRayQueue,
             ShadeDiffuseQueue,
@@ -147,10 +147,13 @@ public class WavefrontPipeline
 
     public int[] Execute()
     {
-        // TODO: we could let the logic kernel call other kernels for less IO
         // Performs one iteration of the Wavefront implementation
+        // TODO: we could let the logic kernel call other kernels for less IO
 
-        const uint warpSize = 1u; // TODO: how can we always let this match the workgroup size if we let OpenCL descide it? (See comment where local_size is defined)
+        // NOTE: Setting warpSize to something like 32 ensures that only multiples of 32 are dequeued and processed,
+        // ensuring high occupancy. However, it was difficult to not run the logic kernel over already enqueued pixels.
+        // Thus we set it to 1 for now, so in some scenarios some rays are checked twice.
+        const uint warpSize = 1u; // TODO: let OpenCL decide what's best
 
         // Logic phase
         LogicPhase.EnqueueExecute(Manager, GlobalSize, LocalSize);
@@ -248,15 +251,15 @@ public class WavefrontPipeline
             ShadeReflectivePhase.EnqueueExecute(Manager, new nuint[] { workItems }, new nuint[] { localSize }, dimensions: 1);
         }
 
-        // Manager.ReadBufferToHost(GeneratePhase.PathStates, out ClPathState[] pathStates2);
-        // Manager.ReadBufferToHost(ExtendRayQueue, out uint[] extendRayQueue2);
-        // Manager.ReadBufferToHost(NewRayQueue, out uint[] newRayQueue2);
-        // Manager.ReadBufferToHost(ShadeDiffuseQueue, out uint[] shadeQueue2);
-        // Manager.ReadBufferToHost(ShadowRayQueue, out uint[] shadowRayQueue2);
-        // Manager.ReadBufferToHost(GeneratePhase.DebugBuffer, out ClFloat3[] generateDebug2);
-        // Manager.ReadBufferToHost(ExtendPhase.DebugBuffer, out ClFloat3[] extendDebug2);
-        // Manager.ReadBufferToHost(LogicPhase.DebugBuffer, out ClFloat3[] logicDebug2);
-        // Manager.ReadBufferToHost(ShadeDiffusePhase.DebugBuffer, out ClFloat3[] shadeDebug2);
+        // Manager.ReadBufferToHost(GeneratePhase.PathStates, out ClPathState[] pathStates3);
+        // Manager.ReadBufferToHost(ExtendRayQueue, out uint[] extendRayQueue3);
+        // Manager.ReadBufferToHost(NewRayQueue, out uint[] newRayQueue3);
+        // Manager.ReadBufferToHost(ShadeDiffuseQueue, out uint[] shadeQueue3);
+        // Manager.ReadBufferToHost(ShadowRayQueue, out uint[] shadowRayQueue3);
+        // Manager.ReadBufferToHost(GeneratePhase.DebugBuffer, out ClFloat3[] generateDebug3);
+        // Manager.ReadBufferToHost(ExtendPhase.DebugBuffer, out ClFloat3[] extendDebug3);
+        // Manager.ReadBufferToHost(LogicPhase.DebugBuffer, out ClFloat3[] logicDebug3);
+        // Manager.ReadBufferToHost(ShadeDiffusePhase.DebugBuffer, out ClFloat3[] shadeDebug3);
 
         // Extend phase
         Manager.ReadBufferToHost(QueueStates, out ClQueueStates[] queueStatesExtendRay);
@@ -279,14 +282,44 @@ public class WavefrontPipeline
             ExtendPhase.EnqueueExecute(Manager, new nuint[] { workItems }, new nuint[] { localSize }, dimensions: 1);
         }
 
-        // wait for all queued commands to finish
-        var err = Manager.Cl.Finish(Manager.Queue.Id); // TODO this can be removed for ReadBufferToHost is blocking
+        // Manager.ReadBufferToHost(GeneratePhase.PathStates, out ClPathState[] pathStates4);
+        // Manager.ReadBufferToHost(ExtendRayQueue, out uint[] extendRayQueue4);
+        // Manager.ReadBufferToHost(NewRayQueue, out uint[] newRayQueue4);
+        // Manager.ReadBufferToHost(ShadeDiffuseQueue, out uint[] shadeQueue4);
+        // Manager.ReadBufferToHost(ShadowRayQueue, out uint[] shadowRayQueue4);
+        // Manager.ReadBufferToHost(GeneratePhase.DebugBuffer, out ClFloat3[] generateDebug4);
+        // Manager.ReadBufferToHost(ExtendPhase.DebugBuffer, out ClFloat3[] extendDebug4);
+        // Manager.ReadBufferToHost(LogicPhase.DebugBuffer, out ClFloat3[] logicDebug4);
+        // Manager.ReadBufferToHost(ShadeDiffusePhase.DebugBuffer, out ClFloat3[] shadeDebug4);
 
-        if (err != (int)ErrorCodes.Success)
+        // Shadow phase
+        Manager.ReadBufferToHost(QueueStates, out ClQueueStates[] queueStatesShadow);
+        // Based on states of queues, set kernel size (let no thread be idle)
+        uint queuedShadowRayCount = queueStatesShadow[0].ShadowRayLength;
+        if (queuedShadowRayCount > 0)
         {
-            throw new Exception($"Error {err}: finishing queue");
+            uint workItems;
+            uint localSize;
+            if (queuedShadowRayCount < warpSize)
+            {
+                workItems = queuedShadowRayCount;
+                localSize = queuedShadowRayCount;
+            }
+            else // Find the biggest multiple of warpSize
+            {
+                workItems = queuedShadowRayCount / warpSize * warpSize;
+                localSize = warpSize;
+            }
+            ShadowPhase.EnqueueExecute(Manager, new nuint[] { workItems }, new nuint[] { localSize }, dimensions: 1);
         }
 
+        // wait for all queued commands to finish for debugging purposes
+        // var err = Manager.Cl.Finish(Manager.Queue.Id);
+        //
+        // if (err != (int)ErrorCodes.Success)
+        // {
+        //     throw new Exception($"Error {err}: finishing queue");
+        // }
 
         // Manager.ReadBufferToHost(SceneBuffers.Materials, out ClMaterial[] materials);
         // Manager.ReadBufferToHost(SceneBuffers.SceneInfo, out ClSceneInfo[] sceneInfos);

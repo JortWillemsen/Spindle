@@ -49,10 +49,4 @@
       </None>
     </ItemGroup>
 
-    <ItemGroup>
-      <Compile Update="Pipeline\ShadowPhase.cs">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Compile>
-    </ItemGroup>
-
 </Project>

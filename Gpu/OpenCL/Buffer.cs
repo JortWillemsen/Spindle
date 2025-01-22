@@ -52,6 +52,24 @@ public class ReadWriteBuffer<T> : Buffer where T : unmanaged
         }
     }
     
+    public unsafe void UpdateBuffer(OpenCLManager manager, T[] newArr)
+    {
+        Array = newArr;
+        
+        fixed (void* pointer = newArr)
+        {
+            var err = manager.Cl.EnqueueWriteBuffer(manager.Queue.Id, Id, true, 0, this.GetSize(), pointer, 0, null,
+                null);
+
+            if (err != (int) ErrorCodes.Success)
+            {
+                throw new Exception($"Error: {err}, could not write existing buffer: " + Id);
+            }
+        }
+        
+        Console.WriteLine("SceneInfo Updated");
+    }
+    
     public override unsafe nuint GetSize() => (nuint) (Array.Length * sizeof(T));
     public override nuint GetLength() => (nuint) Array.Length;
 

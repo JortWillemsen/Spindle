@@ -1,4 +1,6 @@
-﻿using Engine.Scenes;
+﻿using Engine.Cameras;
+using Engine.Geometry;
+using Engine.Scenes;
 using Gpu.Cameras;
 using Gpu.OpenCL;
 using Silk.NET.OpenCL;
@@ -80,7 +82,7 @@ public class WavefrontPipeline
             ExtendRayQueue,
             ShadeDiffuseQueue,
             ShadowRayQueue);
-
+        
         // Define pipeline dataflow (connect pipes)
 
         GeneratePhase = new GeneratePhase(
@@ -145,6 +147,25 @@ public class WavefrontPipeline
             ImageBuffer);
     }
 
+    public void OnMove(Scene scene, Camera camera)
+    {
+        var sceneInfo = new ClSceneInfo
+        {
+            NumSpheres = scene.Objects.OfType<Sphere>().Count(),
+            NumTriangles = scene.Objects.OfType<Triangle>().Count(),
+            CameraPosition = ClFloat3.FromVector3(camera.Position),
+            FrustumTopLeft = ClFloat3.FromVector3(camera.FrustumTopLeft),
+            FrustumHorizontal = ClFloat3.FromVector3(camera.FrustumHorizontal),
+            FrustumVertical = ClFloat3.FromVector3(camera.FrustumVertical)
+        };
+        
+        Console.WriteLine(camera.Position);
+        
+        SceneBuffers.SceneInfo.UpdateBuffer(Manager, new []{sceneInfo});
+        
+        ((ReadWriteBuffer<ClPathState>) GeneratePhase.PathStates).UpdateBuffer(Manager, new ClPathState[camera.ImageSize.Width * camera.ImageSize.Height]);
+    }
+    
     public int[] Execute()
     {
         // Performs one iteration of the Wavefront implementation
@@ -167,7 +188,7 @@ public class WavefrontPipeline
         // Manager.ReadBufferToHost(ExtendPhase.DebugBuffer, out ClFloat3[] extendDebug0);
         // Manager.ReadBufferToHost(LogicPhase.DebugBuffer, out ClFloat3[] logicDebug0);
         // Manager.ReadBufferToHost(ShadeDiffusePhase.DebugBuffer, out ClFloat3[] shadeDebug0);
-
+        
         // Generate phase
         Manager.ReadBufferToHost(QueueStates, out ClQueueStates[] queueStatesNewRay);
         // Based on states of queues, set kernel size (let no thread be idle)

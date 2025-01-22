@@ -11,11 +11,11 @@ The binary expects the working directory to contain the `Programs` folder copied
 
 ## Selecting your renderer
 
-This project has two renderers: one simple path tracer which can benefit from
+This project has two renderers: one simple path tracer which can optionally benefit from
 a BVH acceleration structure, and one OpenCL renderer.
 
 In `program.cs` in the `Renderer` project, you can control the renderer used and the scene.
-If you use the `SampledCamera` camera, you use the CPU one to benefit from BVH speedups.
+If you use the `SampledCamera` camera, you use the CPU one to benefit from BVH speedups if enabled.
 `OpenCLCamera` can be used instead to benefit from GPU speedups.
 
 ## Controls

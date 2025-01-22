@@ -97,18 +97,19 @@ public enum MaterialType : uint // 4 bytes
     Reflective = 2
 }
 
-[StructLayout(LayoutKind.Sequential, Size = 16)]
+[StructLayout(LayoutKind.Sequential, Size = 20)]
 public struct ClQueueStates
 {
     public uint NewRayLength; // 4 bytes
     public uint ExtendRayLength; // 4 bytes
-    public uint ShadeLength; // 4 bytes
+    public uint ShadeDiffuseLength; // 4 bytes
+    public uint ShadeReflectiveLength; // 4 bytes
     public uint ShadowRayLength; // 4 bytes
 
     /// <inheritdoc />
     public override string ToString() =>
         $"{nameof(NewRayLength)}: {NewRayLength}, " +
         $"{nameof(ExtendRayLength)}: {ExtendRayLength}, " +
-        $"{nameof(ShadeLength)}: {ShadeLength}, " +
+        $"{nameof(ShadeDiffuseLength)}: {ShadeDiffuseLength}, " +
         $"{nameof(ShadowRayLength)}: {ShadowRayLength}";
 }

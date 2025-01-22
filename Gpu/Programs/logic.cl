@@ -11,7 +11,8 @@ uint convert_color(float3 rgb_floats)
 __kernel void logic(
   __global QueueStates *queue_states,
   __global uint *new_ray_queue,
-  __global uint *shade_queue,
+  __global uint *shade_diffuse_queue,
+  __global uint *shade_reflective_queue,
   __global PathState *path_states,
   __global Material *materials,
   __global SceneInfo *sceneInfo,
@@ -47,21 +48,17 @@ __kernel void logic(
     }
 
     // =====> Process material evaluation
-    // Note that even if this is the first iteration and no evaluation has been performed in a previous set,
-    // we still get the correct result
-
     // Using NEE, we accumulate the indirect light from the previous bounce.
     // If it was occluded, then accumulated_luminance has been set to 0 in the shadow ray kernel.
     // TODO actually do shadow rays
     // TODO: what about distance attenuation?
 
-
-    // =====> Process extension ray intersection
-
     if (any(path_states[i].latest_luminance_sample != (float3)(-1, -1, -1)))
     {
         path_states[i].accumulated_luminance *= path_states[i].latest_luminance_sample;
     }
+
+    // =====> Process extension ray intersection, check for termination
 
     // TODO: implement russian roulette or max depth
     if (path_states[i].t < 0) // No intersection, terminate
@@ -84,13 +81,27 @@ __kernel void logic(
         return;
     }
 
+    // =====> Queue correct material kernel
+    // If there is an intersection, queue the evaluation of its contribution towards indirect light.
 
-    // If there is an intersection, queue the evaluation of its contribution towards indirect light:
     // TODO: for now we only support spheres because polymorphism is kinda hard with OpenCL C
     Sphere sphere = spheres[path_states[i].object_id];
     Material mat = materials[sphere.material];
-    uint shade_queue_index = atomic_inc(&queue_states->shade_length); // TODO: assumes there always is space
-    shade_queue[shade_queue_index] = i; // Point to this path state
+
+    uint shade_diffuse_queue_index;
+    uint shade_reflective_queue_index;
+
+    switch (mat.type) {
+        case mat_diffuse:
+            shade_diffuse_queue_index = atomic_inc(&queue_states->shade_diffuse_length); // TODO: assumes there always is space
+            shade_diffuse_queue[shade_diffuse_queue_index] = i; // Point to this path state
+            break;
+
+        case mat_reflective:
+            shade_reflective_queue_index = atomic_inc(&queue_states->shade_reflective_length); // TODO: assumes there always is space
+            shade_reflective_queue[shade_reflective_queue_index] = i; // Point to this path state
+            break;
+    }
 
     // Set arguments for the shade phase
     path_states[i].material_id = sphere.material;

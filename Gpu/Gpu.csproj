@@ -23,6 +23,9 @@
       <None Update="Programs\shade_diffuse.cl">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
+      <None Update="Programs\shade_reflective.cl">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 </Project>

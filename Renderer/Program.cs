@@ -41,7 +41,7 @@ cameraManager.AddCamera(
 var matGround = new Diffuse(0.5f, new Vector3(0.8f, 0.8f, 0f));
 var matDarkBlue = new Diffuse(0.5f, new Vector3(.1f, .2f, .5f));
 var matTriangle = new Diffuse(0.3f, new Vector3(0.5f, 1.0f, 0.5f));
-var matReflect = new Reflective(1f, new Vector3(.5f, .5f, .5f), 0f);
+var matReflect = new Reflective(1f, new Vector3(1,1,1), 0f);
 var matBrightYellow = new Diffuse(.9f, new Vector3(0.8f, 0.8f, 0.0f));
 var matRed = new Diffuse(.8f, new Vector3(0.8f, 0.0f, 0.0f));
 var matBlack = new Diffuse(0f, new Vector3(0,0,0));
@@ -51,7 +51,7 @@ var groundOrb = new Sphere(new Vector3(0, -100.5f, 1f), matGround, 100f);
 var orbCentre = new Sphere(new Vector3(0f, 0, 0), matKitchenWhite, 1.5f);
 var orbRight = new Sphere(new Vector3(0f,  2f, 0f), matRed, 0.5f);
 var orbUp = new Sphere(new Vector3(1.6f,  6f, 1.2f), matBrightYellow, 2f);
-var orbMirror = new Sphere(new Vector3(3f,  1f, 1.2f), matReflect, 2.5f);
+var orbMirror = new Sphere(new Vector3(3f,  1f, 1.2f), matReflect, 0.5f);
 var orbBottom = new Sphere(new Vector3(1.5f, 0f, -1f), matRed, 1f);
 var tri = new Triangle(
     new Vector3(-2.5f, 10f, 2f),
@@ -59,7 +59,7 @@ var tri = new Triangle(
     new Vector3(2.5f, 11f, 3f),
     matTriangle);
 
-var objects = new List<Geometry> { orbCentre, orbRight, groundOrb, tri };
+var objects = new List<Geometry> { orbCentre, orbRight, groundOrb, orbMirror, tri };
 var lights = new List<LightSource> { new Spotlight(Vector3.One, Vector3.One) };
 
 var cuteDragonImporter = new ObjMeshImporter("Assets/cute_dragon.obj", new Vector3(0, 0, 0), matRed);

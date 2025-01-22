@@ -1,6 +1,6 @@
 ﻿using Silk.NET.OpenCL;
 
-namespace Gpu;
+namespace Gpu.OpenCL;
 
 public class Kernel
 {

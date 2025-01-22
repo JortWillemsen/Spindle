@@ -15,10 +15,10 @@ float3 normal(Sphere s, float3 point)
     return (point - s.position) / s.radius;
 }
 
-__kernel void shade_diffuse(
+__kernel void shade_reflective(
     __global const Material *materials, // TODO: we could declare this as a __constant buffer, potentially optimizing caching
     __global QueueStates *queue_states,
-    __global uint *shade_diffuse_queue,
+    __global uint *shade_reflective_queue,
     __global uint *extend_ray_queue,
     __global uint *shadow_ray_queue,
     __global uint *random_states,
@@ -29,7 +29,7 @@ __kernel void shade_diffuse(
     // ==> Read context
 
     uint i = get_global_linear_id();
-    uint path_state_index = shade_diffuse_queue[i];
+    uint path_state_index = shade_reflective_queue[i];
     PathState path_state = path_states[path_state_index];
 
     Sphere sphere = spheres[path_state.object_id];
@@ -43,7 +43,7 @@ __kernel void shade_diffuse(
 
     float3 hitpoint = hitpoint_from(path_state);
     float3 normal_at_hitpoint = normal(sphere, hitpoint); // TODO: works with just spheres for now
-    float3 bounceDirection = CosineSampleHemisphere(normal_at_hitpoint, &random_states[path_state_index]);
+    float3 bounceDirection = reflect(path_state.direction, normal_at_hitpoint);
 
     // Overwrite current ray with next ray to be extended
     path_states[path_state_index].origin = hitpoint;
@@ -53,16 +53,10 @@ __kernel void shade_diffuse(
     uint extend_ray_queue_length = atomic_inc(&queue_states->extend_ray_length); // TODO: assumes there always is space left on the queue
     extend_ray_queue[extend_ray_queue_length] = path_state_index;
 
-    // ==> Enqueue shadow ray
-
-    // TODO put back
-    // uint shadow_ray_queue_length = atomic_inc(&queue_states->shadow_ray_length); // TODO: assumes there always is space left on the queue
-    // shadow_ray_queue[shadow_ray_queue_length] = path_state_index;
-
     // ==> Dequeue processed jobs for this kernel
-    atomic_dec(&queue_states->shade_diffuse_length);
+    atomic_dec(&queue_states->shade_reflective_length);
 
     // Move unprocessed part of queue back to begin of buffer (always less than 1 local_size amount of items)
     uint local_id = get_local_id(0);
-    shade_diffuse_queue[local_id] = shade_diffuse_queue[get_global_size(0) + local_id];
+    shade_reflective_queue[local_id] = shade_reflective_queue[get_global_size(0) + local_id];
 }

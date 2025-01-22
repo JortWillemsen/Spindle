@@ -39,23 +39,26 @@ public class ObjMeshImporter : MeshImporter
                     switch (indices.Length)
                     {
                         case 3:
-                            geometries.Add(new Triangle(
-                                 vertices[indices[0] - 1], // obj file format is 1-based
-                                 vertices[indices[1] - 1],
-                                 vertices[indices[2] - 1],
-                                 Material));
+                            geometries.Add(new Sphere(vertices[indices[0] - 1], Material, .2f));
+                            // geometries.Add(new Triangle(
+                            //      vertices[indices[0] - 1], // obj file format is 1-based
+                            //      vertices[indices[1] - 1],
+                            //      vertices[indices[2] - 1],
+                            //      Material));
                             break;
                         case 4:
-                            geometries.Add(new Triangle(
-                                 vertices[indices[0] - 1], // obj file format is 1-based
-                                 vertices[indices[1] - 1],
-                                 vertices[indices[2] - 1],
-                                 Material));
-                            geometries.Add(new Triangle(
-                                 vertices[indices[0] - 1], // obj file format is 1-based
-                                 vertices[indices[2] - 1],
-                                 vertices[indices[3] - 1],
-                                 Material));
+                            geometries.Add(new Sphere(vertices[indices[0] - 1], Material, .2f));
+                            // geometries.Add(new Triangle(
+                            //      vertices[indices[0] - 1], // obj file format is 1-based
+                            //      vertices[indices[1] - 1],
+                            //      vertices[indices[2] - 1],
+                            //      Material));
+                            geometries.Add(new Sphere(vertices[indices[2] - 1], Material, .2f));
+                            // geometries.Add(new Triangle(
+                            //      vertices[indices[0] - 1], // obj file format is 1-based
+                            //      vertices[indices[2] - 1],
+                            //      vertices[indices[3] - 1],
+                            //      Material));
                             break;
 
 

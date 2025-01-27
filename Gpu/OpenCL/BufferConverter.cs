@@ -89,8 +89,8 @@ public class BufferConverter
 
 public struct ClSceneBuffers
 {
-    public Buffer SceneInfo { get; set; }
-    public Buffer Triangles { get; set; }
-    public Buffer Spheres { get; set; }
-    public Buffer Materials { get; set; }
+    public ReadWriteBuffer<ClSceneInfo> SceneInfo { get; set; }
+    public ReadWriteBuffer<ClTriangle> Triangles { get; set; }
+    public ReadWriteBuffer<ClSphere> Spheres { get; set; }
+    public ReadOnlyBuffer<ClMaterial> Materials { get; set; }
 }

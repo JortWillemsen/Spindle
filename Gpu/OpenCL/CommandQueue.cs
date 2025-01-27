@@ -40,6 +40,6 @@ public class CommandQueue
             throw new Exception($"Error {err}: Kernel could not be queued");
         }
         
-        Console.WriteLine("Kernel queued.");
+        //Console.WriteLine("Kernel queued.");
     }
 }

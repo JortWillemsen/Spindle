@@ -29,7 +29,7 @@ public class OpenGLDisplay : IDisplay
     private uint _shaderProgram;
     private uint _textureId;
 
-    private bool _hasFocus;
+    private bool _hasFocus = true;
     private readonly float _movementStep;
     private readonly float _rotationStep;
     private readonly float _zoomStep;
@@ -52,6 +52,7 @@ public class OpenGLDisplay : IDisplay
             Title = "Spindle, ask for parental advice before usage"
         };
         _window = Window.Create(options);
+        _window.VSync = false;
         _window.Load += OnLoad;
         _window.Render += OnRender;
         _window.Resize += OnResize;
